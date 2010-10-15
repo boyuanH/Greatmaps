@@ -1,17 +1,19 @@
 ﻿
 namespace GMap.NET
 {
+   using System;
    using System.Globalization;
 
    /// <summary>
    /// the point of coordinates
    /// </summary>
+   [Serializable]
    public struct PointLatLng
    {
-      public static readonly PointLatLng Empty;  
+      public static readonly PointLatLng Empty;
       private double lat;
-      private double lng; 
-      
+      private double lng;
+
       public PointLatLng(double lat, double lng)
       {
          this.lat = lat;
@@ -48,7 +50,7 @@ namespace GMap.NET
          {
             this.lng = value;
          }
-      }       
+      }
 
       public static PointLatLng operator+(PointLatLng pt, SizeLatLng sz)
       {

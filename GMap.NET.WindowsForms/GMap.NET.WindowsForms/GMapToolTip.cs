@@ -1,12 +1,16 @@
-﻿namespace GMap.NET.WindowsForms
+﻿
+namespace GMap.NET.WindowsForms
 {
+   using System;
    using System.Drawing;
    using System.Drawing.Drawing2D;
+   using System.Runtime.Serialization;
 
    /// <summary>
    /// GMap.NET marker
    /// </summary>
-   public class GMapToolTip
+   [Serializable]
+   public class GMapToolTip : ISerializable
    {
       internal GMapMarker Marker;
 
@@ -87,5 +91,42 @@
          g.DrawString(Marker.ToolTipText, Font, Foreground, rect, Format);
 #endif
       }
+
+      #region ISerializable Members
+
+      /// <summary>
+      /// Initializes a new instance of the <see cref="GMapToolTip"/> class.
+      /// </summary>
+      /// <param name="info">The info.</param>
+      /// <param name="context">The context.</param>
+      protected GMapToolTip(SerializationInfo info, StreamingContext context)
+      {
+         this.Fill = info.GetValue("Fill", new SolidBrush(Color.FromArgb(222, Color.AliceBlue)));
+         this.Font = info.GetValue("Font", new Font(FontFamily.GenericSansSerif, 14, FontStyle.Bold, GraphicsUnit.Pixel));
+         this.Format = info.GetValue("Format", new StringFormat());
+         this.Offset = info.GetStruct("Offset", Point.Empty);
+         this.Stroke = info.GetValue("Stroke", new Pen(Color.FromArgb(140, Color.MidnightBlue)));
+         this.TextPadding = info.GetStruct("TextPadding", new Size(10, 10));
+      }
+
+      /// <summary>
+      /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
+      /// </summary>
+      /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
+      /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
+      /// <exception cref="T:System.Security.SecurityException">
+      /// The caller does not have the required permission.
+      /// </exception>
+      public void GetObjectData(SerializationInfo info, StreamingContext context)
+      {
+         info.AddValue("Fill", this.Fill);
+         info.AddValue("Font", this.Font);
+         info.AddValue("Format", this.Format);
+         info.AddValue("Offset", this.Offset);
+         info.AddValue("Stroke", this.Stroke);
+         info.AddValue("TextPadding", this.TextPadding);
+      }
+
+      #endregion
    }
 }

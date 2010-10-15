@@ -1,15 +1,17 @@
 ﻿
 namespace GMap.NET.WindowsForms
 {
-   using GMap.NET;
    using System.Collections.Generic;
    using System.Drawing;
    using System.Drawing.Drawing2D;
+   using System.Runtime.Serialization;
+   using GMap.NET;
 
    /// <summary>
    /// GMap.NET polygon
    /// </summary>
-   public class GMapPolygon : MapRoute
+   [System.Serializable]
+   public class GMapPolygon : MapRoute, ISerializable, IDeserializationCallback
    {
       private bool visible = true;
 
@@ -97,5 +99,58 @@ namespace GMap.NET.WindowsForms
 #endif
          Stroke.Width = 5;
       }
+
+      #region ISerializable Members
+
+      /// <summary>
+      /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
+      /// </summary>
+      /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
+      /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
+      /// <exception cref="T:System.Security.SecurityException">
+      /// The caller does not have the required permission.
+      /// </exception>
+      public override void GetObjectData(SerializationInfo info, StreamingContext context)
+      {
+         base.GetObjectData(info, context);
+         info.AddValue("Stroke", this.Stroke);
+         info.AddValue("Fill", this.Fill);
+         info.AddValue("LocalPoints", this.LocalPoints.ToArray());
+      }
+
+      // Temp store for de-serialization.
+      private GMap.NET.Point[] deserializedLocalPoints;
+
+      /// <summary>
+      /// Initializes a new instance of the <see cref="MapRoute"/> class.
+      /// </summary>
+      /// <param name="info">The info.</param>
+      /// <param name="context">The context.</param>
+      protected GMapPolygon(SerializationInfo info, StreamingContext context)
+         : base(info, context)
+      {
+         this.Stroke = info.GetValue<Pen>("Stroke", new Pen(Color.FromArgb(155, Color.MidnightBlue)));
+         this.Fill = info.GetValue<Brush>("Fill", new SolidBrush(Color.FromArgb(155, Color.AliceBlue)));
+         this.deserializedLocalPoints = info.GetValue<GMap.NET.Point[]>("LocalPoints");
+      }
+
+      #endregion
+
+      #region IDeserializationCallback Members
+
+      /// <summary>
+      /// Runs when the entire object graph has been de-serialized.
+      /// </summary>
+      /// <param name="sender">The object that initiated the callback. The functionality for this parameter is not currently implemented.</param>
+      public override void OnDeserialization(object sender)
+      {
+         base.OnDeserialization(sender);
+
+         // Accounts for the de-serialization being breadth first rather than depth first.
+         LocalPoints.AddRange(deserializedLocalPoints);
+         LocalPoints.Capacity = Points.Count;
+      }
+
+      #endregion
    }
 }

@@ -1,16 +1,18 @@
 ﻿
 namespace GMap.NET.WindowsForms
 {
+   using System;
    using System.Drawing;
    using System.Drawing.Drawing2D;
+   using System.Runtime.Serialization;
    using System.Windows.Forms;
    using GMap.NET.ObjectModel;
-   using System;
 
    /// <summary>
    /// GMap.NET overlay
    /// </summary>
-   public class GMapOverlay
+   [Serializable]
+   public class GMapOverlay : ISerializable, IDeserializationCallback
    {
       bool isVisibile = true;
 
@@ -342,5 +344,86 @@ namespace GMap.NET.WindowsForms
             }
          }
       }
+
+      #region ISerializable Members
+
+      /// <summary>
+      /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
+      /// </summary>
+      /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
+      /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
+      /// <exception cref="T:System.Security.SecurityException">
+      /// The caller does not have the required permission.
+      /// </exception>
+      public void GetObjectData(SerializationInfo info, StreamingContext context)
+      {
+         info.AddValue("Id", this.Id);
+         info.AddValue("IsVisible", this.IsVisibile);
+
+         GMapMarker[] markerArray = new GMapMarker[this.Markers.Count];
+         this.Markers.CopyTo(markerArray, 0);
+         info.AddValue("Markers", markerArray);
+
+         GMapRoute[] routeArray = new GMapRoute[this.Routes.Count];
+         this.Routes.CopyTo(routeArray, 0);
+         info.AddValue("Routes", routeArray);
+
+         GMapPolygon[] polygonArray = new GMapPolygon[this.Polygons.Count];
+         this.Polygons.CopyTo(polygonArray, 0);
+         info.AddValue("Polygons", polygonArray);
+      }
+
+      private GMapMarker[] deserializedMarkerArray;
+      private GMapRoute[] deserializedRouteArray;
+      private GMapPolygon[] deserializedPolygonArray;
+
+      /// <summary>
+      /// Initializes a new instance of the <see cref="GMapOverlay"/> class.
+      /// </summary>
+      /// <param name="info">The info.</param>
+      /// <param name="context">The context.</param>
+      protected GMapOverlay(SerializationInfo info, StreamingContext context)
+      {
+         this.Id = info.GetString("Id");
+         this.IsVisibile = info.GetBoolean("IsVisible");
+
+         this.deserializedMarkerArray = info.GetValue<GMapMarker[]>("Markers", new GMapMarker[0]);
+         this.deserializedRouteArray = info.GetValue<GMapRoute[]>("Routes", new GMapRoute[0]);
+         this.deserializedPolygonArray = info.GetValue<GMapPolygon[]>("Polygons", new GMapPolygon[0]);
+      }
+
+      #endregion
+
+      #region IDeserializationCallback Members
+
+      /// <summary>
+      /// Runs when the entire object graph has been deserialized.
+      /// </summary>
+      /// <param name="sender">The object that initiated the callback. The functionality for this parameter is not currently implemented.</param>
+      public void OnDeserialization(object sender)
+      {
+         // Populate Markers
+         foreach(GMapMarker marker in deserializedMarkerArray)
+         {
+            marker.Overlay = this;
+            this.Markers.Add(marker);
+         }
+
+         // Populate Routes
+         foreach(GMapRoute route in deserializedRouteArray)
+         {
+            route.Overlay = this;
+            this.Routes.Add(route);
+         }
+
+         // Populate Polygons
+         foreach(GMapPolygon polygon in deserializedPolygonArray)
+         {
+            polygon.Overlay = this;
+            this.Polygons.Add(polygon);
+         }
+      }
+
+      #endregion
    }
 }

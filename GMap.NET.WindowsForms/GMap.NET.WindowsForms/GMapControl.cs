@@ -14,6 +14,7 @@ namespace GMap.NET.WindowsForms
    using GMap.NET.ObjectModel;
    using System.Diagnostics;
    using System.Drawing.Text;
+   using System.Runtime.Serialization.Formatters.Binary;
 
    /// <summary>
    /// GMap.NET control for Windows Forms
@@ -2460,6 +2461,55 @@ namespace GMap.NET.WindowsForms
          {
             Core.OnEmptyTileError -= value;
          }
+      }
+
+      #endregion
+
+      #region Serialization
+
+      static readonly BinaryFormatter BinaryFormatter = new BinaryFormatter();
+
+      /// <summary>
+      /// Serializes the overlays.
+      /// </summary>
+      /// <param name="stream">The stream.</param>
+      public void SerializeOverlays(Stream stream)
+      {
+         if(stream == null)
+         {
+            throw new ArgumentNullException("stream");
+         }
+
+         // Create an array from the overlays
+         GMapOverlay[] overlayArray = new GMapOverlay[this.Overlays.Count];
+         this.Overlays.CopyTo(overlayArray, 0);
+
+         // Serialize the overlays
+         BinaryFormatter.Serialize(stream, overlayArray);
+      }
+
+      /// <summary>
+      /// De-serializes the overlays.
+      /// </summary>
+      /// <param name="stream">The stream.</param>
+      public void DeserializeOverlays(Stream stream)
+      {
+         if(stream == null)
+         {
+            throw new ArgumentNullException("stream");
+         }
+
+         // De-serialize the overlays
+         GMapOverlay[] overlayArray = BinaryFormatter.Deserialize(stream) as GMapOverlay[];
+
+         // Populate the collection of overlays.
+         foreach(GMapOverlay overlay in overlayArray)
+         {
+            overlay.Control = this;
+            this.Overlays.Add(overlay);
+         }
+
+         this.ForceUpdateOverlays();
       }
 
       #endregion
