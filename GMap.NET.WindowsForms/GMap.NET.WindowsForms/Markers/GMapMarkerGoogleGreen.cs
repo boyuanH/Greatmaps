@@ -29,7 +29,7 @@ namespace GMap.NET.WindowsForms.Markers
          {
             g.DrawImageUnscaled(Resources.shadow50, LocalPosition.X, LocalPosition.Y);
          }
-         g.TranslateTransform(ToolTipPosition.X, ToolTipPosition.Y);
+         //g.TranslateTransform(ToolTipPosition.X, ToolTipPosition.Y);
 
          if(Bearing.HasValue)
          {
@@ -37,7 +37,7 @@ namespace GMap.NET.WindowsForms.Markers
             g.FillPolygon(Brushes.Lime, Arrow);
          }
 
-         g.ResetTransform();
+         //g.ResetTransform();
 
          if(!Bearing.HasValue)
          {

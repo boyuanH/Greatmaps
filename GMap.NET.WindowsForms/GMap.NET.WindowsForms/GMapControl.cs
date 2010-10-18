@@ -447,12 +447,8 @@ namespace GMap.NET.WindowsForms
                {
                   Core.tileRect.X = tilePoint.X * Core.tileRect.Width;
                   Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height;
-                  //Core.tileRect.Offset(Core.renderOffset);
 
-                  var ttt = Core.tileRect;
-                  ttt.Offset(Core.renderOffset);
-
-                  if(Core.currentRegion.IntersectsWith(ttt) || IsRotated)
+                  if(Core.viewRectPixelInflated.IntersectsWith(Core.tileRect) || IsRotated)
                   {
                      bool found = false;
 #if !ContinuesMap
@@ -732,11 +728,6 @@ namespace GMap.NET.WindowsForms
          GMap.NET.Point p = FromLatLngToLocal(marker.Position);
          {
             var f = new System.Drawing.Point(p.X + marker.Offset.X, p.Y + marker.Offset.Y);
-            if(VirtualSizeEnabled)
-            {
-               f.X += (Width - Core.vWidth) / 2;
-               f.Y += (Height - Core.vHeight) / 2;
-            }
             marker.LocalPosition = f;
          }
       }
@@ -752,19 +743,13 @@ namespace GMap.NET.WindowsForms
          foreach(GMap.NET.PointLatLng pg in route.Points)
          {
             GMap.NET.Point p = Projection.FromLatLngToPixel(pg, Core.Zoom);
-            p.Offset(Core.renderOffset);
+            //p.Offset(Core.renderOffset);
 
             if(IsRotated)
             {
                System.Drawing.Point[] tt = new System.Drawing.Point[] { new System.Drawing.Point(p.X, p.Y) };
                rotationMatrix.TransformPoints(tt);
                var f = tt[0];
-
-               if(VirtualSizeEnabled)
-               {
-                  f.X += (Width - Core.vWidth) / 2;
-                  f.Y += (Height - Core.vHeight) / 2;
-               }
 
                p.X = f.X;
                p.Y = f.Y;
@@ -785,19 +770,13 @@ namespace GMap.NET.WindowsForms
          foreach(GMap.NET.PointLatLng pg in polygon.Points)
          {
             GMap.NET.Point p = Projection.FromLatLngToPixel(pg, Core.Zoom);
-            p.Offset(Core.renderOffset);
+            //p.Offset(Core.renderOffset);
 
             if(IsRotated)
             {
                System.Drawing.Point[] tt = new System.Drawing.Point[] { new System.Drawing.Point(p.X, p.Y) };
                rotationMatrix.TransformPoints(tt);
                var f = tt[0];
-
-               if(VirtualSizeEnabled)
-               {
-                  f.X += (Width - Core.vWidth) / 2;
-                  f.Y += (Height - Core.vHeight) / 2;
-               }
 
                p.X = f.X;
                p.Y = f.Y;
@@ -1268,14 +1247,13 @@ namespace GMap.NET.WindowsForms
             else
 #endif
             {
-               e.Graphics.ScaleTransform(0.5f, 0.5f);
-               e.Graphics.TranslateTransform(555, 555);
-               e.Graphics.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
-
                if(VirtualSizeEnabled)
                {
-                  e.Graphics.TranslateTransform((Width - Core.vWidth) / 2, (Height - Core.vHeight) / 2);
-               }                
+                  e.Graphics.ScaleTransform(0.5f, 0.5f);
+                  e.Graphics.TranslateTransform((Width - Width * 0.5f), (Height - Height * 0.5f));
+               }
+
+               e.Graphics.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
 
                if(IsRotated)
                {
@@ -1287,8 +1265,6 @@ namespace GMap.NET.WindowsForms
                   e.Graphics.TranslateTransform((float) (-Core.Width / 2.0), (float) (-Core.Height / 2.0));
 
                   DrawMapDesktop(e.Graphics);
-
-                  e.Graphics.ResetTransform();
 
                   OnPaintEtc(e.Graphics);
                }
@@ -1303,12 +1279,11 @@ namespace GMap.NET.WindowsForms
 
             if(VirtualSizeEnabled)
             {
-               //e.Graphics.DrawRectangle(SelectionPen, (Width - Core.vWidth) / 2, (Height - Core.vHeight) / 2, Core.vWidth, Core.vHeight);
-            }
+               e.Graphics.ScaleTransform(0.5f, 0.5f);
+               e.Graphics.TranslateTransform((Width - Width * 0.5f), (Height - Height * 0.5f));
 
-            e.Graphics.ScaleTransform(0.5f, 0.5f);
-            e.Graphics.TranslateTransform(555, 555);
-            e.Graphics.DrawRectangle(SelectionPen, (Width - Core.vWidth) / 2, (Height - Core.vHeight) / 2, Core.vWidth, Core.vHeight);
+               e.Graphics.DrawRectangle(SelectionPen, 0, 0, Width, Height);
+            }
          }
 
          base.OnPaint(e);
@@ -1615,14 +1590,8 @@ namespace GMap.NET.WindowsForms
                gxOff = Graphics.FromImage(backBuffer);
             }
 
-            if(!VirtualSizeEnabled)
             {
                Core.OnMapSizeChanged(Width, Height);
-               Core.currentRegion = new GMap.NET.Rectangle(-50, -50, Core.Width + 50, Core.Height + 50);
-            }
-            else
-            {
-               Core.OnMapSizeChanged(Core.vWidth, Core.vHeight);
                Core.currentRegion = new GMap.NET.Rectangle(-50, -50, Core.Width + 50, Core.Height + 50);
             }
 
@@ -1804,12 +1773,6 @@ namespace GMap.NET.WindowsForms
             rotationMatrixInvert.TransformPoints(tt);
             var f = tt[0];
 
-            if(VirtualSizeEnabled)
-            {
-               f.X += (Width - Core.vWidth) / 2;
-               f.Y += (Height - Core.vHeight) / 2;
-            }
-
             ret.X = f.X;
             ret.Y = f.Y;
          }
@@ -1829,12 +1792,6 @@ namespace GMap.NET.WindowsForms
             System.Drawing.Point[] tt = new System.Drawing.Point[] { new System.Drawing.Point(x, y) };
             rotationMatrix.TransformPoints(tt);
             var f = tt[0];
-
-            if(VirtualSizeEnabled)
-            {
-               f.X += (Width - Core.vWidth) / 2;
-               f.Y += (Height - Core.vHeight) / 2;
-            }
 
             ret.X = f.X;
             ret.Y = f.Y;
@@ -1862,7 +1819,7 @@ namespace GMap.NET.WindowsForms
                Core.mouseCurrent = ApplyRotationInversion(e.X, e.Y);
                Core.Drag(Core.mouseCurrent);
                //ForceUpdateOverlays();
-               Invalidate();
+               Invalidate(false);
             }
          }
          else
@@ -1895,7 +1852,9 @@ namespace GMap.NET.WindowsForms
                      {
                         if(m.IsVisible && m.IsHitTestVisible)
                         {
-                           if(m.LocalArea.Contains(e.X, e.Y))
+                           System.Drawing.Point pp = new System.Drawing.Point(e.X, e.Y);
+                           pp.Offset(-Core.renderOffset.X, -Core.renderOffset.Y);
+                           if(m.LocalArea.Contains(pp))
                            {
 #if !PocketPC
                               this.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -1950,17 +1909,22 @@ namespace GMap.NET.WindowsForms
          {
             if(Core.mouseLastZoom.X != e.X && Core.mouseLastZoom.Y != e.Y)
             {
+               GMap.NET.Point pp = new GMap.NET.Point(e.X, e.Y);
+               pp.Offset(-Core.renderOffset.X, -Core.renderOffset.Y);
+
                if(MouseWheelZoomType == MouseWheelZoomType.MousePositionAndCenter)
                {
-                  Core.currentPosition = FromLocalToLatLng(e.X, e.Y);
+                  Core.centerPixel = pp;
                }
                else if(MouseWheelZoomType == MouseWheelZoomType.ViewCenter)
                {
-                  Core.currentPosition = FromLocalToLatLng((int) Width / 2, (int) Height / 2);
+                  pp = new GMap.NET.Point(Width / 2, Height / 2);
+                  pp.Offset(-Core.renderOffset.X, -Core.renderOffset.Y);
+                  Core.centerPixel = pp;
                }
                else if(MouseWheelZoomType == MouseWheelZoomType.MousePositionWithoutCenter)
                {
-                  Core.currentPosition = FromLocalToLatLng(e.X, e.Y);
+                  Core.centerPixel = pp;
                }
 
                Core.mouseLastZoom.X = e.X;
@@ -2059,12 +2023,6 @@ namespace GMap.NET.WindowsForms
             rotationMatrixInvert.TransformPoints(tt);
             var f = tt[0];
 
-            if(VirtualSizeEnabled)
-            {
-               f.X += (Width - Core.vWidth) / 2;
-               f.Y += (Height - Core.vHeight) / 2;
-            }
-
             x = f.X;
             y = f.Y;
          }
@@ -2094,12 +2052,6 @@ namespace GMap.NET.WindowsForms
             System.Drawing.Point[] tt = new System.Drawing.Point[] { new System.Drawing.Point(ret.X, ret.Y) };
             rotationMatrix.TransformPoints(tt);
             var f = tt[0];
-
-            if(VirtualSizeEnabled)
-            {
-               f.X += (Width - Core.vWidth) / 2;
-               f.Y += (Height - Core.vHeight) / 2;
-            }
 
             ret.X = f.X;
             ret.Y = f.Y;
@@ -2295,18 +2247,6 @@ namespace GMap.NET.WindowsForms
       }
 
       /// <summary>
-      /// current marker position in pixel coordinates
-      /// </summary>
-      [Browsable(false)]
-      public GMap.NET.Point CurrentPositionGPixel
-      {
-         get
-         {
-            return Core.CurrentPositionGPixel;
-         }
-      }
-
-      /// <summary>
       /// location of cache
       /// </summary>
       [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -2360,7 +2300,7 @@ namespace GMap.NET.WindowsForms
       /// gets current map view top/left coordinate, width in Lng, height in Lat
       /// </summary>
       [Browsable(false)]
-      public RectLatLng CurrentViewArea
+      public RectLatLng ViewArea
       {
          get
          {
@@ -2409,7 +2349,7 @@ namespace GMap.NET.WindowsForms
                }
                else
                {
-                  viewarea = CurrentViewArea;
+                  viewarea = ViewArea;
                }
 
                Core.MapType = value;
@@ -2419,7 +2359,7 @@ namespace GMap.NET.WindowsForms
                   if(Core.zoomToArea)
                   {
                      // restore zoomrect as close as possible
-                     if(viewarea != RectLatLng.Empty && viewarea != CurrentViewArea)
+                     if(viewarea != RectLatLng.Empty && viewarea != ViewArea)
                      {
                         int bestZoom = Core.GetMaxZoomToFitRect(viewarea);
                         if(bestZoom > 0 && Zoom != bestZoom)

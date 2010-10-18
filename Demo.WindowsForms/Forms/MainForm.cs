@@ -23,7 +23,6 @@ namespace Demo.WindowsForms
    {
       // marker
       GMapMarker currentMarker;
-      GMapMarker center;
 
       // polygons
       GMapPolygon polygon;
@@ -165,10 +164,6 @@ namespace Demo.WindowsForms
             currentMarker = new GMapMarkerGoogleRed(MainMap.Position);
             top.Markers.Add(currentMarker);
 
-            // map center
-            center = new GMapMarkerCross(MainMap.Position);
-            top.Markers.Add(center);
-
             //MainMap.VirtualSizeEnabled = true;
             //if(false)
             {
@@ -218,7 +213,7 @@ namespace Demo.WindowsForms
       int tt = 0;
       void timer_Tick(object sender, EventArgs e)
       {
-         var pos = new PointLatLng(NextDouble(rnd, MainMap.CurrentViewArea.Top, MainMap.CurrentViewArea.Bottom), NextDouble(rnd, MainMap.CurrentViewArea.Left, MainMap.CurrentViewArea.Right));
+         var pos = new PointLatLng(NextDouble(rnd, MainMap.ViewArea.Top, MainMap.ViewArea.Bottom), NextDouble(rnd, MainMap.ViewArea.Left, MainMap.ViewArea.Right));
          GMapMarker m = new GMapMarkerGoogleGreen(pos);
          {
             m.ToolTipText = (tt++).ToString();
@@ -1276,7 +1271,6 @@ namespace Demo.WindowsForms
       {
          trackBar1.Value = (int) (MainMap.Zoom);
          textBoxZoomCurrent.Text = MainMap.Zoom.ToString();
-         center.Position = MainMap.Position;
       }
 
       // click on some marker
@@ -1351,7 +1345,6 @@ namespace Demo.WindowsForms
       // current point changed
       void MainMap_OnCurrentPositionChanged(PointLatLng point)
       {
-         center.Position = point;
          textBoxLatCurrent.Text = point.Lat.ToString(CultureInfo.InvariantCulture);
          textBoxLngCurrent.Text = point.Lng.ToString(CultureInfo.InvariantCulture);
       }

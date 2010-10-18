@@ -20,8 +20,7 @@ namespace GMap.NET.Internals
    /// </summary>
    internal class Core
    {
-      public PointLatLng currentPosition;
-      public Point currentPositionPixel;
+      //public PointLatLng currentPosition;
 
       public Point renderOffset;
       public Point centerTileXYLocation;
@@ -114,12 +113,10 @@ namespace GMap.NET.Internals
          {
             if(zoom != value && !IsDragging)
             {
-               zoom = value;
-
                minOfTiles = Projection.GetTileMatrixMinXY(value);
                maxOfTiles = Projection.GetTileMatrixMaxXY(value);
-
-               CurrentPositionGPixel = Projection.FromLatLngToPixel(CurrentPosition, value);
+               centerPixel = Projection.FromLatLngToPixel(CurrentPosition, value);
+               zoom = value;
 
                if(IsStarted)
                {
@@ -150,21 +147,6 @@ namespace GMap.NET.Internals
       }
 
       /// <summary>
-      /// current marker position in pixel coordinates
-      /// </summary>
-      public Point CurrentPositionGPixel
-      {
-         get
-         {
-            return currentPositionPixel;
-         }
-         internal set
-         {
-            currentPositionPixel = value;
-         }
-      }
-
-      /// <summary>
       /// current marker position
       /// </summary>
       public PointLatLng CurrentPosition
@@ -172,25 +154,18 @@ namespace GMap.NET.Internals
          get
          {
             return Projection.FromPixelToLatLng(centerPixel, zoom);
-            //return currentPosition;
          }
          set
          {
-            currentPosition = value;
+            //currentPosition = value;
+            centerPixel = Projection.FromLatLngToPixel(value, Zoom);
 
             if(!IsDragging)
             {
-               centerPixel = Projection.FromLatLngToPixel(value, Zoom);
-               CurrentPositionGPixel = centerPixel;
-
                if(IsStarted)
                {
                   GoToCurrentPosition();
                }
-            }
-            else
-            {
-               //CurrentPositionGPixel = Projection.FromLatLngToPixel(value, Zoom);
             }
 
             if(IsStarted)
@@ -227,7 +202,7 @@ namespace GMap.NET.Internals
 
                minOfTiles = Projection.GetTileMatrixMinXY(Zoom);
                maxOfTiles = Projection.GetTileMatrixMaxXY(Zoom);
-               CurrentPositionGPixel = Projection.FromLatLngToPixel(CurrentPosition, Zoom);
+               centerPixel = Projection.FromLatLngToPixel(CurrentPosition, Zoom);
 
                if(IsStarted)
                {
@@ -661,11 +636,15 @@ namespace GMap.NET.Internals
 #endif
 
       public Rectangle viewRectPixel;
+      public Rectangle viewRectPixelInflated;
       public Point centerPixel;
 
       void UpdateViewRect()
       {
          viewRectPixel = new Rectangle(-renderOffset.X, -renderOffset.Y, Width, Height);
+         viewRectPixelInflated = viewRectPixel;
+         viewRectPixelInflated.Inflate(55, 55);
+
          centerPixel = viewRectPixel.Location;
          centerPixel.Offset(Width / 2, Height / 2);
       }
@@ -761,7 +740,7 @@ namespace GMap.NET.Internals
       public Point FromLatLngToLocal(PointLatLng latlng)
       {
          Point pLocal = Projection.FromLatLngToPixel(latlng, Zoom);
-         pLocal.Offset(renderOffset);
+         //pLocal.Offset(renderOffset);
          return pLocal;
       }
 
@@ -859,7 +838,7 @@ namespace GMap.NET.Internals
          centerTileXYLocationLast = Point.Empty;
          dragPoint = Point.Empty;
 
-         Drag(new Point(-centerPixel.X + Width/2, -centerPixel.Y + Height/2));
+         Drag(new Point(-centerPixel.X + Width / 2, -centerPixel.Y + Height / 2));
       }
 
       public bool MouseWheelZooming = false;
@@ -918,8 +897,8 @@ namespace GMap.NET.Internals
          }
 
          {
-            LastLocationInBounds = CurrentPosition;
-            CurrentPosition = FromLocalToLatLng((int) Width / 2, (int) Height / 2);
+            //LastLocationInBounds = CurrentPosition;
+            //CurrentPosition = FromLocalToLatLng((int) Width / 2, (int) Height / 2);
          }
 
          if(OnMapDrag != null)
@@ -949,7 +928,6 @@ namespace GMap.NET.Internals
          {
             //LastLocationInBounds = CurrentPosition;
             //CurrentPosition = Projection.FromPixelToLatLng(centerPixel, zoom);
-            CurrentPositionGPixel = centerPixel;
 
             if(OnMapDrag != null)
             {

@@ -59,7 +59,7 @@ namespace GMap.NET.WindowsPresentation
             }
             else
             {
-               viewarea = map.CurrentViewArea;
+               viewarea = map.ViewArea;
             }
 
             map.Core.MapType = (MapType) e.NewValue;
@@ -67,7 +67,7 @@ namespace GMap.NET.WindowsPresentation
             if(map.Core.IsStarted && map.Core.zoomToArea)
             {
                // restore zoomrect as close as possible
-               if(viewarea != RectLatLng.Empty && viewarea != map.CurrentViewArea)
+               if(viewarea != RectLatLng.Empty && viewarea != map.ViewArea)
                {
                   int bestZoom = map.Core.GetMaxZoomToFitRect(viewarea);
                   if(bestZoom > 0 && map.Zoom != bestZoom)
@@ -1286,15 +1286,15 @@ namespace GMap.NET.WindowsPresentation
             {
                if(MouseWheelZoomType == MouseWheelZoomType.MousePositionAndCenter)
                {
-                  Core.currentPosition = FromLocalToLatLng((int) p.X, (int) p.Y);
+                  //Core.currentPosition = FromLocalToLatLng((int) p.X, (int) p.Y);
                }
                else if(MouseWheelZoomType == MouseWheelZoomType.ViewCenter)
                {
-                  Core.currentPosition = FromLocalToLatLng((int) ActualWidth / 2, (int) ActualHeight / 2);
+                  //Core.currentPosition = FromLocalToLatLng((int) ActualWidth / 2, (int) ActualHeight / 2);
                }
                else if(MouseWheelZoomType == MouseWheelZoomType.MousePositionWithoutCenter)
                {
-                  Core.currentPosition = FromLocalToLatLng((int) p.X, (int) p.Y);
+                  //Core.currentPosition = FromLocalToLatLng((int) p.X, (int) p.Y);
                }
 
                Core.mouseLastZoom.X = (int) p.X;
@@ -1776,11 +1776,20 @@ namespace GMap.NET.WindowsPresentation
       }
 
       [Browsable(false)]
-      public GMap.NET.Point CurrentPositionGPixel
+      public GMap.NET.Point PositionPixel
       {
          get
          {
-            return Core.CurrentPositionGPixel;
+            return Core.centerPixel;
+         }
+      }
+
+      [Browsable(false)]
+      public GMap.NET.Rectangle ViewAreaPixel
+      {
+         get
+         {
+            return Core.viewRectPixel;
          }
       }
 
@@ -1810,7 +1819,7 @@ namespace GMap.NET.WindowsPresentation
       }
 
       [Browsable(false)]
-      public RectLatLng CurrentViewArea
+      public RectLatLng ViewArea
       {
          get
          {
