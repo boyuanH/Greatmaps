@@ -99,8 +99,8 @@ namespace Demo.WindowsForms
             comboBoxMode.SelectedItem = GMaps.Instance.Mode;
 
             // get position
-            textBoxLat.Text = MainMap.Position.Lat.ToString(CultureInfo.InvariantCulture);
-            textBoxLng.Text = MainMap.Position.Lng.ToString(CultureInfo.InvariantCulture);
+            //textBoxLat.Text = MainMap.Position.Lat.ToString(CultureInfo.InvariantCulture);
+            //textBoxLng.Text = MainMap.Position.Lng.ToString(CultureInfo.InvariantCulture);
 
             // get cache modes
             checkBoxUseRouteCache.Checked = GMaps.Instance.UseRouteCache;
@@ -1241,11 +1241,6 @@ namespace Demo.WindowsForms
                if(currentMarker.IsVisible)
                {
                   currentMarker.Position = MainMap.FromLocalToLatLng(e.X, e.Y);
-
-                  var px = MainMap.Projection.FromLatLngToPixel(currentMarker.Position.Lat, currentMarker.Position.Lng, (int) MainMap.Zoom);
-                  var tile = MainMap.Projection.FromPixelToTileXY(px);
-
-                  Debug.WriteLine("CM loc: " + currentMarker.LocalPosition + " | geo: " + currentMarker.Position + " | px: " + px + " | tile: " + tile);
                }
             }
             else // move rect marker
@@ -1752,7 +1747,7 @@ namespace Demo.WindowsForms
             if(currentTransport != null && !MainMap.IsMouseOverMarker)
             {
                currentTransport.ToolTipMode = MarkerTooltipMode.OnMouseOver;
-               currentTransport = null;                
+               currentTransport = null;
             }
          }
       }
@@ -1762,23 +1757,23 @@ namespace Demo.WindowsForms
       {
          if(MainMap.Focused)
          {
-         if(e.KeyChar == '+')
-         {
-            MainMap.Zoom += 1;
-         }
-         else if(e.KeyChar == '-')
-         {
-            MainMap.Zoom -= 1;
-         }
-         else if(e.KeyChar == 'a')
-         {
-            MainMap.Bearing--;
-         }
-         else if(e.KeyChar == 'z')
-         {
-            MainMap.Bearing++;
-         }
+            if(e.KeyChar == '+')
+            {
+               MainMap.Zoom += 1;
             }
+            else if(e.KeyChar == '-')
+            {
+               MainMap.Zoom -= 1;
+            }
+            else if(e.KeyChar == 'a')
+            {
+               MainMap.Bearing--;
+            }
+            else if(e.KeyChar == 'z')
+            {
+               MainMap.Bearing++;
+            }
+         }
       }
 
       // engage some live demo

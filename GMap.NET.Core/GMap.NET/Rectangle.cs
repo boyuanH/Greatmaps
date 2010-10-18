@@ -53,6 +53,30 @@ namespace GMap.NET
          }
       }
 
+      public Point RightBottom
+      {
+         get
+         {
+            return new Point(Right, Bottom);
+         }
+      }
+
+      public Point RightTop
+      {
+         get
+         {
+            return new Point(Right, Top);
+         }
+      }
+
+      public Point LeftBottom
+      {
+         get
+         {
+            return new Point(Left, Bottom);
+         }
+      }
+
       public Size Size
       {
          get
