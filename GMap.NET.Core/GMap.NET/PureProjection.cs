@@ -3,6 +3,7 @@ namespace GMap.NET
 {
    using System;
    using System.Collections.Generic;
+   using System.Diagnostics;
 
    /// <summary>
    /// defines projection
@@ -76,6 +77,8 @@ namespace GMap.NET
          {
             ret = FromLatLngToPixel(p.Lat, p.Lng, zoom);
             FromLatLngToPixelCache[zoom].Add(p, ret);
+
+            Debug.WriteLine("FromLatLngToPixelCache[" + zoom + "] added " + p + " with " + ret);
          }
          return ret;
       }
@@ -93,6 +96,8 @@ namespace GMap.NET
          {
             ret = FromPixelToLatLng(p.X, p.Y, zoom);
             FromPixelToLatLngCache[zoom].Add(p, ret);
+
+            Debug.WriteLine("FromPixelToLatLngCache[" + zoom + "] added " + p + " with " + ret);
          }
          return ret;
       }

@@ -418,7 +418,161 @@ namespace GMap.NET.WindowsForms
       /// render map in GDI+
       /// </summary>
       /// <param name="g"></param>
-      void DrawMapGDIplus(Graphics g)
+      void DrawMapDesktop(Graphics g)
+      {
+         if(MapType == NET.MapType.None)
+         {
+            return;
+         }
+
+         Core.Matrix.EnterReadLock();
+         Core.tileDrawingListLock.AcquireReaderLock();
+         try
+         {
+            foreach(var tilePoint in Core.tileDrawingList)
+            {
+#if ContinuesMap
+               //-----
+               GMap.NET.Point tileToDraw = Core.tilePoint;  
+               if(tileToDraw.X < Core.minOfTiles.Width)
+               {
+                  tileToDraw.X += (Core.maxOfTiles.Width + 1);
+               }
+               if(tileToDraw.X > Core.maxOfTiles.Width)
+               {
+                  tileToDraw.X -= (Core.maxOfTiles.Width + 1);
+               }
+               //-----
+#endif
+               {
+                  Core.tileRect.X = tilePoint.X * Core.tileRect.Width;
+                  Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height;
+                  //Core.tileRect.Offset(Core.renderOffset);
+
+                  var ttt = Core.tileRect;
+                  ttt.Offset(Core.renderOffset);
+
+                  if(Core.currentRegion.IntersectsWith(ttt) || IsRotated)
+                  {
+                     bool found = false;
+#if !ContinuesMap
+
+                     Tile t = Core.Matrix.GetTileWithNoLock(Core.Zoom, tilePoint);
+#else
+                     Tile t = Core.Matrix.GetTileWithNoLock(Core.Zoom, tileToDraw);
+#endif
+                     if(t != null)
+                     {
+                        // render tile
+                        lock(t.Overlays)
+                        {
+                           foreach(WindowsFormsImage img in t.Overlays)
+                           {
+                              if(img != null && img.Img != null)
+                              {
+                                 if(!found)
+                                    found = true;
+#if !PocketPC
+
+                                 g.DrawImage(img.Img, Core.tileRect.X, Core.tileRect.Y, Core.tileRectBearing.Width, Core.tileRectBearing.Height);
+#else
+                                 g.DrawImage(img.Img, Core.tileRect.X, Core.tileRect.Y);
+#endif
+                              }
+                           }
+                        }
+                     }
+#if !PocketPC
+                     else // testing smooth zooming
+                     {
+                        int ZoomOffset = 0;
+                        Tile ParentTile = null;
+                        int Ix = 0;
+
+                        while(ParentTile == null && (Core.Zoom - ZoomOffset) >= 1 && ZoomOffset <= LevelsKeepInMemmory)
+                        {
+                           Ix = (int) Math.Pow(2, ++ZoomOffset);
+                           ParentTile = Core.Matrix.GetTileWithNoLock(Core.Zoom - ZoomOffset, new GMap.NET.Point((int) (tilePoint.X / Ix), (int) (tilePoint.Y / Ix)));
+                        }
+
+                        if(ParentTile != null)
+                        {
+                           int Xoff = Math.Abs(tilePoint.X - (ParentTile.Pos.X * Ix));
+                           int Yoff = Math.Abs(tilePoint.Y - (ParentTile.Pos.Y * Ix));
+
+                           // render tile 
+                           lock(ParentTile.Overlays)
+                           {
+                              foreach(WindowsFormsImage img in ParentTile.Overlays)
+                              {
+                                 if(img != null && img.Img != null)
+                                 {
+                                    if(!found)
+                                       found = true;
+
+                                    System.Drawing.RectangleF srcRect = new System.Drawing.RectangleF((float) (Xoff * (img.Img.Width / Ix)), (float) (Yoff * (img.Img.Height / Ix)), (img.Img.Width / Ix), (img.Img.Height / Ix));
+                                    System.Drawing.Rectangle dst = new System.Drawing.Rectangle(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height);
+
+                                    g.DrawImage(img.Img, dst, srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, GraphicsUnit.Pixel, TileFlipXYAttributes);
+                                    g.FillRectangle(SelectedAreaFill, dst);
+                                 }
+                              }
+                           }
+                        }
+                     }
+#endif
+                     // add text if tile is missing
+                     if(!found)
+                     {
+                        lock(Core.FailedLoads)
+                        {
+                           var lt = new LoadTask(tilePoint, Core.Zoom);
+                           if(Core.FailedLoads.ContainsKey(lt))
+                           {
+                              var ex = Core.FailedLoads[lt];
+#if !PocketPC
+                              g.FillRectangle(EmptytileBrush, new RectangleF(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height));
+
+                              g.DrawString("Exception: " + ex.Message, MissingDataFont, Brushes.Red, new RectangleF(Core.tileRect.X + 11, Core.tileRect.Y + 11, Core.tileRect.Width - 11, Core.tileRect.Height - 11));
+
+                              g.DrawString(EmptyTileText, MissingDataFont, Brushes.Blue, new RectangleF(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height), CenterFormat);
+
+#else
+                              g.FillRectangle(EmptytileBrush, new System.Drawing.Rectangle(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height));
+
+                              g.DrawString("Exception: " + ex.Message, MissingDataFont, TileGridMissingTextBrush, new RectangleF(Core.tileRect.X + 11, Core.tileRect.Y + 11, Core.tileRect.Width - 11, Core.tileRect.Height - 11));
+
+                              g.DrawString(EmptyTileText, MissingDataFont, TileGridMissingTextBrush, new RectangleF(Core.tileRect.X, Core.tileRect.Y + Core.tileRect.Width/2 + (ShowTileGridLines? 11 : -22), Core.tileRect.Width, Core.tileRect.Height), BottomFormat);
+#endif
+
+                              g.DrawRectangle(EmptyTileBorders, Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height);
+                           }
+                        }
+                     }
+
+                     if(ShowTileGridLines)
+                     {
+                        g.DrawRectangle(EmptyTileBorders, Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height);
+                        {
+#if !PocketPC
+                           g.DrawString((tilePoint == Core.centerTileXYLocation ? "CENTER: " : "TILE: ") + tilePoint, MissingDataFont, Brushes.Red, new RectangleF(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height), CenterFormat);
+#else
+                           g.DrawString((tilePoint == Core.centerTileXYLocation? "" :"TILE: ") + tilePoint, MissingDataFont, TileGridLinesTextBrush, new RectangleF(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height), CenterFormat);
+#endif
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         finally
+         {
+            Core.tileDrawingListLock.ReleaseReaderLock();
+            Core.Matrix.LeaveReadLock();
+         }
+      }
+
+      void DrawMapMobile(Graphics g)
       {
          if(MapType == NET.MapType.None)
          {
@@ -1083,14 +1237,14 @@ namespace GMap.NET.WindowsForms
                {
                   gxOff.ScaleTransform(MapRenderTransform.Value, MapRenderTransform.Value);
                   {
-                     DrawMapGDIplus(gxOff);
+                     DrawMapDesktop(gxOff);
                   }
                   gxOff.ResetTransform();
                }
                else
 #endif
                {
-                  DrawMapGDIplus(gxOff);
+                  DrawMapMobile(gxOff);
                }
 
                OnPaintEtc(gxOff);
@@ -1107,19 +1261,22 @@ namespace GMap.NET.WindowsForms
             {
                e.Graphics.ScaleTransform(MapRenderTransform.Value, MapRenderTransform.Value);
                {
-                  DrawMapGDIplus(e.Graphics);
+                  DrawMapDesktop(e.Graphics);
                }
                e.Graphics.ResetTransform();
             }
             else
 #endif
             {
+               e.Graphics.ScaleTransform(0.5f, 0.5f);
+               e.Graphics.TranslateTransform(555, 555);
+               e.Graphics.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
+
                if(VirtualSizeEnabled)
                {
                   e.Graphics.TranslateTransform((Width - Core.vWidth) / 2, (Height - Core.vHeight) / 2);
-               }
+               }                
 
-               // test rotation
                if(IsRotated)
                {
                   e.Graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
@@ -1129,7 +1286,7 @@ namespace GMap.NET.WindowsForms
                   e.Graphics.RotateTransform(-Bearing);
                   e.Graphics.TranslateTransform((float) (-Core.Width / 2.0), (float) (-Core.Height / 2.0));
 
-                  DrawMapGDIplus(e.Graphics);
+                  DrawMapDesktop(e.Graphics);
 
                   e.Graphics.ResetTransform();
 
@@ -1137,16 +1294,21 @@ namespace GMap.NET.WindowsForms
                }
                else
                {
-                  DrawMapGDIplus(e.Graphics);
+                  DrawMapDesktop(e.Graphics);
                   OnPaintEtc(e.Graphics);
                }
             }
 
+            e.Graphics.ResetTransform();
+
             if(VirtualSizeEnabled)
             {
-               e.Graphics.ResetTransform();
-               e.Graphics.DrawRectangle(SelectionPen, (Width - Core.vWidth) / 2, (Height - Core.vHeight) / 2, Core.vWidth, Core.vHeight);
+               //e.Graphics.DrawRectangle(SelectionPen, (Width - Core.vWidth) / 2, (Height - Core.vHeight) / 2, Core.vWidth, Core.vHeight);
             }
+
+            e.Graphics.ScaleTransform(0.5f, 0.5f);
+            e.Graphics.TranslateTransform(555, 555);
+            e.Graphics.DrawRectangle(SelectionPen, (Width - Core.vWidth) / 2, (Height - Core.vHeight) / 2, Core.vWidth, Core.vHeight);
          }
 
          base.OnPaint(e);
@@ -1699,7 +1861,8 @@ namespace GMap.NET.WindowsForms
             {
                Core.mouseCurrent = ApplyRotationInversion(e.X, e.Y);
                Core.Drag(Core.mouseCurrent);
-               ForceUpdateOverlays();
+               //ForceUpdateOverlays();
+               Invalidate();
             }
          }
          else
@@ -2202,6 +2365,24 @@ namespace GMap.NET.WindowsForms
          get
          {
             return Core.CurrentViewArea;
+         }
+      }
+
+      [Browsable(false)]
+      public GMap.NET.Rectangle ViewAreaPixel
+      {
+         get
+         {
+            return Core.viewRectPixel;
+         }
+      }
+
+      [Browsable(false)]
+      public GMap.NET.Point PositionPixel
+      {
+         get
+         {
+            return Core.centerPixel;
          }
       }
 

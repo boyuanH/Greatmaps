@@ -171,15 +171,17 @@ namespace GMap.NET.Internals
       {
          get
          {
-
-            return currentPosition;
+            return Projection.FromPixelToLatLng(centerPixel, zoom);
+            //return currentPosition;
          }
          set
          {
+            currentPosition = value;
+
             if(!IsDragging)
             {
-               currentPosition = value;
-               CurrentPositionGPixel = Projection.FromLatLngToPixel(value, Zoom);
+               centerPixel = Projection.FromLatLngToPixel(value, Zoom);
+               CurrentPositionGPixel = centerPixel;
 
                if(IsStarted)
                {
@@ -188,14 +190,13 @@ namespace GMap.NET.Internals
             }
             else
             {
-               currentPosition = value;
-               CurrentPositionGPixel = Projection.FromLatLngToPixel(value, Zoom);
+               //CurrentPositionGPixel = Projection.FromLatLngToPixel(value, Zoom);
             }
 
             if(IsStarted)
             {
                if(OnCurrentPositionChanged != null)
-                  OnCurrentPositionChanged(currentPosition);
+                  OnCurrentPositionChanged(value);
             }
          }
       }
@@ -659,10 +660,19 @@ namespace GMap.NET.Internals
       }
 #endif
 
+      public Rectangle viewRectPixel;
+      public Point centerPixel;
+
+      void UpdateViewRect()
+      {
+         viewRectPixel = new Rectangle(-renderOffset.X, -renderOffset.Y, Width, Height);
+         centerPixel = viewRectPixel.Location;
+         centerPixel.Offset(Width / 2, Height / 2);
+      }
+
       public void UpdateCenterTileXYLocation()
       {
-         PointLatLng center = FromLocalToLatLng(Width / 2, Height / 2);
-         GMap.NET.Point centerPixel = Projection.FromLatLngToPixel(center, Zoom);
+         UpdateViewRect();
          centerTileXYLocation = Projection.FromPixelToTileXY(centerPixel);
       }
 
@@ -673,6 +683,8 @@ namespace GMap.NET.Internals
       {
          this.Width = width;
          this.Height = height;
+
+         UpdateCenterTileXYLocation();
 
          if(IsRotated)
          {
@@ -688,14 +700,12 @@ namespace GMap.NET.Internals
 
          Debug.WriteLine("OnMapSizeChanged, w: " + width + ", h: " + height + ", size: " + sizeOfMapArea);
 
-         UpdateCenterTileXYLocation();
-
          if(IsStarted)
          {
             UpdateBounds();
 
             if(OnCurrentPositionChanged != null)
-               OnCurrentPositionChanged(currentPosition);
+               OnCurrentPositionChanged(CurrentPosition);
          }
       }
 
@@ -723,11 +733,10 @@ namespace GMap.NET.Internals
          {
             if(Projection != null)
             {
-               PointLatLng p = Projection.FromPixelToLatLng(-renderOffset.X, -renderOffset.Y, Zoom);
-               double rlng = Projection.FromPixelToLatLng(-renderOffset.X + Width, -renderOffset.Y, Zoom).Lng;
-               double blat = Projection.FromPixelToLatLng(-renderOffset.X, -renderOffset.Y + Height, Zoom).Lat;
+               PointLatLng p = Projection.FromPixelToLatLng(viewRectPixel.X, viewRectPixel.Y, Zoom);
+               PointLatLng p2 = Projection.FromPixelToLatLng(viewRectPixel.Right, viewRectPixel.Bottom, Zoom);
 
-               return RectLatLng.FromLTRB(p.Lng, p.Lat, rlng, blat);
+               return RectLatLng.FromLTRB(p.Lng, p.Lat, p2.Lng, p2.Lat);
             }
             return RectLatLng.Empty;
          }
@@ -846,13 +855,11 @@ namespace GMap.NET.Internals
       /// </summary>
       public void GoToCurrentPosition()
       {
-         // reset stuff
          renderOffset = Point.Empty;
          centerTileXYLocationLast = Point.Empty;
          dragPoint = Point.Empty;
 
-         // goto location
-         this.Drag(new Point(-(CurrentPositionGPixel.X - Width / 2), -(CurrentPositionGPixel.Y - Height / 2)));
+         Drag(new Point(-centerPixel.X + Width/2, -centerPixel.Y + Height/2));
       }
 
       public bool MouseWheelZooming = false;
@@ -862,7 +869,6 @@ namespace GMap.NET.Internals
       /// </summary>
       internal void GoToCurrentPositionOnZoom()
       {
-         // reset stuff
          renderOffset = Point.Empty;
          centerTileXYLocationLast = Point.Empty;
          dragPoint = Point.Empty;
@@ -872,14 +878,14 @@ namespace GMap.NET.Internals
          {
             if(MouseWheelZoomType != MouseWheelZoomType.MousePositionWithoutCenter)
             {
-               Point pt = new Point(-(CurrentPositionGPixel.X - Width / 2), -(CurrentPositionGPixel.Y - Height / 2));
+               Point pt = new Point(-(centerPixel.X - Width / 2), -(centerPixel.Y - Height / 2));
                renderOffset.X = pt.X - dragPoint.X;
                renderOffset.Y = pt.Y - dragPoint.Y;
             }
             else // without centering
             {
-               renderOffset.X = -CurrentPositionGPixel.X - dragPoint.X;
-               renderOffset.Y = -CurrentPositionGPixel.Y - dragPoint.Y;
+               renderOffset.X = -centerPixel.X - dragPoint.X;
+               renderOffset.Y = -centerPixel.Y - dragPoint.Y;
                renderOffset.Offset(mouseLastZoom);
             }
          }
@@ -887,7 +893,7 @@ namespace GMap.NET.Internals
          {
             mouseLastZoom = Point.Empty;
 
-            Point pt = new Point(-(CurrentPositionGPixel.X - Width / 2), -(CurrentPositionGPixel.Y - Height / 2));
+            Point pt = new Point(-(centerPixel.X - Width / 2), -(centerPixel.Y - Height / 2));
             renderOffset.X = pt.X - dragPoint.X;
             renderOffset.Y = pt.Y - dragPoint.Y;
          }
@@ -941,8 +947,9 @@ namespace GMap.NET.Internals
 
          if(IsDragging)
          {
-            LastLocationInBounds = CurrentPosition;
-            CurrentPosition = FromLocalToLatLng((int) Width / 2, (int) Height / 2);
+            //LastLocationInBounds = CurrentPosition;
+            //CurrentPosition = Projection.FromPixelToLatLng(centerPixel, zoom);
+            CurrentPositionGPixel = centerPixel;
 
             if(OnMapDrag != null)
             {
@@ -1328,13 +1335,13 @@ namespace GMap.NET.Internals
       /// </summary>
       void UpdateGroundResolution()
       {
-         double rez = Projection.GetGroundResolution(Zoom, CurrentPosition.Lat);
-         pxRes100m = (int) (100.0 / rez); // 100 meters
-         pxRes1000m = (int) (1000.0 / rez); // 1km  
-         pxRes10km = (int) (10000.0 / rez); // 10km
-         pxRes100km = (int) (100000.0 / rez); // 100km
-         pxRes1000km = (int) (1000000.0 / rez); // 1000km
-         pxRes5000km = (int) (5000000.0 / rez); // 5000km
+         //double rez = Projection.GetGroundResolution(Zoom, CurrentPosition.Lat);
+         //pxRes100m = (int) (100.0 / rez); // 100 meters
+         //pxRes1000m = (int) (1000.0 / rez); // 1km  
+         //pxRes10km = (int) (10000.0 / rez); // 10km
+         //pxRes100km = (int) (100000.0 / rez); // 100km
+         //pxRes1000km = (int) (1000000.0 / rez); // 1000km
+         //pxRes5000km = (int) (5000000.0 / rez); // 5000km
       }
    }
 }
