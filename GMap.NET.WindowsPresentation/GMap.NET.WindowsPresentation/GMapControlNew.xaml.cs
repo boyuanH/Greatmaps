@@ -1109,11 +1109,20 @@ namespace GMap.NET.WindowsPresentation
       }
 
       [Browsable(false)]
-      public GMap.NET.Point CurrentPositionGPixel
+      public GMap.NET.Point PositionPixel
       {
          get
          {
-            return Core.CurrentPositionGPixel;
+            return Core.centerPixel;
+         }
+      }
+
+      [Browsable(false)]
+      public GMap.NET.Rectangle ViewAreaPixel
+      {
+         get
+         {
+            return Core.viewRectPixel;
          }
       }
 
@@ -1141,7 +1150,7 @@ namespace GMap.NET.WindowsPresentation
       }
 
       [Browsable(false)]
-      public RectLatLng CurrentViewArea
+      public RectLatLng ViewArea
       {
          get
          {

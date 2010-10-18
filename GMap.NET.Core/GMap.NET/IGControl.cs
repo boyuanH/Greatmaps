@@ -9,7 +9,28 @@ namespace GMap.NET
          set;
       }
 
-      Point CurrentPositionGPixel
+      Point PositionPixel
+      {
+         get;
+      }
+
+      Rectangle ViewAreaPixel
+      {
+         get;
+      }        
+
+      RectLatLng ViewArea
+      {
+         get;
+      }   
+
+      MapType MapType
+      {
+         get;
+         set;
+      }
+
+      PureProjection Projection
       {
          get;
       }
@@ -21,22 +42,6 @@ namespace GMap.NET
       }
 
       bool IsDragging
-      {
-         get;
-      }
-
-      RectLatLng CurrentViewArea
-      {
-         get;
-      }
-
-      MapType MapType
-      {
-         get;
-         set;
-      }
-
-      PureProjection Projection
       {
          get;
       }
