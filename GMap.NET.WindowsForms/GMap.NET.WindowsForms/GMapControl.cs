@@ -742,7 +742,6 @@ namespace GMap.NET.WindowsForms
          foreach(GMap.NET.PointLatLng pg in route.Points)
          {
             GMap.NET.Point p = Projection.FromLatLngToPixel(pg, Core.Zoom);
-            //p.Offset(Core.renderOffset);
 
             if(IsRotated)
             {
@@ -769,7 +768,6 @@ namespace GMap.NET.WindowsForms
          foreach(GMap.NET.PointLatLng pg in polygon.Points)
          {
             GMap.NET.Point p = Projection.FromLatLngToPixel(pg, Core.Zoom);
-            //p.Offset(Core.renderOffset);
 
             if(IsRotated)
             {
@@ -1261,9 +1259,9 @@ namespace GMap.NET.WindowsForms
                   e.Graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
                   e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-                  e.Graphics.TranslateTransform((float) (Core.Width / 2.0), (float) (Core.Height / 2.0));
+                  e.Graphics.TranslateTransform(PositionPixel.X, PositionPixel.Y);
                   e.Graphics.RotateTransform(-Bearing);
-                  e.Graphics.TranslateTransform((float) (-Core.Width / 2.0), (float) (-Core.Height / 2.0));
+                  e.Graphics.TranslateTransform(-PositionPixel.X, -PositionPixel.Y);
 
                   DrawMapDesktop(e.Graphics);
 
@@ -1300,7 +1298,7 @@ namespace GMap.NET.WindowsForms
       /// </summary>
       void UpdateRotationMatrix()
       {
-         PointF center = new PointF(Core.Width / 2, Core.Height / 2);
+         PointF center = new PointF(PositionPixel.X, PositionPixel.Y);
 
          rotationMatrix.Reset();
          rotationMatrix.RotateAt(-Bearing, center);
@@ -1338,12 +1336,6 @@ namespace GMap.NET.WindowsForms
             {
                bool resize = Core.bearing == 0;
                Core.bearing = value;
-
-               //if(VirtualSizeEnabled)
-               //{
-               //   c.X += (Width - Core.vWidth) / 2;
-               //   c.Y += (Height - Core.vHeight) / 2;
-               //}
 
                UpdateRotationMatrix();
 
@@ -1608,9 +1600,7 @@ namespace GMap.NET.WindowsForms
                if(IsRotated)
                {
                   UpdateRotationMatrix();
-               }
-
-               ForceUpdateOverlays();
+               }   
             }
          }
       }

@@ -17,7 +17,7 @@ namespace GMap.NET.WindowsForms.Markers
          : base(p)
       {
          Size = new System.Drawing.Size(Resources.bigMarkerGreen.Width, Resources.bigMarkerGreen.Height);
-         Offset = new Point(10, 34);
+         Offset = new Point(-10, -34);
       }
 
       static readonly Point[] Arrow = new Point[] { new Point(-7, 7), new Point(0, -22), new Point(7, 7), new Point(0, 2) };
