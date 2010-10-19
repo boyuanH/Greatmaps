@@ -669,8 +669,6 @@ namespace GMap.NET.Internals
          this.Width = width;
          this.Height = height;
 
-         UpdateCenterTileXYLocation();
-
          if(IsRotated)
          {
             int diag = (int) Math.Round(Math.Sqrt(Width * Width + Height * Height) / Projection.TileSize.Width, MidpointRounding.AwayFromZero);
@@ -688,9 +686,6 @@ namespace GMap.NET.Internals
          if(IsStarted)
          {
             UpdateBounds();
-
-            if(OnCurrentPositionChanged != null)
-               OnCurrentPositionChanged(CurrentPosition);
          }
       }
 

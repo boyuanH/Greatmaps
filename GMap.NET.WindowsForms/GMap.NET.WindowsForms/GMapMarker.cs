@@ -75,7 +75,7 @@ namespace GMap.NET.WindowsForms
                renderingOrigin = value;
 
                var t = renderingOrigin;
-               t.Offset(-Offset.X, -Offset.Y);
+               t.Offset(Offset.X, Offset.Y);
                area.Location = t;
 
                if(Overlay != null && Overlay.Control != null)
