@@ -20,11 +20,9 @@ namespace GMap.NET.Internals
    /// </summary>
    internal class Core
    {
-      //public PointLatLng currentPosition;
-
       public Point renderOffset;
-      public Point centerTileXYLocation;
-      public Point centerTileXYLocationLast;
+      public Point centerTileXY;
+      public Point centerTileXYLast;
       public Point dragPoint;
 
       public Point mouseDown;
@@ -51,7 +49,6 @@ namespace GMap.NET.Internals
       public readonly List<Point> tileDrawingList = new List<Point>();
       public readonly FastReaderWriterLock tileDrawingListLock = new FastReaderWriterLock();
 
-      //readonly ManualResetEvent waitForTileLoad = new ManualResetEvent(false);
       public readonly Queue<LoadTask> tileLoadQueue = new Queue<LoadTask>();
 
       public static readonly string googleCopyright = string.Format("©{0} Google - Map data ©{0} Tele Atlas, Imagery ©{0} TerraMetrics", DateTime.Today.Year);
@@ -113,9 +110,14 @@ namespace GMap.NET.Internals
          {
             if(zoom != value && !IsDragging)
             {
+               if(zoomPositionChanged)
+               {
+                  zoomPositionChanged = false;
+                  zoomPosition = Projection.FromPixelToLatLng(centerPixel, zoom);
+               }
                minOfTiles = Projection.GetTileMatrixMinXY(value);
                maxOfTiles = Projection.GetTileMatrixMaxXY(value);
-               centerPixel = Projection.FromLatLngToPixel(CurrentPosition, value);
+               centerPixel = Projection.FromLatLngToPixel(zoomPosition, value);
                zoom = value;
 
                if(IsStarted)
@@ -146,6 +148,9 @@ namespace GMap.NET.Internals
          }
       }
 
+      PointLatLng zoomPosition;
+      public bool zoomPositionChanged = false;
+
       /// <summary>
       /// current marker position
       /// </summary>
@@ -157,8 +162,9 @@ namespace GMap.NET.Internals
          }
          set
          {
-            //currentPosition = value;
+            zoomPosition = value;
             centerPixel = Projection.FromLatLngToPixel(value, Zoom);
+            zoomPositionChanged = false;
 
             if(!IsDragging)
             {
@@ -202,7 +208,7 @@ namespace GMap.NET.Internals
 
                minOfTiles = Projection.GetTileMatrixMinXY(Zoom);
                maxOfTiles = Projection.GetTileMatrixMaxXY(Zoom);
-               centerPixel = Projection.FromLatLngToPixel(CurrentPosition, Zoom);
+               centerPixel = Projection.FromLatLngToPixel(zoomPosition, Zoom);
 
                if(IsStarted)
                {
@@ -652,7 +658,7 @@ namespace GMap.NET.Internals
       public void UpdateCenterTileXYLocation()
       {
          UpdateViewRect();
-         centerTileXYLocation = Projection.FromPixelToTileXY(centerPixel);
+         centerTileXY = Projection.FromPixelToTileXY(centerPixel);
       }
 
       public int vWidth = 800;
@@ -733,14 +739,14 @@ namespace GMap.NET.Internals
       }
 
       /// <summary>
-      /// return local coordinates from lat/lng
+      /// return local coordinates from lat/lng wor wpf
       /// </summary>
       /// <param name="latlng"></param>
       /// <returns></returns>
       public Point FromLatLngToLocal(PointLatLng latlng)
       {
          Point pLocal = Projection.FromLatLngToPixel(latlng, Zoom);
-         //pLocal.Offset(renderOffset);
+         pLocal.Offset(renderOffset);
          return pLocal;
       }
 
@@ -788,6 +794,8 @@ namespace GMap.NET.Internals
       public void EndDrag()
       {
          IsDragging = false;
+         zoomPositionChanged = true;
+
          if(OnNeedInvalidation != null)
          {
             OnNeedInvalidation();
@@ -835,7 +843,7 @@ namespace GMap.NET.Internals
       public void GoToCurrentPosition()
       {
          renderOffset = Point.Empty;
-         centerTileXYLocationLast = Point.Empty;
+         centerTileXYLast = Point.Empty;
          dragPoint = Point.Empty;
 
          Drag(new Point(-centerPixel.X + Width / 2, -centerPixel.Y + Height / 2));
@@ -849,7 +857,7 @@ namespace GMap.NET.Internals
       internal void GoToCurrentPositionOnZoom()
       {
          renderOffset = Point.Empty;
-         centerTileXYLocationLast = Point.Empty;
+         centerTileXYLast = Point.Empty;
          dragPoint = Point.Empty;
 
          // goto location and centering
@@ -872,9 +880,8 @@ namespace GMap.NET.Internals
          {
             mouseLastZoom = Point.Empty;
 
-            Point pt = new Point(-(centerPixel.X - Width / 2), -(centerPixel.Y - Height / 2));
-            renderOffset.X = pt.X - dragPoint.X;
-            renderOffset.Y = pt.Y - dragPoint.Y;
+            renderOffset.X = -centerPixel.X + Width / 2;
+            renderOffset.Y = -centerPixel.Y + Height / 2;
          }
 
          UpdateCenterTileXYLocation();
@@ -890,9 +897,9 @@ namespace GMap.NET.Internals
 
          UpdateCenterTileXYLocation();
 
-         if(centerTileXYLocation != centerTileXYLocationLast)
+         if(centerTileXY != centerTileXYLast)
          {
-            centerTileXYLocationLast = centerTileXYLocation;
+            centerTileXYLast = centerTileXY;
             UpdateBounds();
          }
 
@@ -918,17 +925,15 @@ namespace GMap.NET.Internals
 
          UpdateCenterTileXYLocation();
 
-         if(centerTileXYLocation != centerTileXYLocationLast)
+         if(centerTileXY != centerTileXYLast)
          {
-            centerTileXYLocationLast = centerTileXYLocation;
+            centerTileXYLast = centerTileXY;
             UpdateBounds();
          }
 
          if(IsDragging)
          {
             //LastLocationInBounds = CurrentPosition;
-            //CurrentPosition = Projection.FromPixelToLatLng(centerPixel, zoom);
-
             if(OnMapDrag != null)
             {
                OnMapDrag();
@@ -1216,7 +1221,7 @@ namespace GMap.NET.Internals
                {
                   for(int j = -sizeOfMapArea.Height; j <= sizeOfMapArea.Height; j++)
                   {
-                     Point p = centerTileXYLocation;
+                     Point p = centerTileXY;
                      p.X += i;
                      p.Y += j;
 

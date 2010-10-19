@@ -1221,7 +1221,7 @@ namespace Demo.WindowsForms
 
             if(currentMarker.IsVisible)
             {
-               currentMarker.Position = MainMap.FromLocalToLatLng(e.X, e.Y);
+               currentMarker.RenderingOrigin = MainMap.FromLocalToPixel(e.X, e.Y);
             }
          }
       }
@@ -1235,7 +1235,7 @@ namespace Demo.WindowsForms
             {
                if(currentMarker.IsVisible)
                {
-                  currentMarker.Position = MainMap.FromLocalToLatLng(e.X, e.Y);
+                  currentMarker.RenderingOrigin = MainMap.FromLocalToPixel(e.X, e.Y);
                }
             }
             else // move rect marker
@@ -1269,6 +1269,8 @@ namespace Demo.WindowsForms
       // MapZoomChanged
       void MainMap_OnMapZoomChanged()
       {
+         trackBar1.Minimum = MainMap.MinZoom;
+         trackBar1.Maximum = MainMap.MaxZoom;
          trackBar1.Value = (int) (MainMap.Zoom);
          textBoxZoomCurrent.Text = MainMap.Zoom.ToString();
       }
@@ -1357,12 +1359,6 @@ namespace Demo.WindowsForms
             MainMap.ZoomAndCenterMarkers(null);
             trackBar1.Value = (int) MainMap.Zoom;
          }
-      }
-
-      // ensure focus on map, trackbar can have it too
-      private void MainMap_MouseEnter(object sender, EventArgs e)
-      {
-         MainMap.Focus();
       }
       #endregion
 
@@ -1496,8 +1492,8 @@ namespace Demo.WindowsForms
       // add marker on current position
       private void button4_Click(object sender, EventArgs e)
       {
-         GMapMarkerGoogleGreen m = new GMapMarkerGoogleGreen(currentMarker.Position);
-         GMapMarkerRect mBorders = new GMapMarkerRect(currentMarker.Position);
+         GMapMarkerGoogleGreen m = new GMapMarkerGoogleGreen(MainMap.Position);
+         GMapMarkerRect mBorders = new GMapMarkerRect(MainMap.Position);
          {
             mBorders.InnerMarker = m;
             if(polygon != null)
@@ -1510,7 +1506,7 @@ namespace Demo.WindowsForms
          Placemark p = null;
          if(checkBoxPlacemarkInfo.Checked)
          {
-            p = GMaps.Instance.GetPlacemarkFromGeocoder(currentMarker.Position);
+            p = GMaps.Instance.GetPlacemarkFromGeocoder(MainMap.Position);
          }
 
          if(p != null)
@@ -1519,7 +1515,7 @@ namespace Demo.WindowsForms
          }
          else
          {
-            mBorders.ToolTipText = currentMarker.Position.ToString();
+            mBorders.ToolTipText = MainMap.Position.ToString();
          }
 
          objects.Markers.Add(m);

@@ -19,14 +19,14 @@ namespace GMap.NET.WindowsForms.Markers
 
       public override void OnRender(Graphics g)
       {
-         System.Drawing.Point p1 = new System.Drawing.Point(LocalPosition.X, LocalPosition.Y);
+         System.Drawing.Point p1 = new System.Drawing.Point(TopLeft.X, TopLeft.Y);
          p1.Offset(0, -10);
-         System.Drawing.Point p2 = new System.Drawing.Point(LocalPosition.X, LocalPosition.Y);
+         System.Drawing.Point p2 = new System.Drawing.Point(TopLeft.X, TopLeft.Y);
          p2.Offset(0, 10);
 
-         System.Drawing.Point p3 = new System.Drawing.Point(LocalPosition.X, LocalPosition.Y);
+         System.Drawing.Point p3 = new System.Drawing.Point(TopLeft.X, TopLeft.Y);
          p3.Offset(-10, 0);
-         System.Drawing.Point p4 = new System.Drawing.Point(LocalPosition.X, LocalPosition.Y);
+         System.Drawing.Point p4 = new System.Drawing.Point(TopLeft.X, TopLeft.Y);
          p4.Offset(10, 0);
 
          g.DrawLine(Pen, p1.X, p1.Y, p2.X, p2.Y);

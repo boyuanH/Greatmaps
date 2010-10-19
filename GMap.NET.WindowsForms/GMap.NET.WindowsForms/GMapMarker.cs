@@ -43,57 +43,48 @@ namespace GMap.NET.WindowsForms
          }
          set
          {
-            position = value;
-
-            if(IsVisible)
+            if(position != value)
             {
-               if(Overlay != null && Overlay.Control != null)
+               position = value;
+
+               if(IsVisible)
                {
-                  GMap.NET.Point p = Overlay.Control.FromLatLngToLocal(Position);
-                  LocalPosition = new Point(p.X + Offset.X, p.Y + Offset.Y);
+                  if(Overlay != null && Overlay.Control != null)
+                  {
+                     var p = Overlay.Control.FromLatLngToLocal(Position);
+                     RenderingOrigin = new Point(p.X, p.Y);
+
+                     Overlay.Control.Core_OnNeedInvalidation();
+                  }
                }
             }
          }
       }
 
-      public object Tag;
-
-      Point offset;
-      public Point Offset
+      Point renderingOrigin;
+      public Point RenderingOrigin
       {
          get
          {
-            return offset;
+            return renderingOrigin;
          }
          set
          {
-            offset = value;
-         }
-      }
-
-      Rectangle area;
-
-      /// <summary>
-      /// marker position in local coordinates, internal only, do not set it manualy
-      /// </summary>
-      public Point LocalPosition
-      {
-         get
-         {
-            return area.Location;
-         }
-         set
-         {
-            if(area.Location != value)
+            if(renderingOrigin != value)
             {
-               area.Location = value;
+               renderingOrigin = value;
+
+               var t = renderingOrigin;
+               t.Offset(-Offset.X, -Offset.Y);
+               area.Location = t;
+
+               if(Overlay != null && Overlay.Control != null)
                {
-                  if(Overlay != null && Overlay.Control != null)
+                  //position = Overlay.Control.FromLocalToLatLng(value.X, value.Y);
+
+                  if(IsVisible && !Overlay.Control.HoldInvalidation)
                   {
-                     if(!Overlay.Control.HoldInvalidation)
-                     {
-                        Overlay.Control.Core_OnNeedInvalidation();
-                     }
+                     Overlay.Control.Core_OnNeedInvalidation();
                   }
                }
             }
@@ -101,18 +92,19 @@ namespace GMap.NET.WindowsForms
       }
 
       /// <summary>
-      /// ToolTip position in local coordinates
+      /// local position of the top left corner of the marker
       /// </summary>
-      public Point ToolTipPosition
+      public Point TopLeft
       {
          get
          {
-            Point ret = area.Location;
-            ret.Offset(-Offset.X, -Offset.Y);
-            return ret;
+            return area.Location;
          }
       }
 
+      /// <summary>
+      /// virtual size of th marker
+      /// </summary>
       public Size Size
       {
          get
@@ -125,6 +117,11 @@ namespace GMap.NET.WindowsForms
          }
       }
 
+      Rectangle area;
+
+      /// <summary>
+      /// virtual area of the marker
+      /// </summary>
       public Rectangle LocalArea
       {
          get
@@ -132,6 +129,36 @@ namespace GMap.NET.WindowsForms
             return area;
          }
       }
+
+      Point offset;
+
+      /// <summary>
+      /// virtual offset in px from real coordinate center
+      /// </summary>
+      public Point Offset
+      {
+         get
+         {
+            return offset;
+         }
+         set
+         {
+            offset = value;
+         }
+      }
+
+      /// <summary>
+      /// ToolTip position in local coordinates
+      /// </summary>
+      public Point ToolTipPosition
+      {
+         get
+         {
+            return renderingOrigin;
+         }
+      }
+
+      public object Tag;
 
       public GMapToolTip ToolTip;
 

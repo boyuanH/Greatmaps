@@ -17,7 +17,7 @@ namespace GMap.NET.WindowsForms.Markers
          : base(p)
       {
          Size = new System.Drawing.Size(Resources.marker.Width, Resources.marker.Height);
-         Offset = new Point(-10, -34);
+         Offset = new Point(10, 34);
       }
 
       static readonly Point[] Arrow = new Point[] { new Point(-7, 7), new Point(0, -22), new Point(7, 7), new Point(0, 2) };
@@ -27,9 +27,8 @@ namespace GMap.NET.WindowsForms.Markers
 #if !PocketPC
          if(!Bearing.HasValue)
          {
-            g.DrawImageUnscaled(Resources.shadow50, LocalPosition.X, LocalPosition.Y);
+            g.DrawImageUnscaled(Resources.shadow50, TopLeft.X, TopLeft.Y);
          }
-         //g.TranslateTransform(ToolTipPosition.X, ToolTipPosition.Y);
 
          if(Bearing.HasValue)
          {
@@ -37,11 +36,9 @@ namespace GMap.NET.WindowsForms.Markers
             g.FillPolygon(Brushes.Red, Arrow);
          }
 
-         //g.ResetTransform();
-
          if(!Bearing.HasValue)
          {
-            g.DrawImageUnscaled(Resources.marker, LocalPosition.X, LocalPosition.Y);
+            g.DrawImageUnscaled(Resources.marker, TopLeft.X, TopLeft.Y);
          }
 #else
             DrawImageUnscaled(g, Resources.shadow50, LocalPosition.X, LocalPosition.Y);
