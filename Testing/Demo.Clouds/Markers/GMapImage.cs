@@ -35,7 +35,7 @@ namespace CloudsDemo
          if(image == null)
             return;
 
-         g.DrawImage(image, LocalPosition.X, LocalPosition.Y, Size.Width, Size.Height);
+         g.DrawImage(image, TopLeft.X, TopLeft.Y, Size.Width, Size.Height);
       }
    }
 }

@@ -551,7 +551,7 @@ namespace GMap.NET.WindowsForms
                         g.DrawRectangle(EmptyTileBorders, Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height);
                         {
 #if !PocketPC
-                           g.DrawString((tilePoint == Core.centerTileXYLocation ? "CENTER: " : "TILE: ") + tilePoint, MissingDataFont, Brushes.Red, new RectangleF(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height), CenterFormat);
+                           g.DrawString((tilePoint == Core.centerTileXY ? "CENTER: " : "TILE: ") + tilePoint, MissingDataFont, Brushes.Red, new RectangleF(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height), CenterFormat);
 #else
                            g.DrawString((tilePoint == Core.centerTileXYLocation? "" :"TILE: ") + tilePoint, MissingDataFont, TileGridLinesTextBrush, new RectangleF(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height), CenterFormat);
 #endif
@@ -702,7 +702,7 @@ namespace GMap.NET.WindowsForms
                         g.DrawRectangle(EmptyTileBorders, Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height);
                         {
 #if !PocketPC
-                           g.DrawString((tilePoint == Core.centerTileXYLocation ? "CENTER: " : "TILE: ") + tilePoint, MissingDataFont, Brushes.Red, new RectangleF(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height), CenterFormat);
+                           g.DrawString((tilePoint == Core.centerTileXY ? "CENTER: " : "TILE: ") + tilePoint, MissingDataFont, Brushes.Red, new RectangleF(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height), CenterFormat);
 #else
                            g.DrawString((tilePoint == Core.centerTileXYLocation? "" :"TILE: ") + tilePoint, MissingDataFont, TileGridLinesTextBrush, new RectangleF(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height), CenterFormat);
 #endif
@@ -727,8 +727,7 @@ namespace GMap.NET.WindowsForms
       {
          GMap.NET.Point p = FromLatLngToLocal(marker.Position);
          {
-            var f = new System.Drawing.Point(p.X + marker.Offset.X, p.Y + marker.Offset.Y);
-            marker.LocalPosition = f;
+            marker.RenderingOrigin = new System.Drawing.Point(p.X, p.Y);
          }
       }
 
@@ -1247,11 +1246,13 @@ namespace GMap.NET.WindowsForms
             else
 #endif
             {
+#if DEBUG
                if(VirtualSizeEnabled)
                {
                   e.Graphics.ScaleTransform(0.5f, 0.5f);
                   e.Graphics.TranslateTransform((Width - Width * 0.5f), (Height - Height * 0.5f));
                }
+#endif
 
                e.Graphics.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
 
@@ -1277,6 +1278,7 @@ namespace GMap.NET.WindowsForms
 
             e.Graphics.ResetTransform();
 
+#if DEBUG
             if(VirtualSizeEnabled)
             {
                e.Graphics.ScaleTransform(0.5f, 0.5f);
@@ -1284,6 +1286,7 @@ namespace GMap.NET.WindowsForms
 
                e.Graphics.DrawRectangle(SelectionPen, 0, 0, Width, Height);
             }
+#endif
          }
 
          base.OnPaint(e);
@@ -1550,6 +1553,7 @@ namespace GMap.NET.WindowsForms
 
 #if !PocketPC
 
+#if DEBUG
       /// <summary>
       /// shrinks map area, useful just for testing
       /// </summary>
@@ -1566,6 +1570,7 @@ namespace GMap.NET.WindowsForms
             Core.VirtualSizeEnabled = value;
          }
       }
+#endif
 
       protected override void OnSizeChanged(EventArgs e)
       {
@@ -1673,7 +1678,7 @@ namespace GMap.NET.WindowsForms
                this.Invalidate();
 #endif
             }
-            else if(!isSelected)
+            else if(!isSelected && (Form.ModifierKeys == Keys.Alt || Form.ModifierKeys == Keys.Shift))
             {
                isSelected = true;
                SelectedArea = RectLatLng.Empty;
@@ -1843,6 +1848,8 @@ namespace GMap.NET.WindowsForms
             else
 #endif
             {
+               System.Drawing.Point pp = FromLocalToPixel(e.X, e.Y);
+
                for(int i = Overlays.Count - 1; i >= 0; i--)
                {
                   GMapOverlay o = Overlays[i];
@@ -1852,8 +1859,6 @@ namespace GMap.NET.WindowsForms
                      {
                         if(m.IsVisible && m.IsHitTestVisible)
                         {
-                           System.Drawing.Point pp = new System.Drawing.Point(e.X, e.Y);
-                           pp.Offset(-Core.renderOffset.X, -Core.renderOffset.Y);
                            if(m.LocalArea.Contains(pp))
                            {
 #if !PocketPC
@@ -1901,6 +1906,12 @@ namespace GMap.NET.WindowsForms
 
       public bool InvertedMouseWheelZooming = false;
 
+      protected override void OnMouseEnter(EventArgs e)
+      {
+         base.OnMouseEnter(e);
+         Focus();
+      }
+
       protected override void OnMouseWheel(MouseEventArgs e)
       {
          base.OnMouseWheel(e);
@@ -1909,8 +1920,8 @@ namespace GMap.NET.WindowsForms
          {
             if(Core.mouseLastZoom.X != e.X && Core.mouseLastZoom.Y != e.Y)
             {
-               GMap.NET.Point pp = new GMap.NET.Point(e.X, e.Y);
-               pp.Offset(-Core.renderOffset.X, -Core.renderOffset.Y);
+               var pd = FromLocalToPixel(e.X, e.Y);
+               GMap.NET.Point pp = new GMap.NET.Point(pd.X, pd.Y);
 
                if(MouseWheelZoomType == MouseWheelZoomType.MousePositionAndCenter)
                {
@@ -1941,6 +1952,7 @@ namespace GMap.NET.WindowsForms
                }
             }
 
+            Core.zoomPositionChanged = true;
             Core.MouseWheelZooming = true;
 
             if(e.Delta > 0)
@@ -1999,6 +2011,21 @@ namespace GMap.NET.WindowsForms
          return status;
       }
 
+      public System.Drawing.Point FromLocalToPixel(int x, int y)
+      {
+         System.Drawing.Point ret = new System.Drawing.Point(x, y);
+
+         if(IsRotated)
+         {
+            System.Drawing.Point[] tt = new System.Drawing.Point[] { ret };
+            rotationMatrixInvert.TransformPoints(tt);
+            ret = tt[0];
+         }
+
+         ret.Offset(-Core.renderOffset.X, -Core.renderOffset.Y);
+         return ret;
+      }
+
       /// <summary>
       /// gets world coordinate from local control coordinate 
       /// </summary>
@@ -2037,7 +2064,7 @@ namespace GMap.NET.WindowsForms
       /// <returns></returns>
       public GMap.NET.Point FromLatLngToLocal(PointLatLng point)
       {
-         GMap.NET.Point ret = Core.FromLatLngToLocal(point);
+         GMap.NET.Point ret = Projection.FromLatLngToPixel(point, ZoomStep);
 
 #if !PocketPC
          if(MapRenderTransform.HasValue)
