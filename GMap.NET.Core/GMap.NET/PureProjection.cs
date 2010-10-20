@@ -104,6 +104,12 @@ namespace GMap.NET
                ret = FromLatLngToPixel(p.Lat, p.Lng, zoom);
                FromLatLngToPixelCache[zoom].Add(p, ret);
 
+               // for reverse cache
+               if(!FromPixelToLatLngCache[zoom].ContainsKey(ret))
+               {
+                  FromPixelToLatLngCache[zoom].Add(ret, p);
+               }
+
                Debug.WriteLine("FromLatLngToPixelCache[" + zoom + "] added " + p + " with " + ret);
             }
          }
@@ -140,6 +146,12 @@ namespace GMap.NET
             {
                ret = FromPixelToLatLng(p.X, p.Y, zoom);
                FromPixelToLatLngCache[zoom].Add(p, ret);
+
+               // for reverse cache
+               if(!FromLatLngToPixelCache[zoom].ContainsKey(ret))
+               {
+                  FromLatLngToPixelCache[zoom].Add(ret, p);
+               }
 
                Debug.WriteLine("FromPixelToLatLngCache[" + zoom + "] added " + p + " with " + ret);
             }
