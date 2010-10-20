@@ -42,10 +42,10 @@ namespace GMap.NET.WindowsForms.ToolTips
       {
          System.Drawing.Size st = g.MeasureString(Marker.ToolTipText, Font).ToSize();
 
-         System.Drawing.Rectangle rect = new System.Drawing.Rectangle(Marker.ToolTipPosition.X, Marker.ToolTipPosition.Y - st.Height, st.Width + TextPadding.Width * 2, st.Height + TextPadding.Height);
+         System.Drawing.Rectangle rect = new System.Drawing.Rectangle(Marker.ToolTipOrigin.X, Marker.ToolTipOrigin.Y - st.Height, st.Width + TextPadding.Width * 2, st.Height + TextPadding.Height);
          rect.Offset(Offset.X, Offset.Y);
 
-         g.DrawLine(Stroke, Marker.ToolTipPosition.X, Marker.ToolTipPosition.Y, rect.X + Radius/2, rect.Y + rect.Height - Radius/2);
+         g.DrawLine(Stroke, Marker.ToolTipOrigin.X, Marker.ToolTipOrigin.Y, rect.X + Radius/2, rect.Y + rect.Height - Radius/2);
 
          DrawRoundRectangle(g, Stroke, rect.X, rect.Y, rect.Width, rect.Height, Radius);
 

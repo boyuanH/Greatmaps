@@ -69,14 +69,8 @@ namespace GMap.NET.WindowsForms
 
       internal GMapControl Control;
 
-      public GMapOverlay(GMapControl control, string id)
+      public GMapOverlay(string id)
       {
-         if(control == null)
-         {
-            throw new Exception("GMapControl in GMapOverlay can't be null");
-         }
-
-         Control = control;
          Id = id;
          Markers.CollectionChanged += new NotifyCollectionChangedEventHandler(Markers_CollectionChanged);
          Routes.CollectionChanged += new NotifyCollectionChangedEventHandler(Routes_CollectionChanged);
@@ -99,7 +93,7 @@ namespace GMap.NET.WindowsForms
 
          if(!Control.HoldInvalidation)
          {
-            Control.Core_OnNeedInvalidation();
+            Control.ThreadSafeInvalidation();
          }
       }
 
@@ -119,7 +113,7 @@ namespace GMap.NET.WindowsForms
 
          if(!Control.HoldInvalidation)
          {
-            Control.Core_OnNeedInvalidation();
+            Control.ThreadSafeInvalidation();
          }
       }
 
@@ -150,7 +144,7 @@ namespace GMap.NET.WindowsForms
 
          if(!Control.HoldInvalidation)
          {
-            Control.Core_OnNeedInvalidation();
+            Control.ThreadSafeInvalidation();
          }
       }
 

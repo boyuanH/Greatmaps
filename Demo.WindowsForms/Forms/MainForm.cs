@@ -144,16 +144,16 @@ namespace Demo.WindowsForms
 
             // add custom layers  
             {
-               routes = new GMapOverlay(MainMap, "routes");
+               routes = new GMapOverlay("routes");
                MainMap.Overlays.Add(routes);
 
-               polygons = new GMapOverlay(MainMap, "polygons");
+               polygons = new GMapOverlay("polygons");
                MainMap.Overlays.Add(polygons);
 
-               objects = new GMapOverlay(MainMap, "objects");
+               objects = new GMapOverlay("objects");
                MainMap.Overlays.Add(objects);
 
-               top = new GMapOverlay(MainMap, "top");
+               top = new GMapOverlay("top");
                MainMap.Overlays.Add(top);
 
                routes.Routes.CollectionChanged += new GMap.NET.ObjectModel.NotifyCollectionChangedEventHandler(Routes_CollectionChanged);
@@ -1171,7 +1171,7 @@ namespace Demo.WindowsForms
 
             GMapMarkerRect rc = item as GMapMarkerRect;
             rc.Pen.Color = Color.Blue;
-            MainMap.Invalidate(false);
+            MainMap.Invalidate();
          }
       }
 
@@ -1181,7 +1181,7 @@ namespace Demo.WindowsForms
          {
             GMapMarkerRect rc = item as GMapMarkerRect;
             rc.Pen.Color = Color.Red;
-            MainMap.Invalidate(false);
+            MainMap.Invalidate();
 
             CurentRectMarker = rc;
          }
@@ -1209,7 +1209,8 @@ namespace Demo.WindowsForms
       {
          if(e.Button == MouseButtons.Left)
          {
-            isMouseDown = false;
+            isMouseDown = false;    
+            currentMarker.UpdatePositionUsingLocalOrigin();
          }
       }
 
@@ -1219,9 +1220,9 @@ namespace Demo.WindowsForms
          {
             isMouseDown = true;
 
-            if(currentMarker.IsVisible)
+            if(!MainMap.IsMouseOverMarker && currentMarker.IsVisible)
             {
-               currentMarker.RenderingOrigin = MainMap.FromLocalToPixel(e.X, e.Y);
+               currentMarker.LocalOrigin = MainMap.FromLocalToPixel(e.X, e.Y);
             }
          }
       }
@@ -1233,34 +1234,30 @@ namespace Demo.WindowsForms
          {
             if(CurentRectMarker == null)
             {
-               if(currentMarker.IsVisible)
+               if(!MainMap.IsMouseOverMarker && currentMarker.IsVisible)
                {
-                  currentMarker.RenderingOrigin = MainMap.FromLocalToPixel(e.X, e.Y);
+                  currentMarker.LocalOrigin = MainMap.FromLocalToPixel(e.X, e.Y);
                }
             }
             else // move rect marker
             {
-               PointLatLng pnew = MainMap.FromLocalToLatLng(e.X, e.Y);
+               var pnew = MainMap.FromLocalToPixel(e.X, e.Y);
 
                int? pIndex = (int?) CurentRectMarker.Tag;
                if(pIndex.HasValue)
                {
                   if(pIndex < polygon.Points.Count)
                   {
-                     polygon.Points[pIndex.Value] = pnew;
-                     MainMap.UpdatePolygonLocalPosition(polygon);
+                     polygon.Points[pIndex.Value] = MainMap.Projection.FromPixelToLatLng(pnew.X, pnew.Y, (int) MainMap.Zoom);
+                     polygon.LocalPoints[pIndex.Value] = new GMap.NET.Point(pnew.X, pnew.Y);
                   }
                }
 
-               if(currentMarker.IsVisible)
-               {
-                  currentMarker.Position = pnew;
-               }
-               CurentRectMarker.Position = pnew;
+               CurentRectMarker.LocalOrigin = pnew;
 
                if(CurentRectMarker.InnerMarker != null)
                {
-                  CurentRectMarker.InnerMarker.Position = pnew;
+                  CurentRectMarker.InnerMarker.LocalOrigin = pnew;
                }
             }
          }
@@ -1282,14 +1279,19 @@ namespace Demo.WindowsForms
          {
             if(item is GMapMarkerRect)
             {
-               Placemark pos = GMaps.Instance.GetPlacemarkFromGeocoder(item.Position);
+               var itemr = item as GMapMarkerRect;
+
+               itemr.UpdatePositionUsingLocalOrigin();
+               if(itemr.InnerMarker != null)
+               {
+                  itemr.InnerMarker.UpdatePositionUsingLocalOrigin();
+               }
+
+               Placemark pos = GMaps.Instance.GetPlacemarkFromGeocoder(itemr.Position);
                if(pos != null)
                {
-                  GMapMarkerRect v = item as GMapMarkerRect;
-                  {
-                     v.ToolTipText = pos.Address;
-                  }
-                  MainMap.Invalidate(false);
+                  itemr.ToolTipText = pos.Address;
+                  MainMap.Invalidate();
                }
             }
             else
@@ -1492,8 +1494,8 @@ namespace Demo.WindowsForms
       // add marker on current position
       private void button4_Click(object sender, EventArgs e)
       {
-         GMapMarkerGoogleGreen m = new GMapMarkerGoogleGreen(MainMap.Position);
-         GMapMarkerRect mBorders = new GMapMarkerRect(MainMap.Position);
+         GMapMarkerGoogleGreen m = new GMapMarkerGoogleGreen(currentMarker.Position);
+         GMapMarkerRect mBorders = new GMapMarkerRect(currentMarker.Position);
          {
             mBorders.InnerMarker = m;
             if(polygon != null)
@@ -1506,7 +1508,7 @@ namespace Demo.WindowsForms
          Placemark p = null;
          if(checkBoxPlacemarkInfo.Checked)
          {
-            p = GMaps.Instance.GetPlacemarkFromGeocoder(MainMap.Position);
+            p = GMaps.Instance.GetPlacemarkFromGeocoder(currentMarker.Position);
          }
 
          if(p != null)
@@ -1515,7 +1517,7 @@ namespace Demo.WindowsForms
          }
          else
          {
-            mBorders.ToolTipText = MainMap.Position.ToString();
+            mBorders.ToolTipText = currentMarker.Position.ToString();
          }
 
          objects.Markers.Add(m);

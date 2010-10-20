@@ -81,7 +81,7 @@ namespace Demo.WindowsForms
             e.Result = bigImage;
 
             // current area
-            GMap.NET.Point topLeftPx = info.Projection.FromLatLngToPixel(info.Area.LocationTopLeft, info.Zoom);
+            GMap.NET.Point topLeftPx = info.Projection.FromLatLngToPixel(info.Area.LocationTopLeft, info.Zoom, false);
             GMap.NET.Point rightButtomPx = info.Projection.FromLatLngToPixel(info.Area.Bottom, info.Area.Right, info.Zoom);
             GMap.NET.Point pxDelta = new GMap.NET.Point(rightButtomPx.X - topLeftPx.X, rightButtomPx.Y - topLeftPx.Y);
             GMap.NET.Size maxOfTiles = info.Projection.GetTileMatrixMaxXY(info.Zoom);
@@ -226,7 +226,7 @@ namespace Demo.WindowsForms
                            px.Offset(-topLeftPx.X, -topLeftPx.Y);
                            px.Offset(r.Offset.X, r.Offset.Y);
 
-                           r.RenderingOrigin = new System.Drawing.Point(px.X, px.Y);
+                           r.LocalOrigin = new System.Drawing.Point(px.X, px.Y);
 
                            r.OnRender(gfx);
                         }

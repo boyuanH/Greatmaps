@@ -331,7 +331,7 @@ namespace GMap.NET.WindowsForms
             GMaps.Instance.ImageProxy = wimg;
 
             // to know when to invalidate
-            Core.OnNeedInvalidation += new NeedInvalidation(Core_OnNeedInvalidation);
+            Core.OnNeedInvalidation += new NeedInvalidation(ThreadSafeInvalidation);
             Core.SystemType = "WindowsForms";
 
             RenderMode = RenderMode.GDI_PLUS;
@@ -350,12 +350,28 @@ namespace GMap.NET.WindowsForms
                // no imports to move pointer
                MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionWithoutCenter;
             }
+
+            Overlays.CollectionChanged += new NotifyCollectionChangedEventHandler(Overlays_CollectionChanged);
+         }
+      }
+
+      void Overlays_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+      {
+         if(e.NewItems != null)
+         {
+            foreach(GMapOverlay obj in e.NewItems)
+            {
+               if(obj != null)
+               {
+                  obj.Control = this;
+               }
+            }
          }
       }
 #endif
 
       /// <summary>
-      /// update objects when map is draged/zoomed
+      /// update objects when map is zoomed/rotated
       /// </summary>
       internal void ForceUpdateOverlays()
       {
@@ -380,17 +396,13 @@ namespace GMap.NET.WindowsForms
       /// <summary>
       /// thread safe invalidation
       /// </summary>
-      internal void Core_OnNeedInvalidation()
+      internal void ThreadSafeInvalidation()
       {
-         if(this.InvokeRequired)
+         if(InvokeRequired)
          {
             MethodInvoker m = delegate
             {
-#if !PocketPC
-               Invalidate(false);
-#else
                Invalidate();
-#endif
             };
             try
             {
@@ -406,11 +418,7 @@ namespace GMap.NET.WindowsForms
          }
          else
          {
-#if !PocketPC
-            Invalidate(false);
-#else
             Invalidate();
-#endif
          }
       }
 
@@ -727,7 +735,7 @@ namespace GMap.NET.WindowsForms
       {
          GMap.NET.Point p = FromLatLngToLocal(marker.Position);
          {
-            marker.RenderingOrigin = new System.Drawing.Point(p.X, p.Y);
+            marker.LocalOrigin = new System.Drawing.Point(p.X, p.Y);
          }
       }
 
@@ -741,7 +749,7 @@ namespace GMap.NET.WindowsForms
 
          foreach(GMap.NET.PointLatLng pg in route.Points)
          {
-            GMap.NET.Point p = Projection.FromLatLngToPixel(pg, Core.Zoom);
+            GMap.NET.Point p = Projection.FromLatLngToPixel(pg, Core.Zoom, true);
 
             if(IsRotated)
             {
@@ -767,7 +775,7 @@ namespace GMap.NET.WindowsForms
 
          foreach(GMap.NET.PointLatLng pg in polygon.Points)
          {
-            GMap.NET.Point p = Projection.FromLatLngToPixel(pg, Core.Zoom);
+            GMap.NET.Point p = Projection.FromLatLngToPixel(pg, Core.Zoom, true);
 
             if(IsRotated)
             {
@@ -1265,6 +1273,9 @@ namespace GMap.NET.WindowsForms
 
                   DrawMapDesktop(e.Graphics);
 
+                  //e.Graphics.ResetTransform();
+                  //e.Graphics.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
+
                   OnPaintEtc(e.Graphics);
                }
                else
@@ -1362,7 +1373,8 @@ namespace GMap.NET.WindowsForms
 
                if(!HoldInvalidation && Core.IsStarted)
                {
-                  ForceUpdateOverlays();
+                  //ForceUpdateOverlays();
+                  Invalidate();
                }
             }
          }
@@ -1600,7 +1612,7 @@ namespace GMap.NET.WindowsForms
                if(IsRotated)
                {
                   UpdateRotationMatrix();
-               }   
+               }
             }
          }
       }
@@ -1662,11 +1674,7 @@ namespace GMap.NET.WindowsForms
 #endif
                Core.BeginDrag(Core.mouseDown);
 
-#if !PocketPC
-               this.Invalidate(false);
-#else
                this.Invalidate();
-#endif
             }
             else if(!isSelected && (Form.ModifierKeys == Keys.Alt || Form.ModifierKeys == Keys.Shift))
             {
@@ -1728,6 +1736,8 @@ namespace GMap.NET.WindowsForms
       {
          if(!Core.IsDragging)
          {
+            System.Drawing.Point pp = FromLocalToPixel(e.X, e.Y);
+
             for(int i = Overlays.Count - 1; i >= 0; i--)
             {
                GMapOverlay o = Overlays[i];
@@ -1737,13 +1747,13 @@ namespace GMap.NET.WindowsForms
                   {
                      if(m.IsVisible && m.IsHitTestVisible)
                      {
-                        if(m.LocalArea.Contains(e.X, e.Y))
+                        if(m.LocalArea.Contains(pp))
                         {
                            if(OnMarkerClick != null)
                            {
                               OnMarkerClick(m, e);
-                              break;
                            }
+                           break;
                         }
                      }
                   }
@@ -1813,8 +1823,7 @@ namespace GMap.NET.WindowsForms
             {
                Core.mouseCurrent = ApplyRotationInversion(e.X, e.Y);
                Core.Drag(Core.mouseCurrent);
-               //ForceUpdateOverlays();
-               Invalidate(false);
+               Invalidate();
             }
          }
          else
@@ -1855,11 +1864,8 @@ namespace GMap.NET.WindowsForms
                               this.Cursor = System.Windows.Forms.Cursors.Hand;
 #endif
                               m.IsMouseOver = true;
-#if !PocketPC
-                              Invalidate(false);
-#else
+
                               Invalidate();
-#endif
 
                               if(OnMarkerEnter != null)
                               {
@@ -1872,11 +1878,8 @@ namespace GMap.NET.WindowsForms
                               this.Cursor = System.Windows.Forms.Cursors.Default;
 #endif
                               m.IsMouseOver = false;
-#if !PocketPC
-                              Invalidate(false);
-#else
+
                               Invalidate();
-#endif
 
                               if(OnMarkerLeave != null)
                               {
@@ -2054,7 +2057,7 @@ namespace GMap.NET.WindowsForms
       /// <returns></returns>
       public GMap.NET.Point FromLatLngToLocal(PointLatLng point)
       {
-         GMap.NET.Point ret = Projection.FromLatLngToPixel(point, ZoomStep);
+         GMap.NET.Point ret = Projection.FromLatLngToPixel(point, Core.Zoom, true);
 
 #if !PocketPC
          if(MapRenderTransform.HasValue)
