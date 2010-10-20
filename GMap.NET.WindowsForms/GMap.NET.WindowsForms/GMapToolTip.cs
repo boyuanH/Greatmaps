@@ -12,7 +12,18 @@ namespace GMap.NET.WindowsForms
    [Serializable]
    public class GMapToolTip : ISerializable
    {
-      internal GMapMarker Marker;
+      GMapMarker marker;
+      public GMapMarker Marker
+      {
+         get
+         {
+            return marker;
+         }
+         internal set
+         {
+            marker = value;
+         }
+      }
 
       public Point Offset;
 
@@ -60,7 +71,7 @@ namespace GMap.NET.WindowsForms
 
       public GMapToolTip(GMapMarker marker)
       {
-         this.Marker = marker;
+         this.marker = marker;
          this.Offset = new Point(14, -44);
 
          this.Stroke.Width = 2;
@@ -76,17 +87,17 @@ namespace GMap.NET.WindowsForms
 
       public virtual void Draw(Graphics g)
       {
-         System.Drawing.Size st = g.MeasureString(Marker.ToolTipText, Font).ToSize();
-         System.Drawing.Rectangle rect = new System.Drawing.Rectangle(Marker.ToolTipPosition.X, Marker.ToolTipPosition.Y - st.Height, st.Width + TextPadding.Width, st.Height + TextPadding.Height);
+         System.Drawing.Size st = g.MeasureString(marker.ToolTipText, Font).ToSize();
+         System.Drawing.Rectangle rect = new System.Drawing.Rectangle(marker.ToolTipOrigin.X, marker.ToolTipOrigin.Y - st.Height, st.Width + TextPadding.Width, st.Height + TextPadding.Height);
          rect.Offset(Offset.X, Offset.Y);
 
-         g.DrawLine(Stroke, Marker.ToolTipPosition.X, Marker.ToolTipPosition.Y, rect.X, rect.Y + rect.Height / 2);
+         g.DrawLine(Stroke, marker.ToolTipOrigin.X, marker.ToolTipOrigin.Y, rect.X, rect.Y + rect.Height / 2);
 
          g.FillRectangle(Fill, rect);
          g.DrawRectangle(Stroke, rect);
 
 #if !PocketPC
-         g.DrawString(Marker.ToolTipText, Font, Brushes.Navy, rect, Format);
+         g.DrawString(marker.ToolTipText, Font, Brushes.Navy, rect, Format);
 #else
          g.DrawString(Marker.ToolTipText, Font, Foreground, rect, Format);
 #endif

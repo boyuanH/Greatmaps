@@ -934,7 +934,8 @@ namespace GMap.NET.WindowsPresentation
 
       public GMap.NET.Point FromLatLngToLocal(PointLatLng point)
       {
-         GMap.NET.Point ret = Core.FromLatLngToLocal(point);
+         GMap.NET.Point ret = Projection.FromLatLngToPixel(point, Core.Zoom, true);
+         ret.Offset(Core.renderOffset);
 
          if(MapRenderTransform != null)
          {

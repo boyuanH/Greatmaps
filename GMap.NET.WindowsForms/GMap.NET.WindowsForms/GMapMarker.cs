@@ -52,42 +52,56 @@ namespace GMap.NET.WindowsForms
                   if(Overlay != null && Overlay.Control != null)
                   {
                      var p = Overlay.Control.FromLatLngToLocal(Position);
-                     RenderingOrigin = new Point(p.X, p.Y);
+                     LocalOrigin = new Point(p.X, p.Y);
 
-                     Overlay.Control.Core_OnNeedInvalidation();
+                     Overlay.Control.ThreadSafeInvalidation();
                   }
                }
             }
          }
       }
 
-      Point renderingOrigin;
-      public Point RenderingOrigin
+      Point localOrigin;
+
+      /// <summary>
+      /// local position of the origin of the marker
+      /// </summary>
+      public Point LocalOrigin
       {
          get
          {
-            return renderingOrigin;
+            return localOrigin;
          }
          set
          {
-            if(renderingOrigin != value)
+            if(localOrigin != value)
             {
-               renderingOrigin = value;
+               localOrigin = value;
 
-               var t = renderingOrigin;
+               var t = localOrigin;
                t.Offset(Offset.X, Offset.Y);
                area.Location = t;
 
                if(Overlay != null && Overlay.Control != null)
                {
-                  //position = Overlay.Control.FromLocalToLatLng(value.X, value.Y);
-
                   if(IsVisible && !Overlay.Control.HoldInvalidation)
                   {
-                     Overlay.Control.Core_OnNeedInvalidation();
+                     Overlay.Control.ThreadSafeInvalidation();
                   }
                }
             }
+         }
+      }
+
+      /// <summary>
+      /// updates position using local position of the origin of the marker
+      /// use this if you change LocalOrigin manualy
+      /// </summary>
+      public void UpdatePositionUsingLocalOrigin()
+      {
+         if(Overlay != null && Overlay.Control != null)
+         {
+            position = Overlay.Control.Projection.FromPixelToLatLng(new GMap.NET.Point(localOrigin.X, localOrigin.Y), Overlay.Control.ZoomStep, true);
          }
       }
 
@@ -147,21 +161,38 @@ namespace GMap.NET.WindowsForms
          }
       }
 
+      Point toffset;
+
       /// <summary>
-      /// ToolTip position in local coordinates
+      /// virtual offset of tooltip in px from real coordinate center
       /// </summary>
-      public Point ToolTipPosition
+      public Point ToolTipOffset
       {
          get
          {
-            return renderingOrigin;
+            return toffset;
+         }
+         set
+         {
+            toffset = value;
+         }
+      }
+
+      /// <summary>
+      /// ToolTip position in local coordinates
+      /// </summary>
+      public Point ToolTipOrigin
+      {
+         get
+         {
+            var ret = localOrigin;
+            ret.Offset(toffset);
+            return ret;
          }
       }
 
       public object Tag;
-
       public GMapToolTip ToolTip;
-
       public MarkerTooltipMode ToolTipMode = MarkerTooltipMode.OnMouseOver;
 
       string toolTipText;
@@ -210,11 +241,9 @@ namespace GMap.NET.WindowsForms
                      Overlay.Control.UpdateMarkerLocalPosition(this);
                   }
 
+                  if(!Overlay.Control.HoldInvalidation)
                   {
-                     if(!Overlay.Control.HoldInvalidation)
-                     {
-                        Overlay.Control.Invalidate();
-                     }
+                     Overlay.Control.Invalidate();
                   }
                }
             }
@@ -245,7 +274,6 @@ namespace GMap.NET.WindowsForms
          internal set
          {
             isMouseOver = value;
-
             Overlay.Control.IsMouseOverMarker = value;
          }
       }

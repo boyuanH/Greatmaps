@@ -10,8 +10,8 @@ namespace GMap.NET
    /// </summary>
    public abstract class PureProjection
    {
-      readonly List<Dictionary<PointLatLng, Point>> FromLatLngToPixelCache = new List<Dictionary<PointLatLng, Point>>(33);
-      readonly List<Dictionary<Point, PointLatLng>> FromPixelToLatLngCache = new List<Dictionary<Point, PointLatLng>>(33);
+      internal readonly List<Dictionary<PointLatLng, Point>> FromLatLngToPixelCache = new List<Dictionary<PointLatLng, Point>>(33);
+      internal readonly List<Dictionary<Point, PointLatLng>> FromPixelToLatLngCache = new List<Dictionary<Point, PointLatLng>>(33);
 
       public PureProjection()
       {
@@ -19,6 +19,18 @@ namespace GMap.NET
          {
             FromLatLngToPixelCache.Add(new Dictionary<PointLatLng, Point>(4444));
             FromPixelToLatLngCache.Add(new Dictionary<Point, PointLatLng>(4444));
+         }
+      }
+
+      /// <summary>
+      /// clears coordinate caches
+      /// </summary>
+      public void ClearCache()
+      {
+         for(int i = 0; i < FromLatLngToPixelCache.Capacity; i++)
+         {
+            FromLatLngToPixelCache[i].Clear();
+            FromPixelToLatLngCache[i].Clear();
          }
       }
 
@@ -64,6 +76,7 @@ namespace GMap.NET
       /// <returns></returns>
       public abstract PointLatLng FromPixelToLatLng(int x, int y, int zoom);
 
+
       /// <summary>
       /// get pixel coordinates from lat/lng
       /// </summary>
@@ -72,13 +85,31 @@ namespace GMap.NET
       /// <returns></returns>
       public Point FromLatLngToPixel(PointLatLng p, int zoom)
       {
+         return FromLatLngToPixel(p, zoom, false);
+      }
+
+      /// <summary>
+      /// get pixel coordinates from lat/lng
+      /// </summary>
+      /// <param name="p"></param>
+      /// <param name="zoom"></param>
+      /// <returns></returns>
+      public Point FromLatLngToPixel(PointLatLng p, int zoom, bool useCache)
+      {
          Point ret = Point.Empty;
-         if(!FromLatLngToPixelCache[zoom].TryGetValue(p, out ret))
+         if(useCache)
+         {
+            if(!FromLatLngToPixelCache[zoom].TryGetValue(p, out ret))
+            {
+               ret = FromLatLngToPixel(p.Lat, p.Lng, zoom);
+               FromLatLngToPixelCache[zoom].Add(p, ret);
+
+               Debug.WriteLine("FromLatLngToPixelCache[" + zoom + "] added " + p + " with " + ret);
+            }
+         }
+         else
          {
             ret = FromLatLngToPixel(p.Lat, p.Lng, zoom);
-            FromLatLngToPixelCache[zoom].Add(p, ret);
-
-            Debug.WriteLine("FromLatLngToPixelCache[" + zoom + "] added " + p + " with " + ret);
          }
          return ret;
       }
@@ -91,13 +122,31 @@ namespace GMap.NET
       /// <returns></returns>
       public PointLatLng FromPixelToLatLng(Point p, int zoom)
       {
+         return FromPixelToLatLng(p, zoom, false);
+      }
+
+      /// <summary>
+      /// gets lat/lng coordinates from pixel coordinates
+      /// </summary>
+      /// <param name="p"></param>
+      /// <param name="zoom"></param>
+      /// <returns></returns>
+      public PointLatLng FromPixelToLatLng(Point p, int zoom, bool useCache)
+      {
          PointLatLng ret = PointLatLng.Empty;
-         if(!FromPixelToLatLngCache[zoom].TryGetValue(p, out ret))
+         if(useCache)
+         {
+            if(!FromPixelToLatLngCache[zoom].TryGetValue(p, out ret))
+            {
+               ret = FromPixelToLatLng(p.X, p.Y, zoom);
+               FromPixelToLatLngCache[zoom].Add(p, ret);
+
+               Debug.WriteLine("FromPixelToLatLngCache[" + zoom + "] added " + p + " with " + ret);
+            }
+         }
+         else
          {
             ret = FromPixelToLatLng(p.X, p.Y, zoom);
-            FromPixelToLatLngCache[zoom].Add(p, ret);
-
-            Debug.WriteLine("FromPixelToLatLngCache[" + zoom + "] added " + p + " with " + ret);
          }
          return ret;
       }
@@ -178,8 +227,8 @@ namespace GMap.NET
       {
          List<Point> ret = new List<Point>();
 
-         Point topLeft = FromPixelToTileXY(FromLatLngToPixel(rect.LocationTopLeft, zoom));
-         Point rightBottom = FromPixelToTileXY(FromLatLngToPixel(rect.LocationRightBottom, zoom));
+         Point topLeft = FromPixelToTileXY(FromLatLngToPixel(rect.LocationTopLeft, zoom, true));
+         Point rightBottom = FromPixelToTileXY(FromLatLngToPixel(rect.LocationRightBottom, zoom, true));
 
          for(int x = (topLeft.X - padding); x <= (rightBottom.X + padding); x++)
          {

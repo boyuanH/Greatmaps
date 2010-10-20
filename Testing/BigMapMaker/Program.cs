@@ -39,7 +39,7 @@ namespace BigMapMaker
                var types = GMaps.Instance.GetAllLayersOfType(type);
 
                // current area
-               GMap.NET.Point topLeftPx = prj.FromLatLngToPixel(area.LocationTopLeft, zoom);
+               GMap.NET.Point topLeftPx = prj.FromLatLngToPixel(area.LocationTopLeft, zoom, false);
                GMap.NET.Point rightButtomPx = prj.FromLatLngToPixel(area.Bottom, area.Right, zoom);
                GMap.NET.Point pxDelta = new GMap.NET.Point(rightButtomPx.X - topLeftPx.X, rightButtomPx.Y - topLeftPx.Y);
 

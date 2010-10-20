@@ -1662,10 +1662,10 @@ namespace GMap.NET
                var px2 = px1;
 
                px1.Offset(0, ProjectionForWMS.TileSize.Height);
-               PointLatLng p1 = ProjectionForWMS.FromPixelToLatLng(px1, zoom);
+               PointLatLng p1 = ProjectionForWMS.FromPixelToLatLng(px1, zoom, false);
 
                px2.Offset(ProjectionForWMS.TileSize.Width, 0);
-               PointLatLng p2 = ProjectionForWMS.FromPixelToLatLng(px2, zoom);
+               PointLatLng p2 = ProjectionForWMS.FromPixelToLatLng(px2, zoom, false);
 
                var ret = string.Format(CultureInfo.InvariantCulture, "http://mapbender.wheregroup.com/cgi-bin/mapserv?map=/data/umn/osm/osm_basic.map&VERSION=1.1.1&REQUEST=GetMap&SERVICE=WMS&LAYERS=OSM_Basic&styles=&bbox={0},{1},{2},{3}&width={4}&height={5}&srs=EPSG:4326&format=image/png", p1.Lng, p1.Lat, p2.Lng, p2.Lat, ProjectionForWMS.TileSize.Width, ProjectionForWMS.TileSize.Height);
 

@@ -32,7 +32,7 @@ namespace CloudsDemo
 
             mapControl.OnMapZoomChanged += new MapZoomChanged(mapControl_OnMapZoomChanged);
 
-            mainOverlay = new GMapOverlay(mapControl, "top");
+            mainOverlay = new GMapOverlay("top");
             mapControl.Overlays.Add(mainOverlay);
 
             clouds = new GMapImage(gtl);

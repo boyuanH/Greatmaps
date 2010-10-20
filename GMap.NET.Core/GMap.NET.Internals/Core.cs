@@ -113,11 +113,11 @@ namespace GMap.NET.Internals
                if(zoomPositionChanged)
                {
                   zoomPositionChanged = false;
-                  zoomPosition = Projection.FromPixelToLatLng(centerPixel, zoom);
+                  zoomPosition = Projection.FromPixelToLatLng(centerPixel, zoom, true);
                }
                minOfTiles = Projection.GetTileMatrixMinXY(value);
                maxOfTiles = Projection.GetTileMatrixMaxXY(value);
-               centerPixel = Projection.FromLatLngToPixel(zoomPosition, value);
+               centerPixel = Projection.FromLatLngToPixel(zoomPosition, value, true);
                zoom = value;
 
                if(IsStarted)
@@ -158,12 +158,12 @@ namespace GMap.NET.Internals
       {
          get
          {
-            return Projection.FromPixelToLatLng(centerPixel, zoom);
+            return Projection.FromPixelToLatLng(centerPixel, zoom, true);
          }
          set
          {
             zoomPosition = value;
-            centerPixel = Projection.FromLatLngToPixel(value, Zoom);
+            centerPixel = Projection.FromLatLngToPixel(value, Zoom, true);
             zoomPositionChanged = false;
 
             if(!IsDragging)
@@ -208,7 +208,7 @@ namespace GMap.NET.Internals
 
                minOfTiles = Projection.GetTileMatrixMinXY(Zoom);
                maxOfTiles = Projection.GetTileMatrixMaxXY(Zoom);
-               centerPixel = Projection.FromLatLngToPixel(zoomPosition, Zoom);
+               centerPixel = Projection.FromLatLngToPixel(zoomPosition, Zoom, true);
 
                if(IsStarted)
                {
@@ -730,19 +730,7 @@ namespace GMap.NET.Internals
       /// <returns></returns>
       public PointLatLng FromLocalToLatLng(int x, int y)
       {
-         return Projection.FromPixelToLatLng(new Point(x - renderOffset.X, y - renderOffset.Y), Zoom);
-      }
-
-      /// <summary>
-      /// return local coordinates from lat/lng wor wpf
-      /// </summary>
-      /// <param name="latlng"></param>
-      /// <returns></returns>
-      public Point FromLatLngToLocal(PointLatLng latlng)
-      {
-         Point pLocal = Projection.FromLatLngToPixel(latlng, Zoom);
-         pLocal.Offset(renderOffset);
-         return pLocal;
+         return Projection.FromPixelToLatLng(new Point(x - renderOffset.X, y - renderOffset.Y), Zoom, true);
       }
 
       /// <summary>
@@ -756,8 +744,8 @@ namespace GMap.NET.Internals
 
          for(int i = zoom; i <= maxZoom; i++)
          {
-            Point p1 = Projection.FromLatLngToPixel(rect.LocationTopLeft, i);
-            Point p2 = Projection.FromLatLngToPixel(rect.LocationRightBottom, i);
+            Point p1 = Projection.FromLatLngToPixel(rect.LocationTopLeft, i, true);
+            Point p2 = Projection.FromLatLngToPixel(rect.LocationRightBottom, i, true);
 
             if(((p2.X - p1.X) <= Width + 10) && (p2.Y - p1.Y) <= Height + 10)
             {
@@ -811,6 +799,7 @@ namespace GMap.NET.Internals
                tileLoadQueue.Clear();
             }
 
+            Projection.ClearCache();
             Matrix.ClearAllLevels();
 
             lock(FailedLoads)
