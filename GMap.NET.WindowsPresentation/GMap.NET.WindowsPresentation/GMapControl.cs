@@ -1280,8 +1280,8 @@ namespace GMap.NET.WindowsPresentation
          if(IsMouseDirectlyOver && !Core.IsDragging)
          {
             System.Windows.Point p = e.GetPosition(this);
-            //p = ApplyRotationInversion(p.X, p.Y);
-
+            p = ApplyRotationInversion(p.X, p.Y);
+            
             if(Core.mouseLastZoom.X != (int) p.X && Core.mouseLastZoom.Y != (int) p.Y)
             {
                if(MouseWheelZoomType == MouseWheelZoomType.MousePositionAndCenter)
@@ -1308,6 +1308,7 @@ namespace GMap.NET.WindowsPresentation
                Stuff.SetCursorPos((int) ps.X, (int) ps.Y);
             }
 
+            Core.zoomPositionChanged = true;
             Core.MouseWheelZooming = true;
 
             if(e.Delta > 0)

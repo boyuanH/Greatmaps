@@ -2008,14 +2008,15 @@ namespace GMap.NET.WindowsForms
       {
          System.Drawing.Point ret = new System.Drawing.Point(x, y);
 
+         ret.Offset(-Core.renderOffset.X, -Core.renderOffset.Y);
+
          if(IsRotated)
          {
             System.Drawing.Point[] tt = new System.Drawing.Point[] { ret };
             rotationMatrixInvert.TransformPoints(tt);
             ret = tt[0];
-         }
+         }  
 
-         ret.Offset(-Core.renderOffset.X, -Core.renderOffset.Y);
          return ret;
       }
 
