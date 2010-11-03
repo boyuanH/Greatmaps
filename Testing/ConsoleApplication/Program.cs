@@ -5,6 +5,7 @@ using System.Text;
 using GMap.NET.Projections;
 using DotSpatial.Projections;
 using System.Diagnostics;
+using GMap.NET;
 
 namespace ConsoleApplication
 {
@@ -12,6 +13,30 @@ namespace ConsoleApplication
    {
       static void Main(string[] args)
       {
+         {
+            int zoom = 11;
+            var p1 = new PointLatLng(54.897894682306, 23.9374116651471);
+            var p2 = new PointLatLng(54.8969580002102, 23.937305873711);
+
+            var pr = new LKS94Projection();
+            //var pr = new MercatorProjection();
+
+            {
+               var px1 = pr.FromLatLngToPixel(p1, zoom);
+               var px2 = pr.FromLatLngToPixel(p2, zoom);
+
+               var d = pr.GetDistanceInPixels(px1, px2);
+               var r = pr.GetGroundResolution(zoom, p1.Lat);
+               var dd = r * d;
+
+               var dd2 = pr.GetDistanceInMeters(p1, p2);
+
+               Debug.WriteLine("d1: " + dd + "m");
+               Debug.WriteLine("d2: " + dd2 + "m");
+            }
+         }
+
+         if(false)
          {
             double x = 25;
             double y = 50;

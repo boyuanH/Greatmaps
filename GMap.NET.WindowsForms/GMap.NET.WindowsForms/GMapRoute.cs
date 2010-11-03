@@ -84,6 +84,27 @@ namespace GMap.NET.WindowsForms
          Stroke.Width = 5;
       }
 
+      /// <summary>
+      /// route distance (in km)
+      /// </summary>
+      public double Distance
+      {
+         get
+         {
+            double distance = 0.0;
+
+            if(From.HasValue && To.HasValue)
+            {
+               for(int i = 1; i < Points.Count; i++)
+               {
+                  distance += Overlay.Control.Projection.GetDistanceInMeters(Points[i - 1], Points[i])/1000.0;
+               }
+            }
+
+            return distance;
+         }
+      }
+
       #region ISerializable Members
 
       /// <summary>

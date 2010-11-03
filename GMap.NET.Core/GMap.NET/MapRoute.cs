@@ -66,27 +66,6 @@ namespace GMap.NET
          Name = name;
       }
 
-      /// <summary>
-      /// route distance (in km)
-      /// </summary>
-      public double Distance
-      {
-         get
-         {
-            double distance = 0.0;
-
-            if(From.HasValue && To.HasValue)
-            {
-               for(int i = 1; i < Points.Count; i++)
-               {
-                  distance += GMaps.Instance.GetDistance(Points[i - 1], Points[i]);
-               }
-            }
-
-            return distance;
-         }
-      }
-
       #region ISerializable Members
 
       // Temp store for de-serialization.
