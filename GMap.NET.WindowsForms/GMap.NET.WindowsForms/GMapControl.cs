@@ -1260,6 +1260,17 @@ namespace GMap.NET.WindowsForms
                }
 #endif
 
+               e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+               e.Graphics.PageUnit = GraphicsUnit.Pixel;
+               e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+               e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+               //Matrix x = new Matrix();
+               //x.Translate(Core.renderOffset.X, Core.renderOffset.Y);
+               //e.Graphics.Transform = x;
+
+               // need a solution to lower high number offsets
+               // to remove translate distortions
                e.Graphics.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
 
                if(IsRotated)
@@ -1284,8 +1295,6 @@ namespace GMap.NET.WindowsForms
                   OnPaintEtc(e.Graphics);
                }
             }
-
-            e.Graphics.ResetTransform();
 
 #if DEBUG
             if(VirtualSizeEnabled)
@@ -1396,6 +1405,8 @@ namespace GMap.NET.WindowsForms
                o.Render(g);
             }
          }
+
+         g.ResetTransform();
 
 #if !PocketPC
          if(!SelectedArea.IsEmpty)
@@ -1520,32 +1531,32 @@ namespace GMap.NET.WindowsForms
 #if !PocketPC
          if(MapScaleInfoEnabled)
          {
-            if(Width > Core.pxRes5000km)
+            if(Width - 50 > Core.pxRes5000km)
             {
                g.DrawRectangle(ScalePen, 10, 10, Core.pxRes5000km, 10);
                g.DrawString("5000Km", ScaleFont, Brushes.Blue, Core.pxRes5000km + 10, 11);
             }
-            if(Width > Core.pxRes1000km)
+            if(Width - 50 > Core.pxRes1000km)
             {
                g.DrawRectangle(ScalePen, 10, 10, Core.pxRes1000km, 10);
                g.DrawString("1000Km", ScaleFont, Brushes.Blue, Core.pxRes1000km + 10, 11);
             }
-            if(Width > Core.pxRes100km && Zoom > 2)
+            if(Width - 50 > Core.pxRes100km && Zoom > 2)
             {
                g.DrawRectangle(ScalePen, 10, 10, Core.pxRes100km, 10);
                g.DrawString("100Km", ScaleFont, Brushes.Blue, Core.pxRes100km + 10, 11);
             }
-            if(Width > Core.pxRes10km && Zoom > 5)
+            if(Width - 50 > Core.pxRes10km && Zoom > 5)
             {
                g.DrawRectangle(ScalePen, 10, 10, Core.pxRes10km, 10);
                g.DrawString("10Km", ScaleFont, Brushes.Blue, Core.pxRes10km + 10, 11);
             }
-            if(Width > Core.pxRes1000m && Zoom >= 10)
+            if(Width - 50 > Core.pxRes1000m && Zoom >= 10)
             {
                g.DrawRectangle(ScalePen, 10, 10, Core.pxRes1000m, 10);
                g.DrawString("1000m", ScaleFont, Brushes.Blue, Core.pxRes1000m + 10, 11);
             }
-            if(Width > Core.pxRes100m && Zoom > 11)
+            if(Width - 50 > Core.pxRes100m && Zoom > 11)
             {
                g.DrawRectangle(ScalePen, 10, 10, Core.pxRes100m, 10);
                g.DrawString("100m", ScaleFont, Brushes.Blue, Core.pxRes100m + 9, 11);
@@ -1824,6 +1835,7 @@ namespace GMap.NET.WindowsForms
                Core.mouseCurrent = ApplyRotationInversion(e.X, e.Y);
                Core.Drag(Core.mouseCurrent);
                Invalidate();
+               Invalidate(false);
             }
          }
          else
@@ -2015,7 +2027,7 @@ namespace GMap.NET.WindowsForms
             System.Drawing.Point[] tt = new System.Drawing.Point[] { ret };
             rotationMatrixInvert.TransformPoints(tt);
             ret = tt[0];
-         }  
+         }
 
          return ret;
       }

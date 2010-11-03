@@ -145,7 +145,7 @@ namespace Demo.WindowsPresentation
                         objects.Add(new PointAndInfo(pos.Value, area));
                      }
                   }
-                  AddDemoZone(8.8, city.Value, objects);
+                  AddDemoZone(8.8 * 1000.0, city.Value, objects);
                }
                #endregion
             }
@@ -376,14 +376,14 @@ namespace Demo.WindowsPresentation
       #endregion
 
       // add objects and zone around them
-      void AddDemoZone(double areaRadius, PointLatLng center, List<PointAndInfo> objects)
+      void AddDemoZone(double areaRadiusInMeters, PointLatLng center, List<PointAndInfo> objects)
       {
          var objectsInArea = from p in objects
-                             where GMaps.Instance.GetDistance(center, p.Point) <= areaRadius
+                             where MainMap.Projection.GetDistanceInMeters(center, p.Point) <= areaRadiusInMeters
                              select new
                              {
                                 Obj = p,
-                                Dist = GMaps.Instance.GetDistance(center, p.Point)
+                                Dist = MainMap.Projection.GetDistanceInMeters(center, p.Point)
                              };
          if(objectsInArea.Any())
          {
