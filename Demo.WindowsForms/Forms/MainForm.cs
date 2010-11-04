@@ -73,9 +73,7 @@ namespace Demo.WindowsForms
             MainMap.MapType = MapType.GoogleMap;
             MainMap.MinZoom = 1;
             MainMap.MaxZoom = 17;
-            MainMap.Zoom = 3;
-
-            MainMap.MapScaleInfoEnabled = true;
+            MainMap.Zoom = 2;
 
             // map events
             MainMap.OnCurrentPositionChanged += new CurrentPositionChanged(MainMap_OnCurrentPositionChanged);
@@ -116,6 +114,7 @@ namespace Demo.WindowsForms
 
 #if DEBUG
             checkBoxDebug.Checked = true;
+            MainMap.MapScaleInfoEnabled = true;
 #endif
 
             ToolStripManager.Renderer = new BSE.Windows.Forms.Office2007Renderer();
@@ -166,6 +165,7 @@ namespace Demo.WindowsForms
             currentMarker = new GMapMarkerGoogleRed(MainMap.Position);
             top.Markers.Add(currentMarker);
 
+            //MainMap.ForceDoubleBuffer = true;
             //MainMap.VirtualSizeEnabled = true;
             //if(false)
             {
@@ -1360,7 +1360,7 @@ namespace Demo.WindowsForms
       {
          if(objects.Markers.Count > 0)
          {
-            MainMap.ZoomAndCenterMarkers(null);
+            //MainMap.ZoomAndCenterMarkers(null);
             trackBar1.Value = (int) MainMap.Zoom;
          }
       }
