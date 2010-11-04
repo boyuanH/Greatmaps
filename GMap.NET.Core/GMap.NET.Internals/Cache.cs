@@ -98,7 +98,14 @@ namespace GMap.NET.Internals
                {
                   try
                   {
-                     Directory.Move(oldCache, newCache);
+                     if(Directory.Exists(newCache))
+                     {
+                        Directory.Delete(oldCache, true);
+                     }
+                     else
+                     {
+                        Directory.Move(oldCache, newCache);
+                     }
                      CacheLocation = newCache;
                   }
                   catch(Exception ex)

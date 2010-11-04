@@ -688,11 +688,12 @@ namespace GMap.NET.WindowsPresentation
                   //               if(!found)
                   //                  found = true;
 
+
                   //               //System.Drawing.RectangleF srcRect = new System.Drawing.RectangleF((float) (Xoff * (img.Img.Width / Ix)), (float) (Yoff * (img.Img.Height / Ix)), (img.Img.Width / Ix), (img.Img.Height / Ix));
                   //               //System.Drawing.Rectangle dst = new System.Drawing.Rectangle(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height);
 
-                  //               //g.DrawImage(img.Img, new Rect(
-
+                  //               g.DrawImage(img.Img, new Rect(Core.tileRect.X + 0.6, Core.tileRect.Y + 0.6, Core.tileRect.Width + 0.6, Core.tileRect.Height + 0.6));
+                                 
                   //               //g.DrawImage(img.Img, dst, srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, GraphicsUnit.Pixel, TileFlipXYAttributes);
                   //               //g.FillRectangle(SelectedAreaFill, dst);
                   //            }

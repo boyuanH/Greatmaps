@@ -37,6 +37,7 @@ namespace GMap.NET.Internals
       public Size sizeOfMapArea;
       public Size minOfTiles;
       public Size maxOfTiles;
+      public Size matrixSizePixel;
 
       public Rectangle tileRect;
       public Rectangle tileRectBearing;
@@ -118,7 +119,12 @@ namespace GMap.NET.Internals
                minOfTiles = Projection.GetTileMatrixMinXY(value);
                maxOfTiles = Projection.GetTileMatrixMaxXY(value);
                centerPixel = Projection.FromLatLngToPixel(zoomPosition, value, true);
+               zoomPositionPixel = Projection.FromLatLngToPixel(zoomPosition, value, true);
                zoom = value;
+
+               matrixSizePixel = Projection.GetTileMatrixSizePixel(value);
+               Debug.WriteLine("MatrixSizePixel: " + matrixSizePixel);
+               Debug.WriteLine("ZoomPositionPixel: " + zoomPositionPixel);
 
                if(IsStarted)
                {
@@ -149,6 +155,7 @@ namespace GMap.NET.Internals
       }
 
       PointLatLng zoomPosition;
+      public Point zoomPositionPixel;
       public bool zoomPositionChanged = false;
 
       /// <summary>
@@ -660,9 +667,6 @@ namespace GMap.NET.Internals
          UpdateViewRect();
          centerTileXY = Projection.FromPixelToTileXY(centerPixel);
       }
-
-      public int vWidth = 800;
-      public int vHeight = 400;
 
       public void OnMapSizeChanged(int width, int height)
       {

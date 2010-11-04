@@ -453,9 +453,9 @@ namespace GMap.NET.WindowsForms
                //-----
 #endif
                {
-                  Core.tileRect.X = tilePoint.X * Core.tileRect.Width;
-                  Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height;
-
+                  Core.tileRect.X = tilePoint.X * Core.tileRect.Width - Core.zoomPositionPixel.X;
+                  Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height - Core.zoomPositionPixel.Y;
+                  
                   if(Core.viewRectPixelInflated.IntersectsWith(Core.tileRect) || IsRotated)
                   {
                      bool found = false;
@@ -1228,7 +1228,10 @@ namespace GMap.NET.WindowsForms
                else
 #endif
                {
-                  DrawMapMobile(gxOff);
+                  //DrawMapMobile(gxOff);
+
+                  gxOff.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
+                  DrawMapDesktop(gxOff);
                }
 
                OnPaintEtc(gxOff);
@@ -1260,19 +1263,18 @@ namespace GMap.NET.WindowsForms
                }
 #endif
 
-               e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+               e.Graphics.PixelOffsetMode = PixelOffsetMode.None;
                e.Graphics.PageUnit = GraphicsUnit.Pixel;
                e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-
-               //Matrix x = new Matrix();
-               //x.Translate(Core.renderOffset.X, Core.renderOffset.Y);
-               //e.Graphics.Transform = x;
+               e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
 
                // need a solution to lower high number offsets
                // to remove translate distortions
                e.Graphics.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
+               //e.Graphics.TranslateTransform(Core.renderOffset.X + Core.zoomPositionPixel.X, Core.renderOffset.Y - Core.zoomPositionPixel.Y);
 
+                  
                if(IsRotated)
                {
                   e.Graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
@@ -1835,7 +1837,6 @@ namespace GMap.NET.WindowsForms
                Core.mouseCurrent = ApplyRotationInversion(e.X, e.Y);
                Core.Drag(Core.mouseCurrent);
                Invalidate();
-               Invalidate(false);
             }
          }
          else
