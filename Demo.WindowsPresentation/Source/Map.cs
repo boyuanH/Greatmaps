@@ -24,16 +24,25 @@ namespace Demo.WindowsPresentation
 
       Pen cross = new Pen(Brushes.Red, 1);
 
+      DateTime start;
+      DateTime end;
+      int delta;
+
       /// <summary>
       /// any custom drawing here
       /// </summary>
       /// <param name="drawingContext"></param>
       protected override void OnRender(DrawingContext drawingContext)
       {
+         start = DateTime.Now;
+
          base.OnRender(drawingContext);
 
+         end = DateTime.Now;
+         delta = (int) (end - start).TotalMilliseconds;
+
 #if DEBUG
-         FormattedText text = new FormattedText("render: " + counter++ + ", load: " + ElapsedMilliseconds + "ms", CultureInfo.CurrentUICulture, fd, tf, 36, Brushes.Blue);
+         FormattedText text = new FormattedText(Zoom + "z, " + MapType + ", refresh: " + counter++ + ", load: " + ElapsedMilliseconds + "ms, render: " + delta + "ms", CultureInfo.CurrentUICulture, fd, tf, 36, Brushes.Blue);
          drawingContext.DrawText(text, new Point(text.Height, text.Height));
          text = null;
 #endif

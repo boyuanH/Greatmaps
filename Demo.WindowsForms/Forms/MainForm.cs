@@ -1193,17 +1193,13 @@ namespace Demo.WindowsForms
       {
          comboBoxMapType.SelectedItem = MainMap.MapType;
 
-         trackBar1.Minimum = MainMap.MinZoom;
-         trackBar1.Maximum = MainMap.MaxZoom;
-
-         if(routes.Routes.Count > 0)
-         {
-            MainMap.ZoomAndCenterRoutes(null);
-         }
-
          if(radioButtonTransport.Checked)
          {
             MainMap.ZoomAndCenterMarkers("objects");
+         }
+         else
+         {
+            MainMap_OnMapZoomChanged();
          }
       }
 
@@ -1211,7 +1207,7 @@ namespace Demo.WindowsForms
       {
          if(e.Button == MouseButtons.Left)
          {
-            isMouseDown = false;    
+            isMouseDown = false;
             currentMarker.UpdatePositionUsingLocalOrigin();
          }
       }

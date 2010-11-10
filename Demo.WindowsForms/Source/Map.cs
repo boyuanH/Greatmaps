@@ -4,7 +4,7 @@ namespace Demo.WindowsForms
    using System.Windows.Forms;
    using GMap.NET.WindowsForms;
    using System.Drawing;
-using System;
+   using System;
 
    /// <summary>
    /// custom map of GMapControl
@@ -31,7 +31,7 @@ using System;
          base.OnPaint(e);
 
          end = DateTime.Now;
-         delta = (int)(end - start).TotalMilliseconds;
+         delta = (int) (end - start).TotalMilliseconds;
       }
 
       /// <summary>
@@ -45,7 +45,7 @@ using System;
          g.ResetTransform();
 
 #if DEBUG
-         g.DrawString(Zoom + "z, " + MapType + ", render: " + counter++ + ", load: " + ElapsedMilliseconds + "ms, delta: " + delta + "ms", DebugFont, Brushes.Blue, DebugFont.Height, DebugFont.Height);
+         g.DrawString(Zoom + "z, " + MapType + ", refresh: " + counter++ + ", load: " + ElapsedMilliseconds + "ms, render: " + delta + "ms", DebugFont, Brushes.Blue, DebugFont.Height, DebugFont.Height);
 
          g.DrawString(ViewAreaPixel.Location.ToString(), DebugFontSmall, Brushes.Blue, DebugFontSmall.Height, DebugFontSmall.Height);
 

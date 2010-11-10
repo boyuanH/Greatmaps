@@ -98,6 +98,25 @@ namespace GMap.NET.Internals
          MapType = MapType.None;
       }
 
+      public void UpdateFieldsOnZoomChanged(int value)
+      {
+         if(zoomPositionChanged)
+         {
+            zoomPositionChanged = false;
+            zoomPosition = Projection.FromPixelToLatLng(centerPixel, zoom, true);
+         }
+         minOfTiles = Projection.GetTileMatrixMinXY(value);
+         maxOfTiles = Projection.GetTileMatrixMaxXY(value);
+         centerPixel = Projection.FromLatLngToPixel(zoomPosition, value, true);
+         zoomPositionPixel = Projection.FromLatLngToPixel(zoomPosition, value, true);
+         zoom = value;
+
+         matrixSizePixel = Projection.GetTileMatrixSizePixel(value);
+
+         Debug.WriteLine("MatrixSizePixel: " + matrixSizePixel);
+         Debug.WriteLine("ZoomPositionPixel: " + zoomPositionPixel);
+      }
+
       /// <summary>
       /// map zoom
       /// </summary>
@@ -111,20 +130,7 @@ namespace GMap.NET.Internals
          {
             if(zoom != value && !IsDragging)
             {
-               if(zoomPositionChanged)
-               {
-                  zoomPositionChanged = false;
-                  zoomPosition = Projection.FromPixelToLatLng(centerPixel, zoom, true);
-               }
-               minOfTiles = Projection.GetTileMatrixMinXY(value);
-               maxOfTiles = Projection.GetTileMatrixMaxXY(value);
-               centerPixel = Projection.FromLatLngToPixel(zoomPosition, value, true);
-               zoomPositionPixel = Projection.FromLatLngToPixel(zoomPosition, value, true);
-               zoom = value;
-
-               matrixSizePixel = Projection.GetTileMatrixSizePixel(value);
-               Debug.WriteLine("MatrixSizePixel: " + matrixSizePixel);
-               Debug.WriteLine("ZoomPositionPixel: " + zoomPositionPixel);
+               UpdateFieldsOnZoomChanged(value);
 
                if(IsStarted)
                {
@@ -189,7 +195,7 @@ namespace GMap.NET.Internals
          }
       }
 
-      internal bool zoomToArea = true;
+      internal RectLatLng? zoomArea;
 
       MapType mapType;
       public MapType MapType
@@ -203,7 +209,10 @@ namespace GMap.NET.Internals
             if(value != MapType || value == MapType.None)
             {
                mapType = value;
-
+               if(Projection != null)
+               {
+                  zoomPosition = Projection.FromPixelToLatLng(centerPixel, zoom, true);
+               }
                GMaps.Instance.AdjustProjection(mapType, ref Projection, out maxZoom);
 
                tileRect = new Rectangle(new Point(0, 0), Projection.TileSize);
@@ -213,33 +222,28 @@ namespace GMap.NET.Internals
                   tileRectBearing.Inflate(1, 1);
                }
 
-               minOfTiles = Projection.GetTileMatrixMinXY(Zoom);
-               maxOfTiles = Projection.GetTileMatrixMaxXY(Zoom);
-               centerPixel = Projection.FromLatLngToPixel(zoomPosition, Zoom, true);
+               zoomPositionChanged = false;
 
                if(IsStarted)
                {
-                  CancelAsyncTasks();
-                  OnMapSizeChanged(Width, Height);
-                  ReloadMap();
+                  UpdateCenterTileXYLocation();
+                  zoomArea = null;
 
-                  if(OnMapTypeChanged != null)
-                  {
-                     OnMapTypeChanged(value);
-                  }
-
+                  #region -- get zoom area if needed --
                   switch(mapType)
                   {
                      case MapType.MapsLT_Map_Hybrid:
                      case MapType.MapsLT_Map_Labels:
                      case MapType.MapsLT_Map:
                      case MapType.MapsLT_OrtoFoto:
+                     case MapType.MapsLT_Map_2_5D:
+                     case MapType.MapsLT_Map_Hybrid_2010:
+                     case MapType.MapsLT_OrtoFoto_2010:
                      {
                         RectLatLng area = new RectLatLng(56.431489960361, 20.8962105239809, 5.8924169643369, 2.58940626652217);
-                        if(!area.Contains(CurrentPosition))
+                        if(!area.Contains(zoomPosition))
                         {
-                           SetZoomToFitRect(area);
-                           zoomToArea = false;
+                           zoomArea = area;
                         }
                      }
                      break;
@@ -247,10 +251,9 @@ namespace GMap.NET.Internals
                      case MapType.KarteLV_Map:
                      {
                         RectLatLng area = new RectLatLng(58.0794870805093, 20.3286067123543, 7.90883164336887, 2.506129113082);
-                        if(!area.Contains(CurrentPosition))
+                        if(!area.Contains(zoomPosition))
                         {
-                           SetZoomToFitRect(area);
-                           zoomToArea = false;
+                           zoomArea = area;
                         }
                      }
                      break;
@@ -264,10 +267,9 @@ namespace GMap.NET.Internals
                      case MapType.MapyCZ_HistoryHybrid:
                      {
                         RectLatLng area = new RectLatLng(51.2024819920053, 11.8401353319027, 7.22833716731277, 2.78312271922872);
-                        if(!area.Contains(CurrentPosition))
+                        if(!area.Contains(zoomPosition))
                         {
-                           SetZoomToFitRect(area);
-                           zoomToArea = false;
+                           zoomArea = area;
                         }
                      }
                      break;
@@ -275,10 +277,9 @@ namespace GMap.NET.Internals
                      case MapType.PergoTurkeyMap:
                      {
                         RectLatLng area = new RectLatLng(42.5830078125, 25.48828125, 19.05029296875, 6.83349609375);
-                        if(!area.Contains(CurrentPosition))
+                        if(!area.Contains(zoomPosition))
                         {
-                           SetZoomToFitRect(area);
-                           zoomToArea = false;
+                           zoomArea = area;
                         }
                      }
                      break;
@@ -291,10 +292,9 @@ namespace GMap.NET.Internals
                         }
 
                         RectLatLng area = new RectLatLng(43.8741381814747, -9.700927734375, 14.34814453125, 7.8605775962932);
-                        if(!area.Contains(CurrentPosition))
+                        if(!area.Contains(zoomPosition))
                         {
-                           SetZoomToFitRect(area);
-                           zoomToArea = false;
+                           zoomArea = area;
                         }
                      }
                      break;
@@ -305,19 +305,18 @@ namespace GMap.NET.Internals
                      case MapType.GoogleSatelliteKorea:
                      {
                         RectLatLng area = new RectLatLng(38.6597777307125, 125.738525390625, 4.02099609375, 4.42072406219614);
-                        if(!area.Contains(CurrentPosition))
+                        if(!area.Contains(zoomPosition))
                         {
-                           SetZoomToFitRect(area);
-                           zoomToArea = false;
+                           zoomArea = area;
                         }
                      }
                      break;
+                  }
+                  #endregion
 
-                     default:
-                     {
-                        zoomToArea = true;
-                     }
-                     break;
+                  if(zoomArea.HasValue)
+                  {
+                     zoomPosition = zoomArea.Value.LocationMiddle;
                   }
                }
             }
@@ -668,7 +667,7 @@ namespace GMap.NET.Internals
          centerTileXY = Projection.FromPixelToTileXY(centerPixel);
       }
 
-      public void OnMapSizeChanged(int width, int height)
+      public void OnMapSizeChanged(int width, int height, bool updateBounds)
       {
          this.Width = width;
          this.Height = height;
@@ -687,7 +686,7 @@ namespace GMap.NET.Internals
 
          Debug.WriteLine("OnMapSizeChanged, w: " + width + ", h: " + height + ", size: " + sizeOfMapArea);
 
-         if(IsStarted)
+         if(IsStarted && updateBounds)
          {
             UpdateBounds();
          }
@@ -811,6 +810,8 @@ namespace GMap.NET.Internals
                FailedLoads.Clear();
                RaiseEmptyTileError = true;
             }
+
+            zoomPositionChanged = false;
 
             if(OnNeedInvalidation != null)
             {
@@ -1313,6 +1314,14 @@ namespace GMap.NET.Internals
          pxRes100km = (int) (100000.0 / rez); // 100km
          pxRes1000km = (int) (1000000.0 / rez); // 1000km
          pxRes5000km = (int) (5000000.0 / rez); // 5000km
+      }
+
+      internal void RaiseMapTypeChangedEvent()
+      {
+         if(OnMapTypeChanged != null)
+         {
+            OnMapTypeChanged(mapType);
+         }
       }
    }
 }

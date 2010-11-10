@@ -53,28 +53,49 @@ namespace GMap.NET.WindowsPresentation
             Debug.WriteLine("MapType: " + e.OldValue + " -> " + e.NewValue);
 
             RectLatLng viewarea = map.SelectedArea;
-            if(viewarea != RectLatLng.Empty)
+            if(map.Core.IsStarted)
             {
-               map.Position = new PointLatLng(viewarea.Lat - viewarea.HeightLat / 2, viewarea.Lng + viewarea.WidthLng / 2);
-            }
-            else
-            {
-               viewarea = map.ViewArea;
+               if(viewarea != RectLatLng.Empty)
+               {
+                  map.Position = new PointLatLng(viewarea.Lat - viewarea.HeightLat / 2, viewarea.Lng + viewarea.WidthLng / 2);
+               }
+               else
+               {
+                  viewarea = map.ViewArea;
+               }
             }
 
             map.Core.MapType = (MapType) e.NewValue;
 
-            if(map.Core.IsStarted && map.Core.zoomToArea)
+            if(map.Core.IsStarted)
             {
-               // restore zoomrect as close as possible
-               if(viewarea != RectLatLng.Empty && viewarea != map.ViewArea)
+               int bestZoom = (int) map.Zoom;
+
+               if(map.Core.zoomArea.HasValue)
                {
-                  int bestZoom = map.Core.GetMaxZoomToFitRect(viewarea);
-                  if(bestZoom > 0 && map.Zoom != bestZoom)
-                  {
-                     map.Zoom = bestZoom;
-                  }
+                  bestZoom = map.Core.GetMaxZoomToFitRect(map.Core.zoomArea.Value);
                }
+               else if(viewarea != RectLatLng.Empty)
+               {
+                  bestZoom = map.Core.GetMaxZoomToFitRect(viewarea);
+               }
+
+               if(bestZoom > map.MaxZoom)
+               {
+                  bestZoom = map.MaxZoom;
+               }
+
+               map.Core.UpdateFieldsOnZoomChanged(bestZoom);
+
+               //zoomReal = bestZoom;
+
+               map.Core.OnMapSizeChanged((int) map.ActualWidth, (int) map.ActualHeight, false);
+               map.Core.GoToCurrentPositionOnZoom();
+
+               map.UpdateMarkersOffset();
+
+               map.ReloadMap();
+               map.Core.RaiseMapTypeChangedEvent();
             }
          }
       }
@@ -540,7 +561,7 @@ namespace GMap.NET.WindowsPresentation
          // 50px outside control
          region = new GMap.NET.Rectangle(-50, -50, (int) constraint.Width + 100, (int) constraint.Height + 100);
 
-         Core.OnMapSizeChanged((int) constraint.Width, (int) constraint.Height);
+         Core.OnMapSizeChanged((int) constraint.Width, (int) constraint.Height, true);
 
          // keep center on same position
          if(IsLoaded)
@@ -693,7 +714,7 @@ namespace GMap.NET.WindowsPresentation
                   //               //System.Drawing.Rectangle dst = new System.Drawing.Rectangle(Core.tileRect.X, Core.tileRect.Y, Core.tileRect.Width, Core.tileRect.Height);
 
                   //               g.DrawImage(img.Img, new Rect(Core.tileRect.X + 0.6, Core.tileRect.Y + 0.6, Core.tileRect.Width + 0.6, Core.tileRect.Height + 0.6));
-                                 
+
                   //               //g.DrawImage(img.Img, dst, srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, GraphicsUnit.Pixel, TileFlipXYAttributes);
                   //               //g.FillRectangle(SelectedAreaFill, dst);
                   //            }
@@ -1078,7 +1099,7 @@ namespace GMap.NET.WindowsPresentation
 
                if(resize)
                {
-                  Core.OnMapSizeChanged((int) ActualWidth, (int) ActualHeight);
+                  Core.OnMapSizeChanged((int) ActualWidth, (int) ActualHeight, true);
                }
 
                Core_OnMapZoomChanged();
@@ -1282,7 +1303,7 @@ namespace GMap.NET.WindowsPresentation
          {
             System.Windows.Point p = e.GetPosition(this);
             p = ApplyRotationInversion(p.X, p.Y);
-            
+
             if(Core.mouseLastZoom.X != (int) p.X && Core.mouseLastZoom.Y != (int) p.Y)
             {
                if(MouseWheelZoomType == MouseWheelZoomType.MousePositionAndCenter)
