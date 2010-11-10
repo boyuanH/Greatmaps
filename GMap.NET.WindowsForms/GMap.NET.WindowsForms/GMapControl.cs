@@ -453,9 +453,12 @@ namespace GMap.NET.WindowsForms
                //-----
 #endif
                {
-                  Core.tileRect.X = tilePoint.X * Core.tileRect.Width - Core.zoomPositionPixel.X;
-                  Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height - Core.zoomPositionPixel.Y;
-                  
+                  Core.tileRect.X = tilePoint.X * Core.tileRect.Width;
+                  Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height;
+
+                  //Core.tileRect.X = tilePoint.X * Core.tileRect.Width - Core.zoomPositionPixel.X;
+                  //Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height - Core.zoomPositionPixel.Y;
+
                   if(Core.viewRectPixelInflated.IntersectsWith(Core.tileRect) || IsRotated)
                   {
                      bool found = false;
@@ -1274,7 +1277,7 @@ namespace GMap.NET.WindowsForms
                e.Graphics.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
                //e.Graphics.TranslateTransform(Core.renderOffset.X + Core.zoomPositionPixel.X, Core.renderOffset.Y - Core.zoomPositionPixel.Y);
 
-                  
+
                if(IsRotated)
                {
                   e.Graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
@@ -1379,7 +1382,7 @@ namespace GMap.NET.WindowsForms
 
                if(resize)
                {
-                  Core.OnMapSizeChanged(Width, Height);
+                  Core.OnMapSizeChanged(Width, Height, true);
                }
 
                if(!HoldInvalidation && Core.IsStarted)
@@ -1613,7 +1616,7 @@ namespace GMap.NET.WindowsForms
             }
 
             {
-               Core.OnMapSizeChanged(Width, Height);
+               Core.OnMapSizeChanged(Width, Height, true);
                Core.currentRegion = new GMap.NET.Rectangle(-50, -50, Core.Width + 50, Core.Height + 50);
             }
 
@@ -2377,35 +2380,48 @@ namespace GMap.NET.WindowsForms
                Debug.WriteLine("MapType: " + Core.MapType + " -> " + value);
 
                RectLatLng viewarea = SelectedArea;
-               if(viewarea != RectLatLng.Empty)
+               if(Core.IsStarted)
                {
-                  Position = new PointLatLng(viewarea.Lat - viewarea.HeightLat / 2, viewarea.Lng + viewarea.WidthLng / 2);
-               }
-               else
-               {
-                  viewarea = ViewArea;
+                  if(viewarea != RectLatLng.Empty)
+                  {
+                     Position = new PointLatLng(viewarea.Lat - viewarea.HeightLat / 2, viewarea.Lng + viewarea.WidthLng / 2);
+                  }
+                  else
+                  {
+                     viewarea = ViewArea;
+                  }
                }
 
                Core.MapType = value;
 
                if(Core.IsStarted)
                {
-                  if(Core.zoomToArea)
+                  int bestZoom = ZoomStep;
+
+                  if(Core.zoomArea.HasValue)
                   {
-                     // restore zoomrect as close as possible
-                     if(viewarea != RectLatLng.Empty && viewarea != ViewArea)
-                     {
-                        int bestZoom = Core.GetMaxZoomToFitRect(viewarea);
-                        if(bestZoom > 0 && Zoom != bestZoom)
-                        {
-                           Zoom = bestZoom;
-                        }
-                     }
+                     bestZoom = Core.GetMaxZoomToFitRect(Core.zoomArea.Value);
                   }
-                  else
+                  else if(viewarea != RectLatLng.Empty)
                   {
-                     ForceUpdateOverlays();
+                     bestZoom = Core.GetMaxZoomToFitRect(viewarea);
                   }
+
+                  if(bestZoom > MaxZoom)
+                  {
+                     bestZoom = MaxZoom;
+                  }
+
+                  Core.UpdateFieldsOnZoomChanged(bestZoom);
+
+                  zoomReal = bestZoom;
+
+                  ForceUpdateOverlays();
+
+                  Core.OnMapSizeChanged(Width, Height, false);
+                  Core.GoToCurrentPositionOnZoom();
+                  Core.ReloadMap();
+                  Core.RaiseMapTypeChangedEvent();
                }
             }
          }
