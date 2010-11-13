@@ -65,7 +65,7 @@ namespace GMap.NET
       /// <param name="lng"></param>
       /// <param name="zoom"></param>
       /// <returns></returns>
-      public abstract Point FromLatLngToPixel(double lat, double lng, int zoom);
+      public abstract GPoint FromLatLngToPixel(double lat, double lng, int zoom);
 
       /// <summary>
       /// gets lat/lng coordinates from pixel coordinates
@@ -168,9 +168,9 @@ namespace GMap.NET
       /// </summary>
       /// <param name="p"></param>
       /// <returns></returns>
-      public virtual Point FromPixelToTileXY(Point p)
+      public virtual GPoint FromPixelToTileXY(GPoint p)
       {
-         return new Point((int) (p.X / TileSize.Width), (int) (p.Y / TileSize.Height));
+         return new GPoint((int) (p.X / TileSize.Width), (int) (p.Y / TileSize.Height));
       }
 
       /// <summary>
@@ -178,9 +178,9 @@ namespace GMap.NET
       /// </summary>
       /// <param name="p"></param>
       /// <returns></returns>
-      public virtual Point FromTileXYToPixel(Point p)
+      public virtual GPoint FromTileXYToPixel(GPoint p)
       {
-         return new Point((p.X * TileSize.Width), (p.Y * TileSize.Height));
+         return new GPoint((p.X * TileSize.Width), (p.Y * TileSize.Height));
       }
 
       /// <summary>
@@ -188,26 +188,26 @@ namespace GMap.NET
       /// </summary>
       /// <param name="zoom"></param>
       /// <returns></returns>
-      public abstract Size GetTileMatrixMinXY(int zoom);
+      public abstract GSize GetTileMatrixMinXY(int zoom);
 
       /// <summary>
       /// max. tile in tiles at custom zoom level
       /// </summary>
       /// <param name="zoom"></param>
       /// <returns></returns>
-      public abstract Size GetTileMatrixMaxXY(int zoom);
+      public abstract GSize GetTileMatrixMaxXY(int zoom);
 
       /// <summary>
       /// gets matrix size in tiles
       /// </summary>
       /// <param name="zoom"></param>
       /// <returns></returns>
-      public virtual Size GetTileMatrixSizeXY(int zoom)
+      public virtual GSize GetTileMatrixSizeXY(int zoom)
       {
-         Size sMin = GetTileMatrixMinXY(zoom);
-         Size sMax = GetTileMatrixMaxXY(zoom);
+         GSize sMin = GetTileMatrixMinXY(zoom);
+         GSize sMax = GetTileMatrixMaxXY(zoom);
 
-         return new Size(sMax.Width - sMin.Width + 1, sMax.Height - sMin.Height + 1);
+         return new GSize(sMax.Width - sMin.Width + 1, sMax.Height - sMin.Height + 1);
       }
 
       /// <summary>
@@ -217,7 +217,7 @@ namespace GMap.NET
       /// <returns></returns>
       public int GetTileMatrixItemCount(int zoom)
       {
-         Size s = GetTileMatrixSizeXY(zoom);
+         GSize s = GetTileMatrixSizeXY(zoom);
          return (s.Width * s.Height);
       }
 

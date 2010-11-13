@@ -19,7 +19,7 @@ namespace GMap.NET.WindowsForms
    /// <summary>
    /// GMap.NET control for Windows Forms
    /// </summary>   
-   public partial class GMapControl : UserControl, IGControl
+   public partial class GMapControl : UserControl, Interface
    {
       /// <summary>
       /// occurs when clicked on marker
@@ -335,7 +335,7 @@ namespace GMap.NET.WindowsForms
             Core.SystemType = "WindowsForms";
 
             RenderMode = RenderMode.GDI_PLUS;
-            Core.currentRegion = new GMap.NET.Rectangle(-50, -50, Size.Width + 100, Size.Height + 100);
+            Core.currentRegion = new GRect(-50, -50, Size.Width + 100, Size.Height + 100);
 
             CenterFormat.Alignment = StringAlignment.Center;
             CenterFormat.LineAlignment = StringAlignment.Center;
@@ -344,7 +344,10 @@ namespace GMap.NET.WindowsForms
 
 #if !PocketPC
             BottomFormat.LineAlignment = StringAlignment.Far;
+#else
+            throw new Exception("this version isn't working, use http://greatmaps.codeplex.com/SourceControl/changeset/changes/22b93afd000c");
 #endif
+
             if(GMaps.Instance.IsRunningOnMono)
             {
                // no imports to move pointer
@@ -499,7 +502,7 @@ namespace GMap.NET.WindowsForms
                         while(ParentTile == null && (Core.Zoom - ZoomOffset) >= 1 && ZoomOffset <= LevelsKeepInMemmory)
                         {
                            Ix = (int) Math.Pow(2, ++ZoomOffset);
-                           ParentTile = Core.Matrix.GetTileWithNoLock(Core.Zoom - ZoomOffset, new GMap.NET.Point((int) (tilePoint.X / Ix), (int) (tilePoint.Y / Ix)));
+                           ParentTile = Core.Matrix.GetTileWithNoLock(Core.Zoom - ZoomOffset, new GPoint((int) (tilePoint.X / Ix), (int) (tilePoint.Y / Ix)));
                         }
 
                         if(ParentTile != null)
@@ -1097,7 +1100,7 @@ namespace GMap.NET.WindowsForms
          {
             // need to fix in rotated mode usinf rotationMatrix
             // ...
-            Core.DragOffset(new GMap.NET.Point(x, y));
+            Core.DragOffset(new GPoint(x, y));
          }
       }
 
@@ -1293,6 +1296,7 @@ namespace GMap.NET.WindowsForms
                   //e.Graphics.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
 
                   OnPaintEtc(e.Graphics);
+#endif
                }
                else
                {
@@ -1331,6 +1335,7 @@ namespace GMap.NET.WindowsForms
          rotationMatrixInvert.Reset();
          rotationMatrixInvert.RotateAt(-Bearing, center);
          rotationMatrixInvert.Invert();
+#endif
       }
 
       /// <summary>
@@ -1416,8 +1421,8 @@ namespace GMap.NET.WindowsForms
 #if !PocketPC
          if(!SelectedArea.IsEmpty)
          {
-            GMap.NET.Point p1 = FromLatLngToLocal(SelectedArea.LocationTopLeft);
-            GMap.NET.Point p2 = FromLatLngToLocal(SelectedArea.LocationRightBottom);
+            GPoint p1 = FromLatLngToLocal(SelectedArea.LocationTopLeft);
+            GPoint p2 = FromLatLngToLocal(SelectedArea.LocationRightBottom);
 
             int x1 = p1.X;
             int y1 = p1.Y;
@@ -1658,7 +1663,7 @@ namespace GMap.NET.WindowsForms
          Core.OnMapSizeChanged(Width, Height);
 
          // 50px outside control
-         Core.CurrentRegion = new GMap.NET.Rectangle(-50, -50, Size.Width+100, Size.Height+100);
+         Core.currentRegion = new GRect(-50, -50, Size.Width+100, Size.Height+100);
 
          if(Core.IsStarted)
          {
@@ -1696,7 +1701,7 @@ namespace GMap.NET.WindowsForms
             {
                isSelected = true;
                SelectedArea = RectLatLng.Empty;
-               selectionEnd = PointLatLng.Empty;
+               selectionEnd = PointLatLng.Zero;
                selectionStart = FromLocalToLatLng(e.X, e.Y);
             }
          }
@@ -1736,7 +1741,7 @@ namespace GMap.NET.WindowsForms
          else
          {
 #if !PocketPC
-            if(!selectionEnd.IsEmpty && !selectionStart.IsEmpty)
+            if(!selectionEnd.IsZero && !selectionStart.IsZero)
             {
                if(!SelectedArea.IsEmpty && Form.ModifierKeys == Keys.Shift)
                {
@@ -1845,7 +1850,7 @@ namespace GMap.NET.WindowsForms
          else
          {
 #if !PocketPC
-            if(isSelected && !selectionStart.IsEmpty && (Form.ModifierKeys == Keys.Alt || Form.ModifierKeys == Keys.Shift))
+            if(isSelected && !selectionStart.IsZero && (Form.ModifierKeys == Keys.Alt || Form.ModifierKeys == Keys.Shift))
             {
                selectionEnd = FromLocalToLatLng(e.X, e.Y);
                {

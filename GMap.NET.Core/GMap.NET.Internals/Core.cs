@@ -12,7 +12,25 @@ namespace GMap.NET.Internals
    using OpenNETCF.ComponentModel;
    using OpenNETCF.Threading;
    using Thread=OpenNETCF.Threading.Thread2;
-   using Monitor=OpenNETCF.Threading.Monitor2;
+   //using Monitor=OpenNETCF.Threading.Monitor2;
+#endif
+
+#if PocketPC
+   class Monitor
+   {
+      static readonly Monitor2 wait = new Monitor2();
+
+      public static bool Wait(Queue<LoadTask> tileLoadQueue, int WaitForTileLoadThreadTimeout, bool p)
+      {
+         wait.Wait();
+         return true;
+      }
+
+      internal static void PulseAll(Queue<LoadTask> tileLoadQueue)
+      {
+         wait.PulseAll();
+      }
+   }
 #endif
 
    /// <summary>
@@ -215,7 +233,7 @@ namespace GMap.NET.Internals
                }
                GMaps.Instance.AdjustProjection(mapType, ref Projection, out maxZoom);
 
-               tileRect = new Rectangle(new Point(0, 0), Projection.TileSize);
+               tileRect = new GRect(new GPoint(0, 0), Projection.TileSize);
                tileRectBearing = tileRect;
                if(IsRotated)
                {
@@ -674,7 +692,11 @@ namespace GMap.NET.Internals
 
          if(IsRotated)
          {
+#if !PocketPC
             int diag = (int) Math.Round(Math.Sqrt(Width * Width + Height * Height) / Projection.TileSize.Width, MidpointRounding.AwayFromZero);
+#else
+            int diag = (int) Math.Round(Math.Sqrt(Width * Width + Height * Height) / Projection.TileSize.Width);
+#endif
             sizeOfMapArea.Width = 1 + (diag / 2);
             sizeOfMapArea.Height = 1 + (diag / 2);
          }
@@ -767,7 +789,7 @@ namespace GMap.NET.Internals
       /// initiates map dragging
       /// </summary>
       /// <param name="pt"></param>
-      public void BeginDrag(Point pt)
+      public void BeginDrag(GPoint pt)
       {
          dragPoint.X = pt.X - renderOffset.X;
          dragPoint.Y = pt.Y - renderOffset.Y;
@@ -880,7 +902,7 @@ namespace GMap.NET.Internals
       /// darg map by offset in pixels
       /// </summary>
       /// <param name="offset"></param>
-      public void DragOffset(Point offset)
+      public void DragOffset(GPoint offset)
       {
          renderOffset.Offset(offset);
 
@@ -907,7 +929,7 @@ namespace GMap.NET.Internals
       /// drag map
       /// </summary>
       /// <param name="pt"></param>
-      public void Drag(Point pt)
+      public void Drag(GPoint pt)
       {
          renderOffset.X = pt.X - dragPoint.X;
          renderOffset.Y = pt.Y - dragPoint.Y;
@@ -952,10 +974,6 @@ namespace GMap.NET.Internals
       long loadWaitCount = 0;
       readonly object LastInvalidationLock = new object();
       readonly object LastTileLoadStartEndLock = new object();
-
-#if PocketPC
-      readonly Monitor wait = new Monitor();
-#endif
 
       void ProcessLoadTask()
       {
@@ -1039,15 +1057,12 @@ namespace GMap.NET.Internals
                         OnTileLoadComplete(lastTileLoadTimeMs);
                      }
                   }
-#if !PocketPC
+
                   if(false == Monitor.Wait(tileLoadQueue, WaitForTileLoadThreadTimeout, false))
                   {
                      stop = true;
                      break;
                   }
-#else
-                  wait.Wait();
-#endif
                }
 
                if(!stop || tileLoadQueue.Count > 0)
@@ -1081,7 +1096,7 @@ namespace GMap.NET.Internals
                            // tile number inversion(BottomLeft -> TopLeft) for pergo maps
                            if(tl == MapType.PergoTurkeyMap)
                            {
-                              img = GMaps.Instance.GetImageFrom(tl, new Point(task.Value.Pos.X, maxOfTiles.Height - task.Value.Pos.Y), task.Value.Zoom, out ex);
+                              img = GMaps.Instance.GetImageFrom(tl, new GPoint(task.Value.Pos.X, maxOfTiles.Height - task.Value.Pos.Y), task.Value.Zoom, out ex);
                            }
                            else // ok
                            {
@@ -1240,11 +1255,11 @@ namespace GMap.NET.Internals
 
                if(GMaps.Instance.ShuffleTilesOnLoad)
                {
-                  Stuff.Shuffle<Point>(tileDrawingList);
+                  Stuff.Shuffle<GPoint>(tileDrawingList);
                }
                #endregion
 
-               foreach(Point p in tileDrawingList)
+               foreach(GPoint p in tileDrawingList)
                {
                   LoadTask task = new LoadTask(p, Zoom);
                   {
@@ -1289,11 +1304,7 @@ namespace GMap.NET.Internals
 
             loadWaitCount = 0;
 
-#if !PocketPC
             Monitor.PulseAll(tileLoadQueue);
-#else
-            wait.PulseAll();
-#endif
          }
 
          if(OnTileLoadStart != null)

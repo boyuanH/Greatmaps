@@ -327,6 +327,8 @@ namespace GMap.NET
 #if PocketPC
          Proxy = GlobalProxySelection.GetEmptyWebProxy();
 #else
+         Proxy = WebRequest.DefaultWebProxy;
+
          ThreadPool.QueueUserWorkItem(new WaitCallback(delegate(object obj)
             {
                TryCorrectGoogleVersions();
@@ -1171,7 +1173,7 @@ namespace GMap.NET
       /// <param name="zoom"></param>
       /// <param name="language"></param>
       /// <returns></returns>
-      internal string MakeImageUrl(MapType type, Point pos, int zoom, string language)
+      internal string MakeImageUrl(MapType type, GPoint pos, int zoom, string language)
       {
          switch(type)
          {
@@ -1684,7 +1686,7 @@ namespace GMap.NET
       /// <param name="pos"></param>
       /// <param name="sec1"></param>
       /// <param name="sec2"></param>
-      internal void GetSecGoogleWords(Point pos, out string sec1, out string sec2)
+      internal void GetSecGoogleWords(GPoint pos, out string sec1, out string sec2)
       {
          sec1 = ""; // after &x=...
          sec2 = ""; // after &zoom=...
@@ -1701,7 +1703,7 @@ namespace GMap.NET
       /// </summary>
       /// <param name="pos"></param>
       /// <returns></returns>
-      internal int GetServerNum(Point pos, int max)
+      internal int GetServerNum(GPoint pos, int max)
       {
          return (pos.X + 2 * pos.Y) % max;
       }
@@ -1863,12 +1865,11 @@ namespace GMap.NET
                if(Proxy != null)
                {
                   request.Proxy = Proxy;
+#if !PocketPC
                   request.PreAuthenticate = true;
+#endif
                }
-               else
-               {
-                  request.Proxy = WebRequest.DefaultWebProxy;
-               }
+
                request.UserAgent = UserAgent;
                request.Timeout = Timeout;
                request.ReadWriteTimeout = Timeout * 6;
@@ -1964,12 +1965,11 @@ namespace GMap.NET
                if(Proxy != null)
                {
                   request.Proxy = Proxy;
+#if !PocketPC
                   request.PreAuthenticate = true;
+#endif
                }
-               else
-               {
-                  request.Proxy = WebRequest.DefaultWebProxy;
-               }
+
                request.UserAgent = UserAgent;
                request.Timeout = Timeout;
                request.ReadWriteTimeout = Timeout * 6;
@@ -2026,14 +2026,6 @@ namespace GMap.NET
                request.Proxy = Proxy;
 #if !PocketPC
                request.PreAuthenticate = true;
-#endif
-            }
-            else
-            {
-#if !PocketPC
-               request.Proxy = WebRequest.DefaultWebProxy;
-#else
-               request.Proxy = GlobalProxySelection.GetEmptyWebProxy();
 #endif
             }
 
@@ -2114,14 +2106,6 @@ namespace GMap.NET
                   request.Proxy = Proxy;
 #if !PocketPC
                   request.PreAuthenticate = true;
-#endif
-               }
-               else
-               {
-#if !PocketPC
-                  request.Proxy = WebRequest.DefaultWebProxy;
-#else
-                  request.Proxy = GlobalProxySelection.GetEmptyWebProxy();
 #endif
                }
 
@@ -2222,14 +2206,6 @@ namespace GMap.NET
                   request.Proxy = Proxy;
 #if !PocketPC
                   request.PreAuthenticate = true;
-#endif
-               }
-               else
-               {
-#if !PocketPC
-                  request.Proxy = WebRequest.DefaultWebProxy;
-#else
-                  request.Proxy = GlobalProxySelection.GetEmptyWebProxy();
 #endif
                }
 
@@ -2416,12 +2392,8 @@ namespace GMap.NET
                if(Proxy != null)
                {
                   request.Proxy = Proxy;
-                  request.PreAuthenticate = true;
-               }
-               else
-               {
 #if !PocketPC
-                  request.Proxy = WebRequest.DefaultWebProxy;
+                  request.PreAuthenticate = true;
 #endif
                }
 
@@ -2658,7 +2630,7 @@ namespace GMap.NET
       /// <param name="pos"></param>
       /// <param name="zoom"></param>
       /// <returns></returns>
-      public PureImage GetImageFrom(MapType type, Point pos, int zoom, out Exception result)
+      public PureImage GetImageFrom(MapType type, GPoint pos, int zoom, out Exception result)
       {
          PureImage ret = null;
          result = null;
@@ -2736,14 +2708,6 @@ namespace GMap.NET
                      request.Proxy = Proxy;
 #if !PocketPC
                      request.PreAuthenticate = true;
-#endif
-                  }
-                  else
-                  {
-#if !PocketPC
-                     request.Proxy = WebRequest.DefaultWebProxy;
-#else
-                     request.Proxy = GlobalProxySelection.GetEmptyWebProxy();
 #endif
                   }
 
