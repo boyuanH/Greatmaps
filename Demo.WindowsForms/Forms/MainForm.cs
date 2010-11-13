@@ -92,7 +92,6 @@ namespace Demo.WindowsForms
             comboBoxMapType.DataSource = Enum.GetValues(typeof(MapType));
             comboBoxMapType.SelectedItem = MainMap.MapType;
 
-
             // acccess mode
             comboBoxMode.DataSource = Enum.GetValues(typeof(AccessMode));
             comboBoxMode.SelectedItem = GMaps.Instance.Mode;
@@ -163,6 +162,7 @@ namespace Demo.WindowsForms
 
             // set current marker
             currentMarker = new GMapMarkerGoogleRed(MainMap.Position);
+            currentMarker.IsHitTestVisible = false;
             top.Markers.Add(currentMarker);
 
             //MainMap.ForceDoubleBuffer = true;

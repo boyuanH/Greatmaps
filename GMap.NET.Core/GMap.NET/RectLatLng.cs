@@ -69,6 +69,16 @@ namespace GMap.NET
          }
       }
 
+      public PointLatLng LocationMiddle
+      {
+         get
+         {
+            PointLatLng ret = new PointLatLng(this.Lat, this.Lng);
+            ret.Offset(HeightLat/2, WidthLng/2);
+            return ret;
+         }
+      }
+
       public SizeLatLng Size
       {
          get
@@ -211,7 +221,11 @@ namespace GMap.NET
 
       public override int GetHashCode()
       {
-         return (int) (((((uint) this.Lng) ^ ((((uint) this.Lat) << 13) | (((uint) this.Lat) >> 0x13))) ^ ((((uint) this.WidthLng) << 0x1a) | (((uint) this.WidthLng) >> 6))) ^ ((((uint) this.HeightLat) << 7) | (((uint) this.HeightLat) >> 0x19)));
+         if(this.IsEmpty)
+         {
+            return 0;
+         }
+         return (((this.Lng.GetHashCode() ^ this.Lat.GetHashCode()) ^ this.WidthLng.GetHashCode()) ^ this.HeightLat.GetHashCode());
       }
 
       // from here down need to test each function to be sure they work good
@@ -259,7 +273,7 @@ namespace GMap.NET
 
          if((num2 >= lng) && (num4 >= lat))
          {
-            return new RectLatLng(lng, lat, num2 - lng, num4 - lat);
+            return new RectLatLng(lat, lng, num2 - lng, num4 - lat);
          }
          return Empty;
       }

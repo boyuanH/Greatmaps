@@ -87,7 +87,7 @@ namespace GMap.NET.WindowsForms
       public Brush Fill = new System.Drawing.SolidBrush(Color.AliceBlue);
 #endif
 
-      public readonly List<GMap.NET.Point> LocalPoints = new List<GMap.NET.Point>();
+      public readonly List<GPoint> LocalPoints = new List<GPoint>();
 
       public GMapPolygon(List<PointLatLng> points, string name)
          : base(points, name)
@@ -119,7 +119,7 @@ namespace GMap.NET.WindowsForms
       }
 
       // Temp store for de-serialization.
-      private GMap.NET.Point[] deserializedLocalPoints;
+      private GPoint[] deserializedLocalPoints;
 
       /// <summary>
       /// Initializes a new instance of the <see cref="MapRoute"/> class.

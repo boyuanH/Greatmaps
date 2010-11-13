@@ -23,10 +23,10 @@ namespace GMap.NET.WindowsPresentation
    /// <summary>
    /// GMap.NET control for Windows Presentation
    /// </summary>
-   public partial class GMapControlNew : UserControl, IGControl
+   public partial class GMapControlNew : UserControl, Interface
    {
       readonly Core Core = new Core();
-      GMap.NET.Rectangle region = new GMap.NET.Rectangle();
+      GRect region = new GRect();
       bool RaiseEmptyTileError = false;
       delegate void MethodInvoker();
       PointLatLng selectionStart;
@@ -351,7 +351,7 @@ namespace GMap.NET.WindowsPresentation
 
          {
             System.Windows.Size constraint = sizeInfo.NewSize;
-            region = new GMap.NET.Rectangle(-50, -50, (int) constraint.Width + 100, (int) constraint.Height + 100);
+            region = new GRect(-50, -50, (int) constraint.Width + 100, (int) constraint.Height + 100);
 
             TilesLayer.Width = sizeInfo.NewSize.Width;
             TilesLayer.Height = sizeInfo.NewSize.Height;
@@ -381,7 +381,7 @@ namespace GMap.NET.WindowsPresentation
             {
                for(int y = 0; y < TilesSize.Height; y++)
                {
-                  var rawTile = new RawTile(MapType.GoogleHybrid, new GMap.NET.Point(x, y), ZoomStep);
+                  var rawTile = new RawTile(MapType.GoogleHybrid, new GPoint(x, y), ZoomStep);
                   var rectTilePx = new Rect(x*Projection.TileSize.Width, y*Projection.TileSize.Height, Projection.TileSize.Width, Projection.TileSize.Height);
 
                   TileVisual image = null;
@@ -409,7 +409,7 @@ namespace GMap.NET.WindowsPresentation
                      Canvas.SetZIndex(image, -1);
                   }
 
-                  bool ri = (region.IntersectsWith(new GMap.NET.Rectangle((int) (rectTilePx.X + renderOffset.X), (int) (rectTilePx.Y + renderOffset.Y), (int) rectTilePx.Width, (int) rectTilePx.Height)));
+                  bool ri = (region.IntersectsWith(new GRect((int) (rectTilePx.X + renderOffset.X), (int) (rectTilePx.Y + renderOffset.Y), (int) rectTilePx.Width, (int) rectTilePx.Height)));
                   if(TilesLayer.Children.Contains(image))
                   {
                      if(ri)

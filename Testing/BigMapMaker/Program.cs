@@ -28,7 +28,7 @@ namespace BigMapMaker
          {
             try
             {
-               List<GMap.NET.Point> tileArea = prj.GetAreaTileList(area, zoom, 0);
+               List<GPoint> tileArea = prj.GetAreaTileList(area, zoom, 0);
                string bigImage = zoom + "-" + type + "-vilnius.png";
 
                Console.WriteLine("Preparing: " + bigImage);
