@@ -14,7 +14,10 @@ namespace GMap.NET.WindowsForms
    using GMap.NET.ObjectModel;
    using System.Diagnostics;
    using System.Drawing.Text;
+
+#if !PocketPC
    using System.Runtime.Serialization.Formatters.Binary;
+#endif
 
    /// <summary>
    /// GMap.NET control for Windows Forms
@@ -1322,8 +1325,10 @@ namespace GMap.NET.WindowsForms
          base.OnPaint(e);
       }
 
+#if !PocketPC
       readonly Matrix rotationMatrix = new Matrix();
       readonly Matrix rotationMatrixInvert = new Matrix();
+#endif
 
       /// <summary>
       /// updates rotation matrix
@@ -2652,6 +2657,7 @@ namespace GMap.NET.WindowsForms
 
       #endregion
 
+#if !PocketPC
       #region Serialization
 
       static readonly BinaryFormatter BinaryFormatter = new BinaryFormatter();
@@ -2700,5 +2706,6 @@ namespace GMap.NET.WindowsForms
       }
 
       #endregion
+#endif
    }
 }

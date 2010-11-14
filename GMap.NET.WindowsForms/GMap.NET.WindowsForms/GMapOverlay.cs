@@ -12,7 +12,11 @@ namespace GMap.NET.WindowsForms
    /// GMap.NET overlay
    /// </summary>
    [Serializable]
+#if !PocketPC
    public class GMapOverlay : ISerializable, IDeserializationCallback
+#else
+   public class GMapOverlay
+#endif
    {
       bool isVisibile = true;
 
@@ -339,6 +343,7 @@ namespace GMap.NET.WindowsForms
          }
       }
 
+#if !PocketPC
       #region ISerializable Members
 
       /// <summary>
@@ -381,9 +386,9 @@ namespace GMap.NET.WindowsForms
          this.Id = info.GetString("Id");
          this.IsVisibile = info.GetBoolean("IsVisible");
 
-         this.deserializedMarkerArray = info.GetValue<GMapMarker[]>("Markers", new GMapMarker[0]);
-         this.deserializedRouteArray = info.GetValue<GMapRoute[]>("Routes", new GMapRoute[0]);
-         this.deserializedPolygonArray = info.GetValue<GMapPolygon[]>("Polygons", new GMapPolygon[0]);
+         this.deserializedMarkerArray = Extensions.GetValue<GMapMarker[]>(info, "Markers", new GMapMarker[0]);
+         this.deserializedRouteArray = Extensions.GetValue<GMapRoute[]>(info, "Routes", new GMapRoute[0]);
+         this.deserializedPolygonArray = Extensions.GetValue<GMapPolygon[]>(info, "Polygons", new GMapPolygon[0]);
       }
 
       #endregion
@@ -419,5 +424,6 @@ namespace GMap.NET.WindowsForms
       }
 
       #endregion
+#endif
    }
 }

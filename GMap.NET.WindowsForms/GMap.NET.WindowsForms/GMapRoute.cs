@@ -12,7 +12,11 @@ namespace GMap.NET.WindowsForms
    /// GMap.NET route
    /// </summary>
    [Serializable]
+#if !PocketPC
    public class GMapRoute : MapRoute, ISerializable
+#else
+   public class GMapRoute : MapRoute
+#endif
    {
       GMapOverlay overlay;
       public GMapOverlay Overlay
@@ -105,6 +109,7 @@ namespace GMap.NET.WindowsForms
          }
       }
 
+#if !PocketPC
       #region ISerializable Members
 
       /// <summary>
@@ -129,9 +134,10 @@ namespace GMap.NET.WindowsForms
       protected GMapRoute(SerializationInfo info, StreamingContext context)
          : base(info, context)
       {
-         this.Stroke = info.GetValue<Pen>("Stroke", new Pen(Color.FromArgb(144, Color.MidnightBlue)));
+         this.Stroke = Extensions.GetValue<Pen>(info, "Stroke", new Pen(Color.FromArgb(144, Color.MidnightBlue)));
       }
 
       #endregion
+#endif
    }
 }
