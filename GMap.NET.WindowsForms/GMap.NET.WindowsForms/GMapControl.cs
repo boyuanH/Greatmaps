@@ -756,7 +756,7 @@ namespace GMap.NET.WindowsForms
       {
          route.LocalPoints.Clear();
 
-         foreach(GMap.NET.PointLatLng pg in route.Points)
+         foreach(PointLatLng pg in route.Points)
          {
             GPoint p = Projection.FromLatLngToPixel(pg, Core.Zoom, true);
 
@@ -782,7 +782,7 @@ namespace GMap.NET.WindowsForms
       {
          polygon.LocalPoints.Clear();
 
-         foreach(GMap.NET.PointLatLng pg in polygon.Points)
+         foreach(PointLatLng pg in polygon.Points)
          {
             GPoint p = Projection.FromLatLngToPixel(pg, Core.Zoom, true);
 
@@ -1863,8 +1863,8 @@ namespace GMap.NET.WindowsForms
             {
                selectionEnd = FromLocalToLatLng(e.X, e.Y);
                {
-                  GMap.NET.PointLatLng p1 = selectionStart;
-                  GMap.NET.PointLatLng p2 = selectionEnd;
+                  PointLatLng p1 = selectionStart;
+                  PointLatLng p2 = selectionEnd;
 
                   double x1 = Math.Min(p1.Lng, p2.Lng);
                   double y1 = Math.Max(p1.Lat, p2.Lat);

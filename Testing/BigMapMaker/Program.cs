@@ -39,13 +39,13 @@ namespace BigMapMaker
                var types = GMaps.Instance.GetAllLayersOfType(type);
 
                // current area
-               GMap.NET.Point topLeftPx = prj.FromLatLngToPixel(area.LocationTopLeft, zoom, false);
-               GMap.NET.Point rightButtomPx = prj.FromLatLngToPixel(area.Bottom, area.Right, zoom);
-               GMap.NET.Point pxDelta = new GMap.NET.Point(rightButtomPx.X - topLeftPx.X, rightButtomPx.Y - topLeftPx.Y);
+               GPoint topLeftPx = prj.FromLatLngToPixel(area.LocationTopLeft, zoom, false);
+               GPoint rightButtomPx = prj.FromLatLngToPixel(area.Bottom, area.Right, zoom);
+               GPoint pxDelta = new GPoint(rightButtomPx.X - topLeftPx.X, rightButtomPx.Y - topLeftPx.Y);
 
                int padding = 22;
                {
-                  using(Bitmap bmpDestination = new Bitmap(pxDelta.X + padding*2, pxDelta.Y + padding*2))
+                  using(Bitmap bmpDestination = new Bitmap(pxDelta.X + padding * 2, pxDelta.Y + padding * 2))
                   {
                      using(Graphics gfx = Graphics.FromImage(bmpDestination))
                      {
@@ -64,8 +64,8 @@ namespace BigMapMaker
                               {
                                  using(tile)
                                  {
-                                    int x = p.X*prj.TileSize.Width - topLeftPx.X + padding;
-                                    int y = p.Y*prj.TileSize.Width - topLeftPx.Y + padding;
+                                    int x = p.X * prj.TileSize.Width - topLeftPx.X + padding;
+                                    int y = p.Y * prj.TileSize.Width - topLeftPx.Y + padding;
                                     {
                                        gfx.DrawImage(tile.Img, x, y, prj.TileSize.Width, prj.TileSize.Height);
                                     }
@@ -95,12 +95,12 @@ namespace BigMapMaker
                               string topleft = area.LocationTopLeft.ToString();
                               SizeF s = gfx.MeasureString(topleft, f);
 
-                              gfx.DrawString(topleft, f, p.Brush, rect.X + s.Height/2, rect.Y + s.Height/2);
+                              gfx.DrawString(topleft, f, p.Brush, rect.X + s.Height / 2, rect.Y + s.Height / 2);
 
                               string rightBottom = new PointLatLng(area.Bottom, area.Right).ToString();
                               SizeF s2 = gfx.MeasureString(rightBottom, f);
 
-                              gfx.DrawString(rightBottom, f, p.Brush, rect.Right - s2.Width - s2.Height/2, rect.Bottom - s2.Height - s2.Height/2);
+                              gfx.DrawString(rightBottom, f, p.Brush, rect.Right - s2.Width - s2.Height / 2, rect.Bottom - s2.Height - s2.Height / 2);
                            }
 
                            // draw scale
@@ -115,7 +115,7 @@ namespace BigMapMaker
 
                               string leftBottom = "scale: 100m | 1Km";
                               SizeF s = gfx.MeasureString(leftBottom, f);
-                              gfx.DrawString(leftBottom, f, p.Brush, rect.X+10, rect.Bottom - s.Height - 20);
+                              gfx.DrawString(leftBottom, f, p.Brush, rect.X + 10, rect.Bottom - s.Height - 20);
                            }
                         }
                      }

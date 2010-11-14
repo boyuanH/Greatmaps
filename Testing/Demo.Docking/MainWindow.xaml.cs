@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Diagnostics;
 using System.Threading;
+using GMap.NET;
 
 namespace Sample3
 {
@@ -64,7 +65,7 @@ namespace Sample3
          }));
       }
 
-      GMap.NET.PointLatLng last = new GMap.NET.PointLatLng();
+      PointLatLng last = new PointLatLng();
       GMap.NET.WindowsPresentation.GMapControl lastMap;
 
       private void DocumentPane_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
