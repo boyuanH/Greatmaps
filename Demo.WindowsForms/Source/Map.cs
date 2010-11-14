@@ -51,11 +51,11 @@ namespace Demo.WindowsForms
 
          string lb = ViewAreaPixel.LeftBottom.ToString();
          var lbs = g.MeasureString(lb, DebugFontSmall);
-         g.DrawString(lb, DebugFontSmall, Brushes.Blue, DebugFontSmall.Height, Height - DebugFontSmall.Height*2);
+         g.DrawString(lb, DebugFontSmall, Brushes.Blue, DebugFontSmall.Height, Height - DebugFontSmall.Height * 2);
 
          string rb = ViewAreaPixel.RightBottom.ToString();
          var rbs = g.MeasureString(rb, DebugFontSmall);
-         g.DrawString(rb, DebugFontSmall, Brushes.Blue, Width - rbs.Width - DebugFontSmall.Height, Height - DebugFontSmall.Height*2);
+         g.DrawString(rb, DebugFontSmall, Brushes.Blue, Width - rbs.Width - DebugFontSmall.Height, Height - DebugFontSmall.Height * 2);
 
          string rt = ViewAreaPixel.RightTop.ToString();
          var rts = g.MeasureString(rb, DebugFontSmall);
@@ -63,7 +63,7 @@ namespace Demo.WindowsForms
 #endif
 
          g.DrawLine(Pens.Red, Width / 2 - 10, Height / 2, Width / 2 + 10, Height / 2);
-         g.DrawLine(Pens.Red, Width/2, Height / 2 - 10, Width/2, Height / 2 + 10);
+         g.DrawLine(Pens.Red, Width / 2, Height / 2 - 10, Width / 2, Height / 2 + 10);
       }
    }
 }

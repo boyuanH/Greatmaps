@@ -131,7 +131,7 @@ namespace GMap.NET.WindowsForms
       {
          this.Stroke = info.GetValue<Pen>("Stroke", new Pen(Color.FromArgb(155, Color.MidnightBlue)));
          this.Fill = info.GetValue<Brush>("Fill", new SolidBrush(Color.FromArgb(155, Color.AliceBlue)));
-         this.deserializedLocalPoints = info.GetValue<GMap.NET.Point[]>("LocalPoints");
+         this.deserializedLocalPoints = info.GetValue<GPoint[]>("LocalPoints");
       }
 
       #endregion

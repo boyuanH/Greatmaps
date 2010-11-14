@@ -444,7 +444,7 @@ namespace GMap.NET.WindowsForms
             {
 #if ContinuesMap
                //-----
-               GMap.NET.Point tileToDraw = Core.tilePoint;  
+               GPoint tileToDraw = Core.tilePoint;  
                if(tileToDraw.X < Core.minOfTiles.Width)
                {
                   tileToDraw.X += (Core.maxOfTiles.Width + 1);
@@ -597,7 +597,7 @@ namespace GMap.NET.WindowsForms
             {
 #if ContinuesMap
                //-----
-               GMap.NET.Point tileToDraw = Core.tilePoint;  
+               GPoint tileToDraw = Core.tilePoint;  
                if(tileToDraw.X < Core.minOfTiles.Width)
                {
                   tileToDraw.X += (Core.maxOfTiles.Width + 1);
@@ -653,7 +653,7 @@ namespace GMap.NET.WindowsForms
                         while(ParentTile == null && (Core.Zoom - ZoomOffset) >= 1 && ZoomOffset <= LevelsKeepInMemmory)
                         {
                            Ix = (int) Math.Pow(2, ++ZoomOffset);
-                           ParentTile = Core.Matrix.GetTileWithNoLock(Core.Zoom - ZoomOffset, new GMap.NET.Point((int) (tilePoint.X / Ix), (int) (tilePoint.Y / Ix)));
+                           ParentTile = Core.Matrix.GetTileWithNoLock(Core.Zoom - ZoomOffset, new GPoint((int) (tilePoint.X / Ix), (int) (tilePoint.Y / Ix)));
                         }
 
                         if(ParentTile != null)
@@ -739,7 +739,7 @@ namespace GMap.NET.WindowsForms
       /// <param name="marker"></param>
       public void UpdateMarkerLocalPosition(GMapMarker marker)
       {
-         GMap.NET.Point p = FromLatLngToLocal(marker.Position);
+         GPoint p = FromLatLngToLocal(marker.Position);
          {
             marker.LocalOrigin = new System.Drawing.Point(p.X, p.Y);
          }
@@ -755,7 +755,7 @@ namespace GMap.NET.WindowsForms
 
          foreach(GMap.NET.PointLatLng pg in route.Points)
          {
-            GMap.NET.Point p = Projection.FromLatLngToPixel(pg, Core.Zoom, true);
+            GPoint p = Projection.FromLatLngToPixel(pg, Core.Zoom, true);
 
             if(IsRotated)
             {
@@ -781,7 +781,7 @@ namespace GMap.NET.WindowsForms
 
          foreach(GMap.NET.PointLatLng pg in polygon.Points)
          {
-            GMap.NET.Point p = Projection.FromLatLngToPixel(pg, Core.Zoom, true);
+            GPoint p = Projection.FromLatLngToPixel(pg, Core.Zoom, true);
 
             if(IsRotated)
             {
@@ -1262,11 +1262,13 @@ namespace GMap.NET.WindowsForms
 #endif
             {
 #if DEBUG
+#if !PocketPC
                if(VirtualSizeEnabled)
                {
                   e.Graphics.ScaleTransform(0.5f, 0.5f);
                   e.Graphics.TranslateTransform((Width - Width * 0.5f), (Height - Height * 0.5f));
                }
+#endif
 #endif
 
                e.Graphics.PixelOffsetMode = PixelOffsetMode.None;
@@ -1296,7 +1298,6 @@ namespace GMap.NET.WindowsForms
                   //e.Graphics.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
 
                   OnPaintEtc(e.Graphics);
-#endif
                }
                else
                {
@@ -1306,6 +1307,7 @@ namespace GMap.NET.WindowsForms
             }
 
 #if DEBUG
+#if !PocketPC
             if(VirtualSizeEnabled)
             {
                e.Graphics.ScaleTransform(0.5f, 0.5f);
@@ -1313,6 +1315,7 @@ namespace GMap.NET.WindowsForms
 
                e.Graphics.DrawRectangle(SelectionPen, 0, 0, Width, Height);
             }
+#endif
 #endif
          }
 
@@ -1327,6 +1330,7 @@ namespace GMap.NET.WindowsForms
       /// </summary>
       void UpdateRotationMatrix()
       {
+#if !PocketPC
          PointF center = new PointF(PositionPixel.X, PositionPixel.Y);
 
          rotationMatrix.Reset();
@@ -1622,7 +1626,7 @@ namespace GMap.NET.WindowsForms
 
             {
                Core.OnMapSizeChanged(Width, Height, true);
-               Core.currentRegion = new GMap.NET.Rectangle(-50, -50, Core.Width + 50, Core.Height + 50);
+               Core.currentRegion = new GRect(-50, -50, Core.Width + 50, Core.Height + 50);
             }
 
             if(Visible && IsHandleCreated)
@@ -1789,9 +1793,9 @@ namespace GMap.NET.WindowsForms
       /// <summary>
       /// apply transformation if in rotation mode
       /// </summary>
-      GMap.NET.Point ApplyRotationInversion(int x, int y)
+      GPoint ApplyRotationInversion(int x, int y)
       {
-         GMap.NET.Point ret = new GMap.NET.Point(x, y);
+         GPoint ret = new GPoint(x, y);
 
          if(IsRotated)
          {
@@ -1809,9 +1813,9 @@ namespace GMap.NET.WindowsForms
       /// <summary>
       /// apply transformation if in rotation mode
       /// </summary>
-      GMap.NET.Point ApplyRotation(int x, int y)
+      GPoint ApplyRotation(int x, int y)
       {
-         GMap.NET.Point ret = new GMap.NET.Point(x, y);
+         GPoint ret = new GPoint(x, y);
 
          if(IsRotated)
          {
@@ -1935,7 +1939,7 @@ namespace GMap.NET.WindowsForms
             if(Core.mouseLastZoom.X != e.X && Core.mouseLastZoom.Y != e.Y)
             {
                var pd = FromLocalToPixel(e.X, e.Y);
-               GMap.NET.Point pp = new GMap.NET.Point(pd.X, pd.Y);
+               GPoint pp = new GPoint(pd.X, pd.Y);
 
                if(MouseWheelZoomType == MouseWheelZoomType.MousePositionAndCenter)
                {
@@ -1943,7 +1947,7 @@ namespace GMap.NET.WindowsForms
                }
                else if(MouseWheelZoomType == MouseWheelZoomType.ViewCenter)
                {
-                  pp = new GMap.NET.Point(Width / 2, Height / 2);
+                  pp = new GPoint(Width / 2, Height / 2);
                   pp.Offset(-Core.renderOffset.X, -Core.renderOffset.Y);
                   Core.centerPixel = pp;
                }
@@ -2077,9 +2081,9 @@ namespace GMap.NET.WindowsForms
       /// </summary>
       /// <param name="point"></param>
       /// <returns></returns>
-      public GMap.NET.Point FromLatLngToLocal(PointLatLng point)
+      public GPoint FromLatLngToLocal(PointLatLng point)
       {
-         GMap.NET.Point ret = Projection.FromLatLngToPixel(point, Core.Zoom, true);
+         GPoint ret = Projection.FromLatLngToPixel(point, Core.Zoom, true);
 
 #if !PocketPC
          if(MapRenderTransform.HasValue)
@@ -2351,7 +2355,7 @@ namespace GMap.NET.WindowsForms
       }
 
       [Browsable(false)]
-      public GMap.NET.Rectangle ViewAreaPixel
+      public GMap.NET.GRect ViewAreaPixel
       {
          get
          {
@@ -2360,7 +2364,7 @@ namespace GMap.NET.WindowsForms
       }
 
       [Browsable(false)]
-      public GMap.NET.Point PositionPixel
+      public GMap.NET.GPoint PositionPixel
       {
          get
          {

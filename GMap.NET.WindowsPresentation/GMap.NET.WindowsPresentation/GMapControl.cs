@@ -691,7 +691,7 @@ namespace GMap.NET.WindowsPresentation
                   //   while(ParentTile == null && (Core.Zoom - ZoomOffset) >= 1 && ZoomOffset <= LevelsKeepInMemmory)
                   //   {
                   //      Ix = (int) Math.Pow(2, ++ZoomOffset);
-                  //      ParentTile = Core.Matrix.GetTileWithNoLock(Core.Zoom - ZoomOffset, new GMap.NET.Point((int) (tilePoint.X / Ix), (int) (tilePoint.Y / Ix)));
+                  //      ParentTile = Core.Matrix.GetTileWithNoLock(Core.Zoom - ZoomOffset, new GPoint((int) (tilePoint.X / Ix), (int) (tilePoint.Y / Ix)));
                   //   }
 
                   //   if(ParentTile != null)
@@ -1666,9 +1666,9 @@ namespace GMap.NET.WindowsPresentation
          return Core.FromLocalToLatLng(x, y);
       }
 
-      public GMap.NET.Point FromLatLngToLocal(PointLatLng point)
+      public GPoint FromLatLngToLocal(PointLatLng point)
       {
-         GMap.NET.Point ret = Projection.FromLatLngToPixel(point, Core.Zoom, true);
+         GPoint ret = Projection.FromLatLngToPixel(point, Core.Zoom, true);
          ret.Offset(Core.renderOffset);
 
          if(MapRenderTransform != null)
@@ -1800,7 +1800,7 @@ namespace GMap.NET.WindowsPresentation
       }
 
       [Browsable(false)]
-      public GMap.NET.Point PositionPixel
+      public GPoint PositionPixel
       {
          get
          {
@@ -1809,7 +1809,7 @@ namespace GMap.NET.WindowsPresentation
       }
 
       [Browsable(false)]
-      public GMap.NET.Rectangle ViewAreaPixel
+      public GRect ViewAreaPixel
       {
          get
          {
