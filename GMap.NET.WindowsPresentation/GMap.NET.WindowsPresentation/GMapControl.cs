@@ -1495,8 +1495,8 @@ namespace GMap.NET.WindowsPresentation
                System.Windows.Point p = e.GetPosition(this);
                selectionEnd = FromLocalToLatLng((int) p.X, (int) p.Y);
                {
-                  GMap.NET.PointLatLng p1 = selectionStart;
-                  GMap.NET.PointLatLng p2 = selectionEnd;
+                  PointLatLng p1 = selectionStart;
+                  PointLatLng p2 = selectionEnd;
 
                   double x1 = Math.Min(p1.Lng, p2.Lng);
                   double y1 = Math.Max(p1.Lat, p2.Lat);

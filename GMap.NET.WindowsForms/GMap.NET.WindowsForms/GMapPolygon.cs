@@ -134,9 +134,9 @@ namespace GMap.NET.WindowsForms
       protected GMapPolygon(SerializationInfo info, StreamingContext context)
          : base(info, context)
       {
-         this.Stroke = info.GetValue<Pen>("Stroke", new Pen(Color.FromArgb(155, Color.MidnightBlue)));
-         this.Fill = info.GetValue<Brush>("Fill", new SolidBrush(Color.FromArgb(155, Color.AliceBlue)));
-         this.deserializedLocalPoints = info.GetValue<GPoint[]>("LocalPoints");
+         this.Stroke = Extensions.GetValue<Pen>(info, "Stroke", new Pen(Color.FromArgb(155, Color.MidnightBlue)));
+         this.Fill = Extensions.GetValue<Brush>(info, "Fill", new SolidBrush(Color.FromArgb(155, Color.AliceBlue)));
+         this.deserializedLocalPoints = Extensions.GetValue<GPoint[]>(info, "LocalPoints");
       }
 
       #endregion

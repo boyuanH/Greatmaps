@@ -1,6 +1,7 @@
 ﻿
 using System.Drawing;
 using GMap.NET.WindowsForms;
+using GMap.NET;
 
 namespace CloudsDemo
 {
@@ -23,7 +24,7 @@ namespace CloudsDemo
          }
       }
 
-      public GMapImage(GMap.NET.PointLatLng p)
+      public GMapImage(PointLatLng p)
          : base(p)
       {
          DisableRegionCheck = true;
