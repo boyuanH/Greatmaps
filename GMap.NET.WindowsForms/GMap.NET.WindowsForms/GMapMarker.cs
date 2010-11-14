@@ -11,10 +11,14 @@ namespace GMap.NET.WindowsForms
    /// GMap.NET marker
    /// </summary>
    [Serializable]
+#if !PocketPC
    public class GMapMarker : ISerializable
+#else
+   public class GMapMarker
+#endif
    {
 #if PocketPC
-      static System.Drawing.Imaging.ImageAttributes attr = new System.Drawing.Imaging.ImageAttributes();
+      static readonly System.Drawing.Imaging.ImageAttributes attr = new System.Drawing.Imaging.ImageAttributes();
 
       static GMapMarker()
       {
@@ -295,6 +299,7 @@ namespace GMap.NET.WindowsForms
       }
 #endif
 
+#if !PocketPC
       #region ISerializable Members
 
       /// <summary>
@@ -339,6 +344,7 @@ namespace GMap.NET.WindowsForms
       }
 
       #endregion
+#endif
    }
 
    public delegate void MarkerClick(GMapMarker item, MouseEventArgs e);
