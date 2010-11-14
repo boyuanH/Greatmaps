@@ -101,7 +101,7 @@ namespace GMap.NET.WindowsForms
       {
          if(Overlay != null && Overlay.Control != null)
          {
-            position = Overlay.Control.Projection.FromPixelToLatLng(new GMap.NET.Point(localOrigin.X, localOrigin.Y), Overlay.Control.ZoomStep, true);
+            position = Overlay.Control.Projection.FromPixelToLatLng(new GPoint(localOrigin.X, localOrigin.Y), Overlay.Control.ZoomStep, true);
          }
       }
 
@@ -326,7 +326,7 @@ namespace GMap.NET.WindowsForms
       /// <param name="context">The context.</param>
       protected GMapMarker(SerializationInfo info, StreamingContext context)
       {
-         this.Position = info.GetStruct<PointLatLng>("Position", PointLatLng.Empty);
+         this.Position = info.GetStruct<PointLatLng>("Position", PointLatLng.Zero);
          this.Tag = info.GetValue<object>("Tag", null);
          this.Offset = info.GetStruct<Point>("Offset", Point.Empty);
          this.area = info.GetStruct<Rectangle>("Area", Rectangle.Empty);

@@ -38,34 +38,34 @@ namespace GMap.NET.Internals
    /// </summary>
    internal class Core
    {
-      public Point renderOffset;
-      public Point centerTileXY;
-      public Point centerTileXYLast;
-      public Point dragPoint;
+      public GPoint renderOffset;
+      public GPoint centerTileXY;
+      public GPoint centerTileXYLast;
+      public GPoint dragPoint;
 
-      public Point mouseDown;
-      public Point mouseCurrent;
-      public Point mouseLastZoom;
+      public GPoint mouseDown;
+      public GPoint mouseCurrent;
+      public GPoint mouseLastZoom;
 
       public MouseWheelZoomType MouseWheelZoomType = MouseWheelZoomType.MousePositionAndCenter;
 
       public PointLatLng? LastLocationInBounds = null;
       public bool VirtualSizeEnabled = false;
 
-      public Size sizeOfMapArea;
-      public Size minOfTiles;
-      public Size maxOfTiles;
-      public Size matrixSizePixel;
+      public GSize sizeOfMapArea;
+      public GSize minOfTiles;
+      public GSize maxOfTiles;
+      public GSize matrixSizePixel;
 
-      public Rectangle tileRect;
-      public Rectangle tileRectBearing;
-      public Rectangle currentRegion;
+      public GRect tileRect;
+      public GRect tileRectBearing;
+      public GRect currentRegion;
       public float bearing = 0;
       public bool IsRotated = false;
 
       public readonly TileMatrix Matrix = new TileMatrix();
 
-      public readonly List<Point> tileDrawingList = new List<Point>();
+      public readonly List<GPoint> tileDrawingList = new List<GPoint>();
       public readonly FastReaderWriterLock tileDrawingListLock = new FastReaderWriterLock();
 
       public readonly Queue<LoadTask> tileLoadQueue = new Queue<LoadTask>();
@@ -179,7 +179,7 @@ namespace GMap.NET.Internals
       }
 
       PointLatLng zoomPosition;
-      public Point zoomPositionPixel;
+      public GPoint zoomPositionPixel;
       public bool zoomPositionChanged = false;
 
       /// <summary>
@@ -665,13 +665,13 @@ namespace GMap.NET.Internals
       }
 #endif
 
-      public Rectangle viewRectPixel;
-      public Rectangle viewRectPixelInflated;
-      public Point centerPixel;
+      public GRect viewRectPixel;
+      public GRect viewRectPixelInflated;
+      public GPoint centerPixel;
 
       void UpdateViewRect()
       {
-         viewRectPixel = new Rectangle(-renderOffset.X, -renderOffset.Y, Width, Height);
+         viewRectPixel = new GRect(-renderOffset.X, -renderOffset.Y, Width, Height);
          viewRectPixelInflated = viewRectPixel;
          viewRectPixelInflated.Inflate(55, 55);
 
@@ -755,7 +755,7 @@ namespace GMap.NET.Internals
       /// <returns></returns>
       public PointLatLng FromLocalToLatLng(int x, int y)
       {
-         return Projection.FromPixelToLatLng(new Point(x - renderOffset.X, y - renderOffset.Y), Zoom, true);
+         return Projection.FromPixelToLatLng(new GPoint(x - renderOffset.X, y - renderOffset.Y), Zoom, true);
       }
 
       /// <summary>
@@ -769,8 +769,8 @@ namespace GMap.NET.Internals
 
          for(int i = zoom; i <= maxZoom; i++)
          {
-            Point p1 = Projection.FromLatLngToPixel(rect.LocationTopLeft, i, true);
-            Point p2 = Projection.FromLatLngToPixel(rect.LocationRightBottom, i, true);
+            GPoint p1 = Projection.FromLatLngToPixel(rect.LocationTopLeft, i, true);
+            GPoint p2 = Projection.FromLatLngToPixel(rect.LocationRightBottom, i, true);
 
             if(((p2.X - p1.X) <= Width + 10) && (p2.Y - p1.Y) <= Height + 10)
             {
@@ -853,11 +853,11 @@ namespace GMap.NET.Internals
       /// </summary>
       public void GoToCurrentPosition()
       {
-         renderOffset = Point.Empty;
-         centerTileXYLast = Point.Empty;
-         dragPoint = Point.Empty;
+         renderOffset = GPoint.Empty;
+         centerTileXYLast = GPoint.Empty;
+         dragPoint = GPoint.Empty;
 
-         Drag(new Point(-centerPixel.X + Width / 2, -centerPixel.Y + Height / 2));
+         Drag(new GPoint(-centerPixel.X + Width / 2, -centerPixel.Y + Height / 2));
       }
 
       public bool MouseWheelZooming = false;
@@ -867,16 +867,16 @@ namespace GMap.NET.Internals
       /// </summary>
       internal void GoToCurrentPositionOnZoom()
       {
-         renderOffset = Point.Empty;
-         centerTileXYLast = Point.Empty;
-         dragPoint = Point.Empty;
+         renderOffset = GPoint.Empty;
+         centerTileXYLast = GPoint.Empty;
+         dragPoint = GPoint.Empty;
 
          // goto location and centering
          if(MouseWheelZooming)
          {
             if(MouseWheelZoomType != MouseWheelZoomType.MousePositionWithoutCenter)
             {
-               Point pt = new Point(-(centerPixel.X - Width / 2), -(centerPixel.Y - Height / 2));
+               GPoint pt = new GPoint(-(centerPixel.X - Width / 2), -(centerPixel.Y - Height / 2));
                renderOffset.X = pt.X - dragPoint.X;
                renderOffset.Y = pt.Y - dragPoint.Y;
             }
@@ -889,7 +889,7 @@ namespace GMap.NET.Internals
          }
          else // use current map center
          {
-            mouseLastZoom = Point.Empty;
+            mouseLastZoom = GPoint.Empty;
 
             renderOffset.X = -centerPixel.X + Width / 2;
             renderOffset.Y = -centerPixel.Y + Height / 2;
@@ -1225,7 +1225,7 @@ namespace GMap.NET.Internals
                {
                   for(int j = -sizeOfMapArea.Height; j <= sizeOfMapArea.Height; j++)
                   {
-                     Point p = centerTileXY;
+                     GPoint p = centerTileXY;
                      p.X += i;
                      p.Y += j;
 

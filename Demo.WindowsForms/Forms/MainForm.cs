@@ -1247,7 +1247,7 @@ namespace Demo.WindowsForms
                   if(pIndex < polygon.Points.Count)
                   {
                      polygon.Points[pIndex.Value] = MainMap.Projection.FromPixelToLatLng(pnew.X, pnew.Y, (int) MainMap.Zoom);
-                     polygon.LocalPoints[pIndex.Value] = new GMap.NET.Point(pnew.X, pnew.Y);
+                     polygon.LocalPoints[pIndex.Value] = new GPoint(pnew.X, pnew.Y);
                   }
                }
 

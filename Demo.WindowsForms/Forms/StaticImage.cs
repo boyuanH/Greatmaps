@@ -81,10 +81,10 @@ namespace Demo.WindowsForms
             e.Result = bigImage;
 
             // current area
-            GMap.NET.Point topLeftPx = info.Projection.FromLatLngToPixel(info.Area.LocationTopLeft, info.Zoom, false);
-            GMap.NET.Point rightButtomPx = info.Projection.FromLatLngToPixel(info.Area.Bottom, info.Area.Right, info.Zoom);
-            GMap.NET.Point pxDelta = new GMap.NET.Point(rightButtomPx.X - topLeftPx.X, rightButtomPx.Y - topLeftPx.Y);
-            GMap.NET.Size maxOfTiles = info.Projection.GetTileMatrixMaxXY(info.Zoom);
+            GPoint topLeftPx = info.Projection.FromLatLngToPixel(info.Area.LocationTopLeft, info.Zoom, false);
+            GPoint rightButtomPx = info.Projection.FromLatLngToPixel(info.Area.Bottom, info.Area.Right, info.Zoom);
+            GPoint pxDelta = new GPoint(rightButtomPx.X - topLeftPx.X, rightButtomPx.Y - topLeftPx.Y);
+            GSize maxOfTiles = info.Projection.GetTileMatrixMaxXY(info.Zoom);
 
             int padding = info.MakeWorldFile ? 0 : 22;
             {

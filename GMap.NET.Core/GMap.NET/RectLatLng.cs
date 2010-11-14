@@ -69,16 +69,6 @@ namespace GMap.NET
          }
       }
 
-      public PointLatLng LocationMiddle
-      {
-         get
-         {
-            PointLatLng ret = new PointLatLng(this.Lat, this.Lng);
-            ret.Offset(HeightLat/2, WidthLng/2);
-            return ret;
-         }
-      }
-
       public SizeLatLng Size
       {
          get
