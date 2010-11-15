@@ -400,7 +400,7 @@ namespace Demo.WindowsForms
                      }
                      iplist += info;
 
-                     if(count++ >= 22)
+                     //if(count++ >= 1)
                      {
                         break;
                      }
@@ -459,7 +459,7 @@ namespace Demo.WindowsForms
             {
                Debug.WriteLine("ipInfoSearchWorker_DoWork: " + ex.ToString());
             }
-            Thread.Sleep(3333);
+            Thread.Sleep(1111);
          }
          Debug.WriteLine("ipInfoSearchWorker_DoWork: QUIT");
       }
@@ -985,7 +985,7 @@ namespace Demo.WindowsForms
          {
             Debug.WriteLine("GetIpHostInfo: " + iplist);
 
-            string reqUrl = string.Format("http://ipinfodb.com/ip_query2.php?ip={0}&timezone=false", iplistNew);
+            string reqUrl = string.Format("http://api.ipinfodb.com/v2/ip_query.php?key=fbea1992ab11f7125064590a417a8461ccaf06728798c718dbd2809b31a7a5e0&ip={0}&timezone=false", iplistNew);
 
             while(true)
             {
@@ -1007,7 +1007,7 @@ namespace Demo.WindowsForms
                      XmlDocument x = new XmlDocument();
                      x.LoadXml(result);
 
-                     XmlNodeList nodes = x.SelectNodes("/Locations/Location");
+                     XmlNodeList nodes = x.SelectNodes("/Response");
                      foreach(XmlNode node in nodes)
                      {
                         string Ip = node.SelectSingleNode("Ip").InnerText;
@@ -1038,7 +1038,7 @@ namespace Demo.WindowsForms
                      break;
                   }
                   retry = true;
-                  reqUrl = string.Format("http://backup.ipinfodb.com/ip_query2.php?ip={0}&timezone=false", iplist);
+                  reqUrl = string.Format("http://backup.ipinfodb.com/v2/ip_query.php?key=fbea1992ab11f7125064590a417a8461ccaf06728798c718dbd2809b31a7a5e0&ip={0}&timezone=false", iplist);
                   Debug.WriteLine("GetIpHostInfo: " + ex.Message + ", retry on backup server...");
                }
             }
