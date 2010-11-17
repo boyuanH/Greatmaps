@@ -2,6 +2,7 @@
 namespace GMap.NET
 {
    using System.Globalization;
+   using System;
 
    /// <summary>
    /// the point ;}
@@ -96,6 +97,16 @@ namespace GMap.NET
       public static GPoint Subtract(GPoint pt, GSize sz)
       {
          return new GPoint(pt.X - sz.Width, pt.Y - sz.Height);
+      }
+
+      public static int MaxXfXY(GPoint p)
+      {
+         return Math.Max(p.X, p.Y);
+      }
+
+      public static int MaxDiffOfXY(GPoint p1, GPoint p2)
+      {
+         return Math.Max(Math.Abs(p1.X - p2.X), Math.Abs(p1.Y - p2.Y));
       }
 
       public override bool Equals(object obj)
