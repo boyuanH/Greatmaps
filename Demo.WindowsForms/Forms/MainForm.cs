@@ -161,7 +161,7 @@ namespace Demo.WindowsForms
             }
 
             // set current marker
-            currentMarker = new GMapMarkerGoogleRed(MainMap.Position);
+            currentMarker = new GMarkerGoogle(MainMap.Position, GoogleMarkerType.arrow);
             currentMarker.IsHitTestVisible = false;
             top.Markers.Add(currentMarker);
 
@@ -177,7 +177,7 @@ namespace Demo.WindowsForms
                   {
                      currentMarker.Position = pos.Value;
 
-                     GMapMarker myCity = new GMapMarkerGoogleGreen(pos.Value);
+                     GMapMarker myCity = new GMarkerGoogle(pos.Value, GoogleMarkerType.red_dot);
                      myCity.ToolTipMode = MarkerTooltipMode.Always;
                      myCity.ToolTipText = "Welcome to Lithuania! ;}";
                      objects.Markers.Add(myCity);
@@ -216,7 +216,7 @@ namespace Demo.WindowsForms
       void timer_Tick(object sender, EventArgs e)
       {
          var pos = new PointLatLng(NextDouble(rnd, MainMap.ViewArea.Top, MainMap.ViewArea.Bottom), NextDouble(rnd, MainMap.ViewArea.Left, MainMap.ViewArea.Right));
-         GMapMarker m = new GMapMarkerGoogleGreen(pos);
+         GMapMarker m = new GMarkerGoogle(pos, GoogleMarkerType.green);
          {
             m.ToolTipText = (tt++).ToString();
             m.ToolTipMode = MarkerTooltipMode.Always;
@@ -260,7 +260,7 @@ namespace Demo.WindowsForms
 
                if(!trolleybusMarkers.TryGetValue(d.Id, out marker))
                {
-                  marker = new GMapMarkerGoogleRed(new PointLatLng(d.Lat, d.Lng));
+                  marker = new GMarkerGoogle(new PointLatLng(d.Lat, d.Lng), GoogleMarkerType.red);
                   marker.Tag = d.Id;
                   marker.ToolTipMode = MarkerTooltipMode.OnMouseOver;
 
@@ -270,7 +270,7 @@ namespace Demo.WindowsForms
                else
                {
                   marker.Position = new PointLatLng(d.Lat, d.Lng);
-                  (marker as GMapMarkerGoogleRed).Bearing = (float?) d.Bearing;
+                  (marker as GMarkerGoogle).Bearing = (float?) d.Bearing;
                }
                marker.ToolTipText = "Trolley " + d.Line + (d.Bearing.HasValue ? ", bearing: " + d.Bearing.Value.ToString() : string.Empty) + ", " + d.Time;
 
@@ -293,7 +293,7 @@ namespace Demo.WindowsForms
 
                if(!busMarkers.TryGetValue(d.Id, out marker))
                {
-                  marker = new GMapMarkerGoogleGreen(new PointLatLng(d.Lat, d.Lng));
+                  marker = new GMarkerGoogle(new PointLatLng(d.Lat, d.Lng), GoogleMarkerType.green);
                   marker.Tag = d.Id;
                   marker.ToolTipMode = MarkerTooltipMode.OnMouseOver;
 
@@ -303,7 +303,7 @@ namespace Demo.WindowsForms
                else
                {
                   marker.Position = new PointLatLng(d.Lat, d.Lng);
-                  (marker as GMapMarkerGoogleGreen).Bearing = (float?) d.Bearing;
+                  (marker as GMarkerGoogle).Bearing = (float?) d.Bearing;
                }
                marker.ToolTipText = "Bus " + d.Line + (d.Bearing.HasValue ? ", bearing: " + d.Bearing.Value.ToString() : string.Empty) + ", " + d.Time;
 
@@ -724,7 +724,7 @@ namespace Demo.WindowsForms
                   {
                      if(!string.IsNullOrEmpty(tcp.Value.Ip))
                      {
-                        marker = new GMapMarkerGoogleGreen(new PointLatLng(tcp.Value.Latitude, tcp.Value.Longitude));
+                        marker = new GMarkerGoogle(new PointLatLng(tcp.Value.Latitude, tcp.Value.Longitude), GoogleMarkerType.green_small);
                         marker.ToolTipMode = MarkerTooltipMode.OnMouseOver;
                         marker.Tag = tcp.Value.CountryName;
 
@@ -1147,7 +1147,7 @@ namespace Demo.WindowsForms
          PointLatLng? pos = GMaps.Instance.GetLatLngFromGeocoder("Lithuania, " + place, out status);
          if(pos != null && status == GeoCoderStatusCode.G_GEO_SUCCESS)
          {
-            GMapMarkerGoogleGreen m = new GMapMarkerGoogleGreen(pos.Value);
+            GMarkerGoogle m = new GMarkerGoogle(pos.Value, GoogleMarkerType.green_dot);
             m.ToolTip = new GMapRoundedToolTip(m);
 
             GMapMarkerRect mBorders = new GMapMarkerRect(pos.Value);
@@ -1467,11 +1467,11 @@ namespace Demo.WindowsForms
             routes.Routes.Add(r);
 
             // add route start/end marks
-            GMapMarker m1 = new GMapMarkerGoogleRed(start);
+            GMapMarker m1 = new GMarkerGoogle(start, GoogleMarkerType.green_big_go);
             m1.ToolTipText = "Start: " + route.Name;
             m1.ToolTipMode = MarkerTooltipMode.Always;
 
-            GMapMarker m2 = new GMapMarkerGoogleGreen(end);
+            GMapMarker m2 = new GMarkerGoogle(end, GoogleMarkerType.red_big_stop);
             m2.ToolTipText = "End: " + end.ToString();
             m2.ToolTipMode = MarkerTooltipMode.Always;
 
@@ -1492,7 +1492,7 @@ namespace Demo.WindowsForms
       // add marker on current position
       private void button4_Click(object sender, EventArgs e)
       {
-         GMapMarkerGoogleGreen m = new GMapMarkerGoogleGreen(currentMarker.Position);
+         GMarkerGoogle m = new GMarkerGoogle(currentMarker.Position, GoogleMarkerType.green_dot);
          GMapMarkerRect mBorders = new GMapMarkerRect(currentMarker.Position);
          {
             mBorders.InnerMarker = m;

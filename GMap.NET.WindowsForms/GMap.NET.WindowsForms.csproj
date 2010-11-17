@@ -54,10 +54,9 @@
     <Compile Include="GMap.NET.WindowsForms\TilePrefetcher.Designer.cs">
       <DependentUpon>TilePrefetcher.cs</DependentUpon>
     </Compile>
-    <Compile Include="GMap.NET.WindowsForms\Markers\GMapMarkerGoogleGreen.cs" />
     <Compile Include="GMap.NET.WindowsForms\GMapMarker.cs" />
-    <Compile Include="GMap.NET.WindowsForms\Markers\GMapMarkerGoogleRed.cs" />
-    <Compile Include="GMap.NET.WindowsForms\Markers\GMapMarkerCross.cs" />
+    <Compile Include="GMap.NET.WindowsForms\Markers\GMarkerGoogle.cs" />
+    <Compile Include="GMap.NET.WindowsForms\Markers\GMarkerCross.cs" />
     <Compile Include="GMap.NET.WindowsForms\GMapOverlay.cs" />
     <Compile Include="GMap.NET.WindowsForms\WindowsFormsImage.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -105,6 +104,129 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\bigMarkerGreen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\yellow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blue-dot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blue-pushpin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\green.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\green-dot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\grn-pushpin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\yellow-dot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ylw-pushpin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\lightblue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ltblue-dot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ltblu-pushpin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\msmarker.shadow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\orange.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\orange-dot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pink.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pink-dot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pink-pushpin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\purple.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\purple-dot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\purple-pushpin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pushpin_shadow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\red-dot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\red-pushpin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrowshadow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pause-big-red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\stop-big-red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\go-big-green.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\shadow_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\brown_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blue_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\black_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\yellow_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\white_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\red_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\purple_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\orange_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\green_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gray_small.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
