@@ -40,21 +40,21 @@ namespace GMap.NET
    public class GMaps : Singleton<GMaps>
    {
       // Google version strings
-      public string VersionGoogleMap = "m@132";
-      public string VersionGoogleSatellite = "71";
-      public string VersionGoogleLabels = "h@132";
-      public string VersionGoogleTerrain = "t@125,r@132";
+      public string VersionGoogleMap = "m@137";
+      public string VersionGoogleSatellite = "74";
+      public string VersionGoogleLabels = "h@137";
+      public string VersionGoogleTerrain = "t@126,r@137";
       public string SecGoogleWord = "Galileo";
 
       // Google (China) version strings
-      public string VersionGoogleMapChina = "m@132";
-      public string VersionGoogleSatelliteChina = "s@71";
-      public string VersionGoogleLabelsChina = "h@132";
-      public string VersionGoogleTerrainChina = "t@125,r@132";
+      public string VersionGoogleMapChina = "m@137";
+      public string VersionGoogleSatelliteChina = "s@74";
+      public string VersionGoogleLabelsChina = "h@137";
+      public string VersionGoogleTerrainChina = "t@126,r@137";
 
       // Google (Korea) version strings
       public string VersionGoogleMapKorea = "kr1.12";
-      public string VersionGoogleSatelliteKorea = "71";
+      public string VersionGoogleSatelliteKorea = "74";
       public string VersionGoogleLabelsKorea = "kr1t.12";
 
       /// <summary>
@@ -69,7 +69,7 @@ namespace GMap.NET
       public string VersionYahooLabels = "4.3";
 
       // BingMaps
-      public string VersionBingMaps = "563";
+      public string VersionBingMaps = "585";
 
       // YandexMap
       public string VersionYandexMap = "2.16.0";
@@ -155,11 +155,6 @@ namespace GMap.NET
       /// max zoom for maps, 17 is max fo many maps
       /// </summary>
       public readonly int MaxZoom = 17;
-
-      /// <summary>
-      /// Radius of the Earth
-      /// </summary>
-      public double EarthRadiusKm = 6378.137; // WGS-84
 
       /// <summary>
       /// pure image cache provider, by default: ultra fast SQLite!
@@ -1678,7 +1673,7 @@ namespace GMap.NET
          return null;
       }
 
-      Projections.MercatorProjection ProjectionForWMS = new Projections.MercatorProjection();
+      static readonly Projections.MercatorProjection ProjectionForWMS = new Projections.MercatorProjection();
 
       /// <summary>
       /// gets secure google words based on position

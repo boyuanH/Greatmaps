@@ -459,11 +459,11 @@ namespace GMap.NET.WindowsForms
                //-----
 #endif
                {
-                  Core.tileRect.X = tilePoint.X * Core.tileRect.Width;
-                  Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height;
+                  //Core.tileRect.X = tilePoint.X * Core.tileRect.Width;
+                  //Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height;
 
-                  //Core.tileRect.X = tilePoint.X * Core.tileRect.Width - Core.zoomPositionPixel.X;
-                  //Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height - Core.zoomPositionPixel.Y;
+                  Core.tileRect.X = tilePoint.X * Core.tileRect.Width - Core.virtualOrignPixel.X;
+                  Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height - Core.virtualOrignPixel.Y;
 
                   if(Core.viewRectPixelInflated.IntersectsWith(Core.tileRect) || IsRotated)
                   {
@@ -744,6 +744,8 @@ namespace GMap.NET.WindowsForms
       {
          GPoint p = FromLatLngToLocal(marker.Position);
          {
+            //p.Offset(-Core.virtualOrignPixel.X, -Core.virtualOrignPixel.Y);
+
             marker.LocalOrigin = new System.Drawing.Point(p.X, p.Y);
          }
       }
@@ -759,6 +761,8 @@ namespace GMap.NET.WindowsForms
          foreach(PointLatLng pg in route.Points)
          {
             GPoint p = Projection.FromLatLngToPixel(pg, Core.Zoom, true);
+
+            p.Offset(-Core.virtualOrignPixel.X, -Core.virtualOrignPixel.Y);
 
             if(IsRotated)
             {
@@ -785,6 +789,8 @@ namespace GMap.NET.WindowsForms
          foreach(PointLatLng pg in polygon.Points)
          {
             GPoint p = Projection.FromLatLngToPixel(pg, Core.Zoom, true);
+
+            p.Offset(-Core.virtualOrignPixel.X, -Core.virtualOrignPixel.Y);
 
             if(IsRotated)
             {
@@ -1274,17 +1280,16 @@ namespace GMap.NET.WindowsForms
 #endif
 #endif
 
-               e.Graphics.PixelOffsetMode = PixelOffsetMode.None;
-               e.Graphics.PageUnit = GraphicsUnit.Pixel;
-               e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-               e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-               e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
+               //e.Graphics.PixelOffsetMode = PixelOffsetMode.None;
+               //e.Graphics.PageUnit = GraphicsUnit.Pixel;
+               //e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+               //e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+               //e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
 
                // need a solution to lower high number offsets
                // to remove translate distortions
+               //e.Graphics.TranslateTransform(Core.renderOffset.X - Core.virtualOrignPixel.X, Core.renderOffset.Y - Core.virtualOrignPixel.Y);
                e.Graphics.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
-               //e.Graphics.TranslateTransform(Core.renderOffset.X + Core.zoomPositionPixel.X, Core.renderOffset.Y - Core.zoomPositionPixel.Y);
-
 
                if(IsRotated)
                {
@@ -1424,6 +1429,14 @@ namespace GMap.NET.WindowsForms
                o.Render(g);
             }
          }
+
+         g.DrawLine(Pens.DarkGreen, Core.virtualOrignPixel.X - 20, Core.virtualOrignPixel.Y, Core.virtualOrignPixel.X + 20, Core.virtualOrignPixel.Y);
+         g.DrawLine(Pens.DarkGreen, Core.virtualOrignPixel.X, Core.virtualOrignPixel.Y - 20, Core.virtualOrignPixel.X, Core.virtualOrignPixel.Y + 20);
+
+         g.DrawLine(Pens.Blue,-20, 0, 20, 0);
+         g.DrawLine(Pens.Blue, 0, -20, 0, 20);
+
+         g.DrawRectangle(Pens.Red, -Core.RenderMax/2, -Core.RenderMax/2, Core.RenderMax, Core.RenderMax);
 
          g.ResetTransform();
 
@@ -2288,11 +2301,14 @@ namespace GMap.NET.WindowsForms
          }
          set
          {
-            Core.CurrentPosition = value;
-
-            if(Core.IsStarted)
+            if(Core.CurrentPosition != value)
             {
-               ForceUpdateOverlays();
+               Core.CurrentPosition = value;
+
+               if(Core.IsStarted)
+               {
+                  ForceUpdateOverlays();
+               }
             }
          }
       }

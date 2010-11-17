@@ -5,8 +5,6 @@ namespace GMap.NET.Internals
    using System.Collections.Generic;
    using System.Diagnostics;
    using System.Threading;
-   using GMap.NET.Projections;
-   using System.IO;
 
 #if PocketPC
    using OpenNETCF.ComponentModel;
@@ -116,6 +114,34 @@ namespace GMap.NET.Internals
          MapType = MapType.None;
       }
 
+      public GPoint virtualOrignPixel;
+      public int RenderMax = 512;
+
+      public void AdjustToVirtualSpace(bool resetOrign)
+      {
+         if(resetOrign)
+         {
+            virtualOrignPixel = GPoint.Empty;
+         }
+
+         //virtualOrignPixel = new GPoint(128, 128);
+
+         int diff = GPoint.MaxDiffOfXY(virtualOrignPixel, centerPixel);
+         if(diff > RenderMax) // more than 100k px, the limits of current render systems
+         {
+            Debug.WriteLine("AdjustToVirtualSpace: diff high "  + diff + "px, " + centerPixel + " <- " + virtualOrignPixel);
+            virtualOrignPixel = centerPixel;
+         }
+         else
+         {
+            if(GPoint.MaxXfXY(centerPixel) < RenderMax)
+            {
+               virtualOrignPixel = GPoint.Empty;
+               Debug.WriteLine("AdjustToVirtualSpace: diff good " + diff + "px, " + virtualOrignPixel);
+            }
+         }
+      }
+
       public void UpdateFieldsOnZoomChanged(int value)
       {
          if(zoomPositionChanged)
@@ -126,13 +152,13 @@ namespace GMap.NET.Internals
          minOfTiles = Projection.GetTileMatrixMinXY(value);
          maxOfTiles = Projection.GetTileMatrixMaxXY(value);
          centerPixel = Projection.FromLatLngToPixel(zoomPosition, value, true);
-         zoomPositionPixel = Projection.FromLatLngToPixel(zoomPosition, value, true);
          zoom = value;
-
          matrixSizePixel = Projection.GetTileMatrixSizePixel(value);
 
+         AdjustToVirtualSpace(true);
+
          Debug.WriteLine("MatrixSizePixel: " + matrixSizePixel);
-         Debug.WriteLine("ZoomPositionPixel: " + zoomPositionPixel);
+         Debug.WriteLine("ZoomPositionPixel: " + centerPixel);
       }
 
       /// <summary>
@@ -179,7 +205,6 @@ namespace GMap.NET.Internals
       }
 
       PointLatLng zoomPosition;
-      public GPoint zoomPositionPixel;
       public bool zoomPositionChanged = false;
 
       /// <summary>
@@ -194,8 +219,10 @@ namespace GMap.NET.Internals
          set
          {
             zoomPosition = value;
-            centerPixel = Projection.FromLatLngToPixel(value, Zoom, true);
+            centerPixel = Projection.FromLatLngToPixel(zoomPosition, Zoom, true);
             zoomPositionChanged = false;
+
+            AdjustToVirtualSpace(false);
 
             if(!IsDragging)
             {
@@ -668,6 +695,7 @@ namespace GMap.NET.Internals
       public GRect viewRectPixel;
       public GRect viewRectPixelInflated;
       public GPoint centerPixel;
+      public GPoint centerPixelVirtual;
 
       void UpdateViewRect()
       {
@@ -677,12 +705,15 @@ namespace GMap.NET.Internals
 
          centerPixel = viewRectPixel.Location;
          centerPixel.Offset(Width / 2, Height / 2);
+
+         centerPixelVirtual = centerPixel;
+         centerPixelVirtual.Offset(virtualOrignPixel);
       }
 
       public void UpdateCenterTileXYLocation()
       {
-         UpdateViewRect();
-         centerTileXY = Projection.FromPixelToTileXY(centerPixel);
+         UpdateViewRect();         
+         centerTileXY = Projection.FromPixelToTileXY(centerPixelVirtual);
       }
 
       public void OnMapSizeChanged(int width, int height, bool updateBounds)
@@ -891,8 +922,8 @@ namespace GMap.NET.Internals
          {
             mouseLastZoom = GPoint.Empty;
 
-            renderOffset.X = -centerPixel.X + Width / 2;
-            renderOffset.Y = -centerPixel.Y + Height / 2;
+            renderOffset.X = -virtualOrignPixel.X - centerPixel.X + Width / 2;
+            renderOffset.Y = -virtualOrignPixel.Y -centerPixel.Y + Height / 2;
          }
 
          UpdateCenterTileXYLocation();
