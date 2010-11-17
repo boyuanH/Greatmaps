@@ -130,12 +130,6 @@ namespace GMap.NET.WindowsForms.Markers
                BitmapShadow = Resources.pushpin_shadow;
             }
             break;
-
-            default:
-            {
-               Offset = new Point(-Size.Width / 2, -Size.Height);
-            }
-            break;
          }
       }
 
