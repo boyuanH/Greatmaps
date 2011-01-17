@@ -6,6 +6,7 @@ using GMap.NET.Projections;
 using DotSpatial.Projections;
 using System.Diagnostics;
 using GMap.NET;
+using GMap.NET.Internals;
 
 namespace ConsoleApplication
 {
@@ -13,6 +14,30 @@ namespace ConsoleApplication
    {
       static void Main(string[] args)
       {
+         //if(false)
+         {
+            Core Core = new Core();
+            {
+               int Width = 1024;
+               int Height = 1024;
+
+               Core.OnMapSizeChanged(Width, Height, false);
+               Core.currentRegion = new GRect(-50, -50, Core.Width + 50, Core.Height + 50);
+
+               Core.Zoom = 3;
+            }
+            Core.StartSystem();
+
+            {
+               // keep center on same position, after size changed
+               Core.GoToCurrentPosition();
+
+               Core.CurrentPosition = new PointLatLng(0, 111);
+            }
+         }
+
+         #region -- GetDistanceInMeters test --
+         if(false)
          {
             int zoom = 11;
             var p1 = new PointLatLng(54.897894682306, 23.9374116651471);
@@ -35,7 +60,9 @@ namespace ConsoleApplication
                Debug.WriteLine("d2: " + dd2 + "m");
             }
          }
+         #endregion
 
+         #region -- MapyCZProjection test --
          if(false)
          {
             double x = 25;
@@ -75,6 +102,7 @@ namespace ConsoleApplication
             }
             // 134400000],PARAMETER["false_northing",-41600000
          }
+         #endregion
 
          Console.ReadLine();
       }
