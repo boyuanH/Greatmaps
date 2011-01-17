@@ -24,15 +24,30 @@ namespace ConsoleApplication
                Core.OnMapSizeChanged(Width, Height, false);
                Core.currentRegion = new GRect(-50, -50, Core.Width + 50, Core.Height + 50);
 
+               Debug.WriteLine("VOffset: " + Core.virtualOrignPixel);
+               Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
+               Debug.WriteLine("RenderO: " + Core.renderOffset);
+
                Core.Zoom = 3;
             }
             Core.StartSystem();
 
             {
-               // keep center on same position, after size changed
-               Core.GoToCurrentPosition();
+               Debug.WriteLine("VOffset: " + Core.virtualOrignPixel);
+               Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
+               Debug.WriteLine("RenderO: " + Core.renderOffset);
 
-               Core.CurrentPosition = new PointLatLng(0, 111);
+               Core.Zoom = 4;
+
+               Debug.WriteLine("VOffset: " + Core.virtualOrignPixel);
+               Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
+               Debug.WriteLine("RenderO: " + Core.renderOffset);
+
+               //Core.CurrentPosition = new PointLatLng(0, 111);
+
+               //Debug.WriteLine("VOffset: " + Core.virtualOrignPixel);
+               //Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
+               //Debug.WriteLine("RenderO: " + Core.renderOffset);
             }
          }
 
