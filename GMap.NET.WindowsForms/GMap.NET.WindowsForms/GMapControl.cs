@@ -1556,13 +1556,7 @@ namespace GMap.NET.WindowsForms
 #endif
             {
                Core.mouseDown = ApplyRotationInversion(e.X, e.Y);
-               Core.BeginDrag(Core.mouseDown);
-
-#if !PocketPC
-               this.Invalidate(false);
-#else
                this.Invalidate();
-#endif
             }
             else if(!isSelected)
             {
@@ -1614,6 +1608,14 @@ namespace GMap.NET.WindowsForms
                {
                   SetZoomToFitRect(SelectedArea);
                }
+            }
+            else
+            {
+               if(e.Button == DragButton)
+               {
+                  Core.mouseDown = GPoint.Empty;
+               }
+               Invalidate();
             }
 #endif
          }
@@ -1701,6 +1703,17 @@ namespace GMap.NET.WindowsForms
 
       protected override void OnMouseMove(MouseEventArgs e)
       {
+         if(!Core.IsDragging && !Core.mouseDown.IsEmpty)
+         {
+            GPoint p = ApplyRotationInversion(e.X, e.Y);
+
+            // cursor has moved beyond drag tolerance
+            if(Math.Abs(p.X - Core.mouseDown.X) * 2 >= SystemInformation.DragSize.Width || Math.Abs(p.Y - Core.mouseDown.Y) * 2 >= SystemInformation.DragSize.Height)
+            {
+               Core.BeginDrag(Core.mouseDown);
+            }
+         }
+
          if(Core.IsDragging)
          {
             if(!isDragging)
@@ -1743,7 +1756,7 @@ namespace GMap.NET.WindowsForms
                   SelectedArea = new RectLatLng(y1, x1, x2 - x1, y1 - y2);
                }
             }
-            else
+            else if(Core.mouseDown.IsEmpty)
 #endif
             {
                for(int i = Overlays.Count - 1; i >= 0; i--)
@@ -1760,11 +1773,10 @@ namespace GMap.NET.WindowsForms
                               if(!m.IsMouseOver)
                               {
 #if !PocketPC
-                                 this.Cursor = System.Windows.Forms.Cursors.Hand;
-                                 Invalidate(false);
-#else
-                                 Invalidate();
+                                 this.Cursor = Cursors.Hand;
 #endif
+                                 Invalidate();
+
                                  m.IsMouseOver = true;
 
                                  if(OnMarkerEnter != null)
@@ -1776,14 +1788,10 @@ namespace GMap.NET.WindowsForms
                            else if(m.IsMouseOver)
                            {
 #if !PocketPC
-                              this.Cursor = System.Windows.Forms.Cursors.Default;
+                              this.Cursor = Cursors.Default;
 #endif
                               m.IsMouseOver = false;
-#if !PocketPC
-                              Invalidate(false);
-#else
                               Invalidate();
-#endif
 
                               if(OnMarkerLeave != null)
                               {

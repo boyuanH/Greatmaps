@@ -1356,9 +1356,7 @@ namespace GMap.NET.WindowsPresentation
       {
          if(CanDragMap && e.ChangedButton == DragButton && e.ButtonState == MouseButtonState.Pressed)
          {
-            Mouse.Capture(this);
-
-            System.Windows.Point p = e.GetPosition(this);
+            Point p = e.GetPosition(this);
 
             if(MapRenderTransform != null)
             {
@@ -1369,16 +1367,14 @@ namespace GMap.NET.WindowsPresentation
 
             Core.mouseDown.X = (int)p.X;
             Core.mouseDown.Y = (int)p.Y;
-            {
-               Core.BeginDrag(Core.mouseDown);
-            }
+
             InvalidateVisual();
          }
          else
          {
             if(!isSelected)
             {
-               System.Windows.Point p = e.GetPosition(this);
+               Point p = e.GetPosition(this);
                isSelected = true;
                SelectedArea = RectLatLng.Empty;
                selectionEnd = PointLatLng.Zero;
@@ -1397,10 +1393,10 @@ namespace GMap.NET.WindowsPresentation
 
          if(Core.IsDragging)
          {
-            Mouse.Capture(null);
-
             if(isDragging)
             {
+               Mouse.Capture(null);
+
                isDragging = false;
                Debug.WriteLine("IsDragging = " + isDragging);
                Cursor = cursorBefore;
@@ -1426,6 +1422,10 @@ namespace GMap.NET.WindowsPresentation
             }
             else
             {
+               if(e.ChangedButton == DragButton)
+               {
+                  Core.mouseDown = GPoint.Empty;
+               }
                InvalidateVisual();
             }
          }
@@ -1437,10 +1437,30 @@ namespace GMap.NET.WindowsPresentation
 
       protected override void OnMouseMove(MouseEventArgs e)
       {
+         if(!Core.IsDragging && !Core.mouseDown.IsEmpty)
+         {
+            Point p = e.GetPosition(this);
+
+            if(MapRenderTransform != null)
+            {
+               p = MapRenderTransform.Inverse.Transform(p);
+            }
+
+            p = ApplyRotationInversion(p.X, p.Y);
+
+            // cursor has moved beyond drag tolerance
+            if(Math.Abs(p.X - Core.mouseDown.X) * 2 >= SystemParameters.MinimumHorizontalDragDistance || Math.Abs(p.Y - Core.mouseDown.Y) * 2 >= SystemParameters.MinimumVerticalDragDistance)
+            {
+               Core.BeginDrag(Core.mouseDown);
+            }
+         }
+
          if(Core.IsDragging)
          {
             if(!isDragging)
             {
+               Mouse.Capture(this);
+
                isDragging = true;
                Debug.WriteLine("IsDragging = " + isDragging);
 
@@ -1454,7 +1474,7 @@ namespace GMap.NET.WindowsPresentation
             }
             else
             {
-               System.Windows.Point p = e.GetPosition(this);
+               Point p = e.GetPosition(this);
 
                if(MapRenderTransform != null)
                {
@@ -1507,9 +1527,7 @@ namespace GMap.NET.WindowsPresentation
       {
          if(TouchEnabled && CanDragMap && !e.InAir)
          {
-            Mouse.Capture(this);
-
-            System.Windows.Point p = e.GetPosition(this);
+            Point p = e.GetPosition(this);
 
             if(MapRenderTransform != null)
             {
@@ -1520,10 +1538,7 @@ namespace GMap.NET.WindowsPresentation
 
             Core.mouseDown.X = (int)p.X;
             Core.mouseDown.Y = (int)p.Y;
-            {
-               Cursor = Cursors.SizeAll;
-               Core.BeginDrag(Core.mouseDown);
-            }
+
             InvalidateVisual();
          }
 
@@ -1541,15 +1556,15 @@ namespace GMap.NET.WindowsPresentation
 
             if(Core.IsDragging)
             {
-               Mouse.Capture(null);
-
                if(isDragging)
                {
+                  Mouse.Capture(null);
+
                   isDragging = false;
                   Debug.WriteLine("IsDragging = " + isDragging);
+                  Cursor = cursorBefore;
                }
                Core.EndDrag();
-               Cursor = Cursors.Arrow;
 
                if(BoundsOfMap.HasValue && !BoundsOfMap.Value.Contains(Position))
                {
@@ -1559,27 +1574,22 @@ namespace GMap.NET.WindowsPresentation
                   }
                }
             }
+            else
+            {
+               Core.mouseDown = GPoint.Empty;
+               InvalidateVisual();
+            }
          }
          base.OnStylusUp(e);
       }
 
       protected override void OnStylusMove(StylusEventArgs e)
       {
-         if(TouchEnabled && Core.IsDragging)
+         if(TouchEnabled)
          {
-            if(!isDragging)
+            if(!Core.IsDragging && !Core.mouseDown.IsEmpty)
             {
-               isDragging = true;
-               Debug.WriteLine("IsDragging = " + isDragging);
-            }
-
-            if(BoundsOfMap.HasValue && !BoundsOfMap.Value.Contains(Position))
-            {
-               // ...
-            }
-            else
-            {
-               System.Windows.Point p = e.GetPosition(this);
+               Point p = e.GetPosition(this);
 
                if(MapRenderTransform != null)
                {
@@ -1588,22 +1598,58 @@ namespace GMap.NET.WindowsPresentation
 
                p = ApplyRotationInversion(p.X, p.Y);
 
-               Core.mouseCurrent.X = (int)p.X;
-               Core.mouseCurrent.Y = (int)p.Y;
+               // cursor has moved beyond drag tolerance
+               if(Math.Abs(p.X - Core.mouseDown.X) * 2 >= SystemParameters.MinimumHorizontalDragDistance || Math.Abs(p.Y - Core.mouseDown.Y) * 2 >= SystemParameters.MinimumVerticalDragDistance)
                {
-                  Core.Drag(Core.mouseCurrent);
+                  Core.BeginDrag(Core.mouseDown);
+               }
+            }
+
+            if(Core.IsDragging)
+            {
+               if(!isDragging)
+               {
+                  Mouse.Capture(this);
+
+                  isDragging = true;
+                  Debug.WriteLine("IsDragging = " + isDragging);
+
+                  cursorBefore = Cursor;
+                  Cursor = Cursors.SizeAll;
                }
 
-               if(IsRotated)
+               if(BoundsOfMap.HasValue && !BoundsOfMap.Value.Contains(Position))
                {
-                  Core_OnMapZoomChanged();
+                  // ...
                }
                else
                {
-                  UpdateMarkersOffset();
+                  Point p = e.GetPosition(this);
+
+                  if(MapRenderTransform != null)
+                  {
+                     p = MapRenderTransform.Inverse.Transform(p);
+                  }
+
+                  p = ApplyRotationInversion(p.X, p.Y);
+
+                  Core.mouseCurrent.X = (int)p.X;
+                  Core.mouseCurrent.Y = (int)p.Y;
+                  {
+                     Core.Drag(Core.mouseCurrent);
+                  }
+
+                  if(IsRotated)
+                  {
+                     Core_OnMapZoomChanged();
+                  }
+                  else
+                  {
+                     UpdateMarkersOffset();
+                  }
                }
+               InvalidateVisual();
             }
-            InvalidateVisual();
          }
 
          base.OnStylusMove(e);
