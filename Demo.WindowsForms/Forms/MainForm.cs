@@ -185,12 +185,12 @@ namespace Demo.WindowsForms
                }
 
                // add some points in lithuania
-               //AddLocationLithuania("Kaunas");
-               //AddLocationLithuania("Klaipėda");
-               //AddLocationLithuania("Šiauliai");
-               //AddLocationLithuania("Panevėžys");
+               AddLocationLithuania("Kaunas");
+               AddLocationLithuania("Klaipėda");
+               AddLocationLithuania("Šiauliai");
+               AddLocationLithuania("Panevėžys");
 
-               //RegeneratePolygon();
+               RegeneratePolygon();
             }
          }
       }

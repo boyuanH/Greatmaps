@@ -1288,7 +1288,6 @@ namespace GMap.NET.WindowsForms
 
                // need a solution to lower high number offsets
                // to remove translate distortions
-               //e.Graphics.TranslateTransform(Core.renderOffset.X - Core.virtualOrignPixel.X, Core.renderOffset.Y - Core.virtualOrignPixel.Y);
                e.Graphics.TranslateTransform(Core.renderOffset.X, Core.renderOffset.Y);
 
                if(IsRotated)
@@ -1296,9 +1295,13 @@ namespace GMap.NET.WindowsForms
                   e.Graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
                   e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-                  e.Graphics.TranslateTransform(PositionPixel.X, PositionPixel.Y);
+                  PointF center = new PointF(PositionPixel.X, PositionPixel.Y); 
+                  center.X -= Core.virtualOrignPixel.X;
+                  center.Y -= Core.virtualOrignPixel.Y;
+
+                  e.Graphics.TranslateTransform(center.X, center.Y);
                   e.Graphics.RotateTransform(-Bearing);
-                  e.Graphics.TranslateTransform(-PositionPixel.X, -PositionPixel.Y);
+                  e.Graphics.TranslateTransform(-center.X, -center.Y);
 
                   DrawMapDesktop(e.Graphics);
 
@@ -1341,7 +1344,9 @@ namespace GMap.NET.WindowsForms
       void UpdateRotationMatrix()
       {
 #if !PocketPC
-         PointF center = new PointF(PositionPixel.X, PositionPixel.Y);
+         PointF center = new PointF(PositionPixel.X, PositionPixel.Y); 
+         center.X += Core.virtualOrignPixel.X;
+         center.Y += Core.virtualOrignPixel.Y;
 
          rotationMatrix.Reset();
          rotationMatrix.RotateAt(-Bearing, center);
