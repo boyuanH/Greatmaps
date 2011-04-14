@@ -70,7 +70,7 @@ namespace Demo.WindowsForms
 
             // config map 
             MainMap.Position = new PointLatLng(54.6961334816182, 25.2985095977783);
-            MainMap.MapType = MapType.GoogleMap;
+            MainMap.MapType = MapType.OpenStreetMapSurfer;
             MainMap.MinZoom = 1;
             MainMap.MaxZoom = 17;
             MainMap.Zoom = 2;
@@ -185,12 +185,12 @@ namespace Demo.WindowsForms
                }
 
                // add some points in lithuania
-               AddLocationLithuania("Kaunas");
-               AddLocationLithuania("Klaipėda");
-               AddLocationLithuania("Šiauliai");
-               AddLocationLithuania("Panevėžys");
+               //AddLocationLithuania("Kaunas");
+               //AddLocationLithuania("Klaipėda");
+               //AddLocationLithuania("Šiauliai");
+               //AddLocationLithuania("Panevėžys");
 
-               RegeneratePolygon();
+               //RegeneratePolygon();
             }
          }
       }
@@ -1960,5 +1960,34 @@ namespace Demo.WindowsForms
       }
 
       #endregion
+
+      private void button17_Click(object sender, EventArgs e)
+      {
+         var before = MainMap.Core.virtualOrignPixel;    
+         MainMap.Core.virtualOrignPixel.Offset(10, 10);
+        
+         // adjust render offset to 'stay' in the same position
+         var offset = new GPoint(MainMap.Core.virtualOrignPixel.X - before.X, MainMap.Core.virtualOrignPixel.Y - before.Y);
+         MainMap.Core.renderOffset.Offset(offset);
+
+         MainMap.ForceUpdateOverlays();
+      }
+
+      private void button18_Click(object sender, EventArgs e)
+      {
+         var before = MainMap.Core.virtualOrignPixel;
+         MainMap.Core.virtualOrignPixel.Offset(-10, -10);
+
+         // adjust render offset to 'stay' in the same position
+         var offset = new GPoint(MainMap.Core.virtualOrignPixel.X - before.X, MainMap.Core.virtualOrignPixel.Y - before.Y);
+         MainMap.Core.renderOffset.Offset(offset);
+
+         MainMap.ForceUpdateOverlays();
+      }
+
+      private void button19_Click(object sender, EventArgs e)
+      {
+         MainMap.Position = new PointLatLng(MainMap.Position.Lat-10, MainMap.Position.Lng+10);
+      }
    }
 }

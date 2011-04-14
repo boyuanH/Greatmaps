@@ -115,29 +115,37 @@ namespace GMap.NET.Internals
       }
 
       public GPoint virtualOrignPixel;
-      public int RenderMax = 512;
+      public int RenderMax = 128;
 
       public void AdjustToVirtualSpace(bool resetOrign)
       {
          if(resetOrign)
          {
             virtualOrignPixel = GPoint.Empty;
-         }
 
-         //virtualOrignPixel = new GPoint(128, 128);
-
+            var cPixel = centerPixel;
+            virtualOrignPixel = cPixel;
+            //renderOffset.Offset(-cPixel.X, -cPixel.Y); // adjust render offset to 'stay' in the same position
+         }  
+         
          int diff = GPoint.MaxDiffOfXY(virtualOrignPixel, centerPixel);
          if(diff > RenderMax) // more than 100k px, the limits of current render systems
          {
-            Debug.WriteLine("AdjustToVirtualSpace: diff high "  + diff + "px, " + centerPixel + " <- " + virtualOrignPixel);
-            virtualOrignPixel = centerPixel;
+            //Debug.WriteLine("AdjustToVirtualSpace: diff high "  + diff + "px, " + centerPixel + " <- " + virtualOrignPixel);
+
+            //var offset = new GPoint(virtualOrignPixel.X - centerPixel.X, virtualOrignPixel.Y - centerPixel.Y);
+           
+            //virtualOrignPixel = centerPixel;
+
+            //// adjust render offset to 'stay' in the same position
+            //renderOffset.Offset(offset);
          }
          else
          {
             if(GPoint.MaxXfXY(centerPixel) < RenderMax)
             {
-               virtualOrignPixel = GPoint.Empty;
-               Debug.WriteLine("AdjustToVirtualSpace: diff good " + diff + "px, " + virtualOrignPixel);
+               //virtualOrignPixel = GPoint.Empty;
+               //Debug.WriteLine("AdjustToVirtualSpace: diff good " + diff + "px, " + virtualOrignPixel);
             }
          }
       }
@@ -700,6 +708,8 @@ namespace GMap.NET.Internals
       void UpdateViewRect()
       {
          viewRectPixel = new GRect(-renderOffset.X, -renderOffset.Y, Width, Height);
+         viewRectPixel.Offset(virtualOrignPixel);
+
          viewRectPixelInflated = viewRectPixel;
          viewRectPixelInflated.Inflate(55, 55);
 
@@ -707,7 +717,7 @@ namespace GMap.NET.Internals
          centerPixel.Offset(Width / 2, Height / 2);
 
          centerPixelVirtual = centerPixel;
-         centerPixelVirtual.Offset(virtualOrignPixel);
+         //centerPixelVirtual.Offset(virtualOrignPixel);
       }
 
       public void UpdateCenterTileXYLocation()
@@ -888,7 +898,7 @@ namespace GMap.NET.Internals
          centerTileXYLast = GPoint.Empty;
          dragPoint = GPoint.Empty;
 
-         Drag(new GPoint(-centerPixel.X + Width / 2, -centerPixel.Y + Height / 2));
+         Drag(new GPoint(-centerPixel.X + virtualOrignPixel.X + Width / 2, -centerPixel.Y + virtualOrignPixel.Y + Height / 2));
       }
 
       public bool MouseWheelZooming = false;
@@ -922,8 +932,8 @@ namespace GMap.NET.Internals
          {
             mouseLastZoom = GPoint.Empty;
 
-            renderOffset.X = -virtualOrignPixel.X - centerPixel.X + Width / 2;
-            renderOffset.Y = -virtualOrignPixel.Y -centerPixel.Y + Height / 2;
+            renderOffset.X = -centerPixel.X + virtualOrignPixel.X + Width / 2;
+            renderOffset.Y = -centerPixel.Y + virtualOrignPixel.Y + Height / 2;
          }
 
          UpdateCenterTileXYLocation();
@@ -1028,7 +1038,7 @@ namespace GMap.NET.Internals
             {
                while(tileLoadQueue.Count == 0)
                {
-                  Debug.WriteLine(ctid + " - Wait " + loadWaitCount + " - " + DateTime.Now.TimeOfDay);
+                  //Debug.WriteLine(ctid + " - Wait " + loadWaitCount + " - " + DateTime.Now.TimeOfDay);
 
                   if(++loadWaitCount >= GThreadPoolSize)
                   {
@@ -1111,7 +1121,7 @@ namespace GMap.NET.Internals
 
                   if(m == null || m.Overlays.Count == 0)
                   {
-                     Debug.WriteLine(ctid + " - Fill empty TileMatrix: " + task);
+                     //Debug.WriteLine(ctid + " - Fill empty TileMatrix: " + task);
 
                      Tile t = new Tile(task.Value.Zoom, task.Value.Pos);
                      var layers = GMaps.Instance.GetAllLayersOfType(MapType);

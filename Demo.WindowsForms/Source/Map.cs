@@ -15,7 +15,7 @@ namespace Demo.WindowsForms
 
 #if DEBUG
       private int counter;
-      readonly Font DebugFont = new Font(FontFamily.GenericSansSerif, 36, FontStyle.Regular);
+      readonly Font DebugFont = new Font(FontFamily.GenericSansSerif, 14, FontStyle.Regular);
       readonly Font DebugFontSmall = new Font(FontFamily.GenericSansSerif, 12, FontStyle.Bold);
 
 #endif
@@ -45,7 +45,7 @@ namespace Demo.WindowsForms
          g.ResetTransform();
 
 #if DEBUG
-         g.DrawString(Zoom + "z, " + MapType + ", refresh: " + counter++ + ", load: " + ElapsedMilliseconds + "ms, render: " + delta + "ms", DebugFont, Brushes.Blue, DebugFont.Height, DebugFont.Height);
+         g.DrawString(Zoom + "z, " + MapType + ", refresh: " + counter++ + ", load: " + ElapsedMilliseconds + "ms, render: " + delta + "ms", DebugFont, Brushes.Blue, DebugFont.Height, DebugFont.Height+20);
 
          g.DrawString(ViewAreaPixel.Location.ToString(), DebugFontSmall, Brushes.Blue, DebugFontSmall.Height, DebugFontSmall.Height);
 
