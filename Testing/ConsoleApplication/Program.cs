@@ -25,7 +25,7 @@ namespace ConsoleApplication
                Core.currentRegion = new GRect(-50, -50, Core.Width + 50, Core.Height + 50);
 
                Debug.WriteLine("Zoom: " + Core.Zoom);
-               Debug.WriteLine("VOffset: " + Core.virtualOrignPixel);
+               Debug.WriteLine("VOffset: " + Core.virtualOriginPixel);
                Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
                Debug.WriteLine("RenderO: " + Core.renderOffset);
 
@@ -34,19 +34,19 @@ namespace ConsoleApplication
             Core.StartSystem();
 
             {
-               Debug.WriteLine("VOffset: " + Core.virtualOrignPixel);
+               Debug.WriteLine("VOffset: " + Core.virtualOriginPixel);
                Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
                Debug.WriteLine("RenderO: " + Core.renderOffset);
 
                Core.Zoom = 14;
 
-               Debug.WriteLine("VOffset: " + Core.virtualOrignPixel);
+               Debug.WriteLine("VOffset: " + Core.virtualOriginPixel);
                Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
                Debug.WriteLine("RenderO: " + Core.renderOffset);
 
                Debug.WriteLine("-----------");
                Core.CurrentPosition = new PointLatLng(0, 111);
-               Debug.WriteLine("VOffset: " + Core.virtualOrignPixel);
+               Debug.WriteLine("VOffset: " + Core.virtualOriginPixel);
                Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
                Debug.WriteLine("RenderO: " + Core.renderOffset);
             }

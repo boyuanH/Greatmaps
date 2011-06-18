@@ -114,32 +114,39 @@ namespace GMap.NET.Internals
          MapType = MapType.None;
       }
 
-      public GPoint virtualOrignPixel;
+      public GPoint virtualOriginPixel;
+
+      // more than 100k px, the limits of current render systems
+#if DEBUG
       public int RenderMax = 512;
+#else
+      public int RenderMax = 44444;
+#endif
 
       public void AdjustToVirtualSpace(bool resetOrign)
       {
          if(resetOrign)
          {
-            virtualOrignPixel = GPoint.Empty;
+            virtualOriginPixel = GPoint.Empty;
          }
 
-         virtualOrignPixel = new GPoint(64, 64);
-
-         //int diff = GPoint.MaxDiffOfXY(virtualOrignPixel, centerPixel);
-         //if(diff > RenderMax) // more than 100k px, the limits of current render systems
-         //{
-         //   Debug.WriteLine("AdjustToVirtualSpace: diff high " + diff + "px, " + centerPixel + " <- " + virtualOrignPixel);
-         //   //virtualOrignPixel = centerPixel;
-         //}
-         //else
-         //{
-         //   if(GPoint.MaxOfXY(centerPixel) < RenderMax)
-         //   {
-         //      //virtualOrignPixel = GPoint.Empty;
-         //      Debug.WriteLine("AdjustToVirtualSpace: diff good " + diff + "px, " + virtualOrignPixel);
-         //   }
-         //}
+         int diff = GPoint.MaxDiffOfXY(virtualOriginPixel, centerPixel);
+         if(diff > RenderMax) 
+         {
+            Debug.WriteLine("AdjustToVirtualSpace: diff high " + diff + "px, " + centerPixel + " <- " + virtualOriginPixel);
+            virtualOriginPixel = centerPixel;
+#if DEBUG
+            virtualOriginPixel.Offset(0, 44); 
+#endif
+         }
+         else
+         {
+            if(GPoint.MaxOfXY(centerPixel) < RenderMax)
+            {
+               virtualOriginPixel = GPoint.Empty;
+               Debug.WriteLine("AdjustToVirtualSpace: diff good " + diff + "px, " + virtualOriginPixel);
+            }
+         }
       }
 
       public void UpdateFieldsOnZoomChanged(int value)
@@ -710,7 +717,7 @@ namespace GMap.NET.Internals
          centerPixel.Offset(Width / 2, Height / 2);
 
          centerPixelVirtual = centerPixel;
-         centerPixelVirtual.Offset(virtualOrignPixel);
+         centerPixelVirtual.Offset(virtualOriginPixel);
       }
 
       public void UpdateCenterTileXYLocation()
@@ -897,7 +904,7 @@ namespace GMap.NET.Internals
          }
          else
          {
-            Drag(new GPoint(virtualOrignPixel.X - centerPixel.X + Width / 2, virtualOrignPixel.Y - centerPixel.Y + Height / 2));
+            Drag(new GPoint(virtualOriginPixel.X - centerPixel.X + Width / 2, virtualOriginPixel.Y - centerPixel.Y + Height / 2));
          }
       }
 
@@ -923,8 +930,8 @@ namespace GMap.NET.Internals
 
                mouseLastZoom = GPoint.Empty;
 
-               renderOffset.X = virtualOrignPixel.X - centerPixel.X + Width / 2;
-               renderOffset.Y = virtualOrignPixel.Y - centerPixel.Y + Height / 2;
+               renderOffset.X = virtualOriginPixel.X - centerPixel.X + Width / 2;
+               renderOffset.Y = virtualOriginPixel.Y - centerPixel.Y + Height / 2;
             }
             else // without centering
             {
@@ -937,8 +944,8 @@ namespace GMap.NET.Internals
          {
             mouseLastZoom = GPoint.Empty;
 
-            renderOffset.X = virtualOrignPixel.X - centerPixel.X + Width / 2;
-            renderOffset.Y = virtualOrignPixel.Y - centerPixel.Y + Height / 2;
+            renderOffset.X = virtualOriginPixel.X - centerPixel.X + Width / 2;
+            renderOffset.Y = virtualOriginPixel.Y - centerPixel.Y + Height / 2;
          }
 
          UpdateCenterTileXYLocation();
