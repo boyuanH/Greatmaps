@@ -53,6 +53,15 @@ namespace GMap.NET.Projections
          }
       }
 
+      internal double [] LatLngToLks(PointLatLng p)
+      {
+         double[] lks = new double[] { p.Lng, p.Lat };
+         lks = DTM10(lks);
+         lks = MTD10(lks);
+         lks = DTM00(lks);
+         return lks;
+      }
+
       public override GPoint FromLatLngToPixel(double lat, double lng, int zoom)
       {
          GPoint ret = GPoint.Empty;
