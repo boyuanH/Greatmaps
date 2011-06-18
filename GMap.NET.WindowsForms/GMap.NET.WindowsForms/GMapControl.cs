@@ -462,8 +462,8 @@ namespace GMap.NET.WindowsForms
                   //Core.tileRect.X = tilePoint.X * Core.tileRect.Width;
                   //Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height;
 
-                  Core.tileRect.X = tilePoint.X * Core.tileRect.Width - Core.virtualOrignPixel.X;
-                  Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height - Core.virtualOrignPixel.Y;
+                  Core.tileRect.X = tilePoint.X * Core.tileRect.Width - Core.virtualOriginPixel.X;
+                  Core.tileRect.Y = tilePoint.Y * Core.tileRect.Height - Core.virtualOriginPixel.Y;
 
                   if(Core.viewRectPixelInflated.IntersectsWith(Core.tileRect) || IsRotated)
                   {
@@ -744,7 +744,7 @@ namespace GMap.NET.WindowsForms
       {
          GPoint p = FromLatLngToLocal(marker.Position);
          {
-            p.Offset(-Core.virtualOrignPixel.X, -Core.virtualOrignPixel.Y);
+            p.Offset(-Core.virtualOriginPixel.X, -Core.virtualOriginPixel.Y);
 
             marker.LocalOrigin = new System.Drawing.Point(p.X, p.Y);
          }
@@ -762,7 +762,7 @@ namespace GMap.NET.WindowsForms
          {
             GPoint p = Projection.FromLatLngToPixel(pg, Core.Zoom, true);
 
-            p.Offset(-Core.virtualOrignPixel.X, -Core.virtualOrignPixel.Y);
+            p.Offset(-Core.virtualOriginPixel.X, -Core.virtualOriginPixel.Y);
 
             if(IsRotated)
             {
@@ -790,7 +790,7 @@ namespace GMap.NET.WindowsForms
          {
             GPoint p = Projection.FromLatLngToPixel(pg, Core.Zoom, true);
 
-            p.Offset(-Core.virtualOrignPixel.X, -Core.virtualOrignPixel.Y);
+            p.Offset(-Core.virtualOriginPixel.X, -Core.virtualOriginPixel.Y);
 
             if(IsRotated)
             {
@@ -1431,14 +1431,14 @@ namespace GMap.NET.WindowsForms
          }
 
 #if DEBUG
-         g.DrawLine(Pens.Red, Core.virtualOrignPixel.X - 20, Core.virtualOrignPixel.Y, Core.virtualOrignPixel.X + 20, Core.virtualOrignPixel.Y);
-         g.DrawLine(Pens.Red, Core.virtualOrignPixel.X, Core.virtualOrignPixel.Y - 20, Core.virtualOrignPixel.X, Core.virtualOrignPixel.Y + 20);
-         g.DrawString(string.Format("virtualOrignPixel ({0})", Core.virtualOrignPixel), CopyrightFont, Brushes.Red, Core.virtualOrignPixel.X + 5, Core.virtualOrignPixel.Y + 5);
+         g.DrawLine(Pens.Red, Core.virtualOriginPixel.X - 20, Core.virtualOriginPixel.Y, Core.virtualOriginPixel.X + 20, Core.virtualOriginPixel.Y);
+         g.DrawLine(Pens.Red, Core.virtualOriginPixel.X, Core.virtualOriginPixel.Y - 20, Core.virtualOriginPixel.X, Core.virtualOriginPixel.Y + 20);
+         g.DrawString(string.Format("virtualOriginPixel ({0})", Core.virtualOriginPixel), CopyrightFont, Brushes.Red, Core.virtualOriginPixel.X + 5, Core.virtualOriginPixel.Y + 5);
 
          g.DrawLine(Pens.Blue, -20, 0, 20, 0);
          g.DrawLine(Pens.Blue, 0, -20, 0, 20);
-         g.DrawString("(0; 0)", CopyrightFont, Brushes.Blue, 5, 5);
-
+         g.DrawString("render origin(0; 0)", CopyrightFont, Brushes.Blue, 5, 5);
+              
          g.DrawRectangle(Pens.Red, -Core.RenderMax / 2, -Core.RenderMax / 2, Core.RenderMax, Core.RenderMax);
 
          g.DrawLine(Pens.Black, Core.centerPixel.X - 20, Core.centerPixel.Y, Core.centerPixel.X + 20, Core.centerPixel.Y);
@@ -1975,7 +1975,7 @@ namespace GMap.NET.WindowsForms
                   // TODO: fix zoom point virtualization
                   Core.centerPixel = pp;
                   Core.centerPixelVirtual = Core.centerPixel;
-                  Core.centerPixelVirtual.Offset(Core.virtualOrignPixel);
+                  Core.centerPixelVirtual.Offset(Core.virtualOriginPixel);
                }
                else if(MouseWheelZoomType == MouseWheelZoomType.ViewCenter)
                {
