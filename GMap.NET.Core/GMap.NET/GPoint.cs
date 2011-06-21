@@ -99,7 +99,7 @@ namespace GMap.NET
          return new GPoint(pt.X - sz.Width, pt.Y - sz.Height);
       }
 
-      public static int MaxXfXY(GPoint p)
+      public static int MaxOfXY(GPoint p)
       {
          return Math.Max(p.X, p.Y);
       }
@@ -135,7 +135,7 @@ namespace GMap.NET
 
       public override string ToString()
       {
-         return "{X=" + X.ToString(CultureInfo.CurrentCulture) + ",Y=" + Y.ToString(CultureInfo.CurrentCulture) + "}";
+         return "{X=" + X.ToString(CultureInfo.InvariantCulture) + ", Y=" + Y.ToString(CultureInfo.InvariantCulture) + "}";
       }
 
       private static int HIWORD(int n)

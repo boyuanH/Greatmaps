@@ -14,7 +14,7 @@ namespace ConsoleApplication
    {
       static void Main(string[] args)
       {
-         //if(false)
+         if(false)
          {
             Core Core = new Core();
             {
@@ -24,7 +24,8 @@ namespace ConsoleApplication
                Core.OnMapSizeChanged(Width, Height, false);
                Core.currentRegion = new GRect(-50, -50, Core.Width + 50, Core.Height + 50);
 
-               Debug.WriteLine("VOffset: " + Core.virtualOrignPixel);
+               Debug.WriteLine("Zoom: " + Core.Zoom);
+               Debug.WriteLine("VOffset: " + Core.virtualOriginPixel);
                Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
                Debug.WriteLine("RenderO: " + Core.renderOffset);
 
@@ -33,21 +34,21 @@ namespace ConsoleApplication
             Core.StartSystem();
 
             {
-               Debug.WriteLine("VOffset: " + Core.virtualOrignPixel);
+               Debug.WriteLine("VOffset: " + Core.virtualOriginPixel);
                Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
                Debug.WriteLine("RenderO: " + Core.renderOffset);
 
-               Core.Zoom = 4;
+               Core.Zoom = 14;
 
-               Debug.WriteLine("VOffset: " + Core.virtualOrignPixel);
+               Debug.WriteLine("VOffset: " + Core.virtualOriginPixel);
                Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
                Debug.WriteLine("RenderO: " + Core.renderOffset);
 
-               //Core.CurrentPosition = new PointLatLng(0, 111);
-
-               //Debug.WriteLine("VOffset: " + Core.virtualOrignPixel);
-               //Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
-               //Debug.WriteLine("RenderO: " + Core.renderOffset);
+               Debug.WriteLine("-----------");
+               Core.CurrentPosition = new PointLatLng(0, 111);
+               Debug.WriteLine("VOffset: " + Core.virtualOriginPixel);
+               Debug.WriteLine("VCenter: " + Core.centerPixelVirtual);
+               Debug.WriteLine("RenderO: " + Core.renderOffset);
             }
          }
 
@@ -99,7 +100,7 @@ namespace ConsoleApplication
             ProjectionInfo pEnd = new ProjectionInfo("+proj=tmerc +lat_0=0 +lon_0=15 +k=0.9996 +x_0=4200000 +y_0=-1300000 +ellps=WGS84 +datum=WGS84 +to_meter=0.03125 +no_defs");
             Reproject.ReprojectPoints(xy, z, pStart, pEnd, 0, 1);
 
-            Debug.WriteLine(" true1: " + (int) xy[0] + "; " + (int) xy[1]);
+            Debug.WriteLine(" true1: " + (int)xy[0] + "; " + (int)xy[1]);
 
             var prj = new MapyCZProjection();
             {
@@ -118,6 +119,17 @@ namespace ConsoleApplication
             // 134400000],PARAMETER["false_northing",-41600000
          }
          #endregion
+
+         //if(false)
+         {
+            LKS94Projection lks = new LKS94Projection();
+
+            PointLatLng p = new PointLatLng(22.943215627849, 54.776889813837);
+
+            var l = lks.LatLngToLks(p);
+         }
+
+         var xrg = BitConverter.GetBytes((UInt64)101);
 
          Console.ReadLine();
       }

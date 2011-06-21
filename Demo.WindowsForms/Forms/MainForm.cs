@@ -66,7 +66,7 @@ namespace Demo.WindowsForms
             {
                MainMap.Manager.Mode = AccessMode.CacheOnly;
                MessageBox.Show("No internet connection avaible, going to CacheOnly mode.", "GMap.NET - Demo.WindowsForms", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
+            }               
 
             // config map 
             MainMap.Position = new PointLatLng(54.6961334816182, 25.2985095977783);

@@ -326,8 +326,8 @@ namespace GMap.NET
 
          ThreadPool.QueueUserWorkItem(new WaitCallback(delegate(object obj)
             {
-               TryCorrectGoogleVersions();
-               TryCorrectBingVersions();
+               //TryCorrectGoogleVersions();
+               //TryCorrectBingVersions();
             }));
 #endif
       }
