@@ -4,7 +4,7 @@ namespace GMap.NET.MapProviders
    using System;
    using GMap.NET.Projections;
 
-   public abstract class YahooMapProviderBase : GMapProvider
+   public abstract class OviMapProviderBase : GMapProvider
    {
       #region GMapProvider Members
       public override Guid Id
@@ -49,29 +49,29 @@ namespace GMap.NET.MapProviders
          throw new NotImplementedException();
       }
       #endregion
+
+      protected static readonly string UrlServerLetters = "bcde";
    }
 
    /// <summary>
-   /// YahooMap provider
+   /// OviMap provider
    /// </summary>
-   public class YahooMapProvider : YahooMapProviderBase
+   public class OviMapProvider : OviMapProviderBase
    {
-      public static readonly YahooMapProvider Instance;
+      public static readonly OviMapProvider Instance;
 
-      YahooMapProvider()
+      OviMapProvider()
       {
       }
 
-      static YahooMapProvider()
+      static OviMapProvider()
       {
-         Instance = new YahooMapProvider();
+         Instance = new OviMapProvider();
       }
-
-      public string Version = "4.3";
 
       #region GMapProvider Members
 
-      readonly Guid id = new Guid("65DB032C-6869-49B0-A7FC-3AE41A26AF4D");
+      readonly Guid id = new Guid("30DC1083-AC4D-4471-A232-D8A67AC9373A");
       public override Guid Id
       {
          get
@@ -80,7 +80,7 @@ namespace GMap.NET.MapProviders
          }
       }
 
-      readonly string name = "YahooMap";
+      readonly string name = "OviMap";
       public override string Name
       {
          get
@@ -100,11 +100,11 @@ namespace GMap.NET.MapProviders
 
       string MakeTileImageUrl(GPoint pos, int zoom, string language)
       {
-         // http://maps1.yimg.com/hx/tl?b=1&v=4.3&.intl=en&x=12&y=7&z=7&r=1
+         // http://c.maptile.maps.svc.ovi.com/maptiler/v2/maptile/newest/normal.day/12/2321/1276/256/png8
 
-         return string.Format(UrlFormat, ((GetServerNum(pos, 2)) + 1), Version, language, pos.X, (((1 << zoom) >> 1) - 1 - pos.Y), (zoom + 1));
+         return string.Format(UrlFormat, UrlServerLetters[GetServerNum(pos, 4)], zoom, pos.X, pos.Y);
       }
 
-      static readonly string UrlFormat = "http://maps{0}.yimg.com/hx/tl?v={1}&.intl={2}&x={3}&y={4}&z={5}&r=1";
+      static readonly string UrlFormat = "http://{0}.maptile.maps.svc.ovi.com/maptiler/v2/maptile/newest/normal.day/{1}/{2}/{3}/256/png8";
    }
 }
