@@ -105,7 +105,9 @@ namespace GMap.NET.WindowsForms
       {
          if(Overlay != null && Overlay.Control != null)
          {
-            position = Overlay.Control.Projection.FromPixelToLatLng(new GPoint(localOrigin.X, localOrigin.Y), Overlay.Control.ZoomStep, true);
+            var p = localOrigin;
+            p.Offset(Overlay.Control.Core.virtualOriginPixel.X, Overlay.Control.Core.virtualOriginPixel.Y);
+            position = Overlay.Control.Projection.FromPixelToLatLng(new GPoint(p.X, p.Y), Overlay.Control.ZoomStep, true);
          }
       }
 
