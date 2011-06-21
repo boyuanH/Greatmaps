@@ -4,7 +4,7 @@ namespace GMap.NET.MapProviders
    using System;
    using GMap.NET.Projections;
 
-   public abstract class YahooMapProviderBase : GMapProvider
+   public abstract class NearMapProviderBase : GMapProvider
    {
       #region GMapProvider Members
       public override Guid Id
@@ -52,26 +52,24 @@ namespace GMap.NET.MapProviders
    }
 
    /// <summary>
-   /// YahooMap provider
+   /// NearMap provider
    /// </summary>
-   public class YahooMapProvider : YahooMapProviderBase
+   public class NearMapProvider : NearMapProviderBase
    {
-      public static readonly YahooMapProvider Instance;
+      public static readonly NearMapProvider Instance;
 
-      YahooMapProvider()
+      NearMapProvider()
       {
       }
 
-      static YahooMapProvider()
+      static NearMapProvider()
       {
-         Instance = new YahooMapProvider();
+         Instance = new NearMapProvider();
       }
-
-      public string Version = "4.3";
 
       #region GMapProvider Members
 
-      readonly Guid id = new Guid("65DB032C-6869-49B0-A7FC-3AE41A26AF4D");
+      readonly Guid id = new Guid("E33803DF-22CB-4FFA-B8E3-15383ED9969D");
       public override Guid Id
       {
          get
@@ -80,7 +78,7 @@ namespace GMap.NET.MapProviders
          }
       }
 
-      readonly string name = "YahooMap";
+      readonly string name = "NearMap";
       public override string Name
       {
          get
@@ -100,11 +98,11 @@ namespace GMap.NET.MapProviders
 
       string MakeTileImageUrl(GPoint pos, int zoom, string language)
       {
-         // http://maps1.yimg.com/hx/tl?b=1&v=4.3&.intl=en&x=12&y=7&z=7&r=1
+         // http://web1.nearmap.com/maps/hl=en&x=18681&y=10415&z=15&nml=Map_&nmg=1&s=kY8lZssipLIJ7c5
 
-         return string.Format(UrlFormat, ((GetServerNum(pos, 2)) + 1), Version, language, pos.X, (((1 << zoom) >> 1) - 1 - pos.Y), (zoom + 1));
+         return string.Format(UrlFormat, GetServerNum(pos, 3), pos.X, pos.Y, zoom);
       }
 
-      static readonly string UrlFormat = "http://maps{0}.yimg.com/hx/tl?v={1}&.intl={2}&x={3}&y={4}&z={5}&r=1";
+      static readonly string UrlFormat = "http://web{0}.nearmap.com/maps/hl=en&x={1}&y={2}&z={3}&nml=Map_&nmg=1";
    }
 }

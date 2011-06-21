@@ -4,7 +4,7 @@ namespace GMap.NET.MapProviders
    using System;
    using GMap.NET.Projections;
 
-   public abstract class YahooMapProviderBase : GMapProvider
+   public abstract class LithuaniaMapProviderBase : GMapProvider
    {
       #region GMapProvider Members
       public override Guid Id
@@ -27,7 +27,7 @@ namespace GMap.NET.MapProviders
       {
          get
          {
-            return MercatorProjection.Instance;
+            return LKS94Projection.Instance;
          }
       }
 
@@ -52,26 +52,24 @@ namespace GMap.NET.MapProviders
    }
 
    /// <summary>
-   /// YahooMap provider
+   /// LithuaniaMap provider, http://www.maps.lt/map/
    /// </summary>
-   public class YahooMapProvider : YahooMapProviderBase
+   public class LithuaniaMapProvider : LithuaniaMapProviderBase
    {
-      public static readonly YahooMapProvider Instance;
+      public static readonly LithuaniaMapProvider Instance;
 
-      YahooMapProvider()
+      LithuaniaMapProvider()
       {
       }
 
-      static YahooMapProvider()
+      static LithuaniaMapProvider()
       {
-         Instance = new YahooMapProvider();
+         Instance = new LithuaniaMapProvider();
       }
-
-      public string Version = "4.3";
 
       #region GMapProvider Members
 
-      readonly Guid id = new Guid("65DB032C-6869-49B0-A7FC-3AE41A26AF4D");
+      readonly Guid id = new Guid("5859079F-1B5E-484B-B05C-41CE664D8A93");
       public override Guid Id
       {
          get
@@ -80,7 +78,7 @@ namespace GMap.NET.MapProviders
          }
       }
 
-      readonly string name = "YahooMap";
+      readonly string name = "LithuaniaMap";
       public override string Name
       {
          get
@@ -100,11 +98,18 @@ namespace GMap.NET.MapProviders
 
       string MakeTileImageUrl(GPoint pos, int zoom, string language)
       {
-         // http://maps1.yimg.com/hx/tl?b=1&v=4.3&.intl=en&x=12&y=7&z=7&r=1
+         // old stuff
+         // http://www.maps.lt/ortofoto/mapslt_ortofoto_vector_512/map/_alllayers/L02/R0000001b/C00000028.jpg
+         // http://arcgis.maps.lt/ArcGIS/rest/services/mapslt_ortofoto/MapServer/tile/0/9/13
+         // return string.Format("http://www.maps.lt/ortofoto/mapslt_ortofoto_vector_512/map/_alllayers/L{0:00}/R{1:x8}/C{2:x8}.jpg", zoom, pos.Y, pos.X);
+         // http://arcgis.maps.lt/ArcGIS/rest/services/mapslt/MapServer/tile/7/1162/1684.png
+         // http://dc1.maps.lt/cache/mapslt_512/map/_alllayers/L03/R0000001b/C00000029.png
 
-         return string.Format(UrlFormat, ((GetServerNum(pos, 2)) + 1), Version, language, pos.X, (((1 << zoom) >> 1) - 1 - pos.Y), (zoom + 1));
+         // http://dc1.maps.lt/cache/mapslt/map/_alllayers/L02/R0000001c/C00000029.png
+
+         return string.Format(UrlFormat, zoom, pos.Y, pos.X);
       }
 
-      static readonly string UrlFormat = "http://maps{0}.yimg.com/hx/tl?v={1}&.intl={2}&x={3}&y={4}&z={5}&r=1";
+      static readonly string UrlFormat = "http://dc1.maps.lt/cache/mapslt/map/_alllayers/L{0:00}/R{1:x8}/C{2:x8}.png";
    }
 }

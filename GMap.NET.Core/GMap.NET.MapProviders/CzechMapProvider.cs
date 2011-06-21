@@ -4,7 +4,7 @@ namespace GMap.NET.MapProviders
    using System;
    using GMap.NET.Projections;
 
-   public abstract class YahooMapProviderBase : GMapProvider
+   public abstract class CzechMapProviderBase : GMapProvider
    {
       #region GMapProvider Members
       public override Guid Id
@@ -27,7 +27,7 @@ namespace GMap.NET.MapProviders
       {
          get
          {
-            return MercatorProjection.Instance;
+            return MapyCZProjection.Instance;
          }
       }
 
@@ -52,26 +52,24 @@ namespace GMap.NET.MapProviders
    }
 
    /// <summary>
-   /// YahooMap provider
+   /// CzechMap provider, http://www.mapy.cz/
    /// </summary>
-   public class YahooMapProvider : YahooMapProviderBase
+   public class CzechMapProvider : CzechMapProviderBase
    {
-      public static readonly YahooMapProvider Instance;
+      public static readonly CzechMapProvider Instance;
 
-      YahooMapProvider()
+      CzechMapProvider()
       {
       }
 
-      static YahooMapProvider()
+      static CzechMapProvider()
       {
-         Instance = new YahooMapProvider();
+         Instance = new CzechMapProvider();
       }
-
-      public string Version = "4.3";
 
       #region GMapProvider Members
 
-      readonly Guid id = new Guid("65DB032C-6869-49B0-A7FC-3AE41A26AF4D");
+      readonly Guid id = new Guid("6A1AF99A-84C6-4EF6-91A5-77B9D03257C2");
       public override Guid Id
       {
          get
@@ -80,7 +78,7 @@ namespace GMap.NET.MapProviders
          }
       }
 
-      readonly string name = "YahooMap";
+      readonly string name = "CzechMap";
       public override string Name
       {
          get
@@ -100,11 +98,15 @@ namespace GMap.NET.MapProviders
 
       string MakeTileImageUrl(GPoint pos, int zoom, string language)
       {
-         // http://maps1.yimg.com/hx/tl?b=1&v=4.3&.intl=en&x=12&y=7&z=7&r=1
+         // ['base','ophoto','turist','army2']  
+         // http://m1.mapserver.mapy.cz/base-n/3_8000000_8000000
 
-         return string.Format(UrlFormat, ((GetServerNum(pos, 2)) + 1), Version, language, pos.X, (((1 << zoom) >> 1) - 1 - pos.Y), (zoom + 1));
+         int xx = pos.X << (28 - zoom);
+         int yy = ((((int)Math.Pow(2.0, (double)zoom)) - 1) - pos.Y) << (28 - zoom);
+
+         return string.Format(UrlFormat, GetServerNum(pos, 3) + 1, zoom, xx, yy);
       }
 
-      static readonly string UrlFormat = "http://maps{0}.yimg.com/hx/tl?v={1}&.intl={2}&x={3}&y={4}&z={5}&r=1";
+      static readonly string UrlFormat = "http://m{0}.mapserver.mapy.cz/base-n/{1}_{2:x7}_{3:x7}";
    }
 }

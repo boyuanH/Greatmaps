@@ -4,7 +4,7 @@ namespace GMap.NET.MapProviders
    using System;
    using GMap.NET.Projections;
 
-   public abstract class YahooMapProviderBase : GMapProvider
+   public abstract class LatviaMapProviderBase : GMapProvider
    {
       #region GMapProvider Members
       public override Guid Id
@@ -27,7 +27,7 @@ namespace GMap.NET.MapProviders
       {
          get
          {
-            return MercatorProjection.Instance;
+            return LKS92Projection.Instance;
          }
       }
 
@@ -52,26 +52,24 @@ namespace GMap.NET.MapProviders
    }
 
    /// <summary>
-   /// YahooMap provider
+   /// LatviaMap provider, http://www.ikarte.lv/
    /// </summary>
-   public class YahooMapProvider : YahooMapProviderBase
+   public class LatviaMapProvider : LatviaMapProviderBase
    {
-      public static readonly YahooMapProvider Instance;
+      public static readonly LatviaMapProvider Instance;
 
-      YahooMapProvider()
+      LatviaMapProvider()
       {
       }
 
-      static YahooMapProvider()
+      static LatviaMapProvider()
       {
-         Instance = new YahooMapProvider();
+         Instance = new LatviaMapProvider();
       }
-
-      public string Version = "4.3";
 
       #region GMapProvider Members
 
-      readonly Guid id = new Guid("65DB032C-6869-49B0-A7FC-3AE41A26AF4D");
+      readonly Guid id = new Guid("2A21CBB1-D37C-458D-905E-05F19536EF1F");
       public override Guid Id
       {
          get
@@ -80,7 +78,7 @@ namespace GMap.NET.MapProviders
          }
       }
 
-      readonly string name = "YahooMap";
+      readonly string name = "LatviaMap";
       public override string Name
       {
          get
@@ -100,11 +98,11 @@ namespace GMap.NET.MapProviders
 
       string MakeTileImageUrl(GPoint pos, int zoom, string language)
       {
-         // http://maps1.yimg.com/hx/tl?b=1&v=4.3&.intl=en&x=12&y=7&z=7&r=1
+         // http://www.maps.lt/cache/ikartelv/map/_alllayers/L03/R00000037/C00000053.png
 
-         return string.Format(UrlFormat, ((GetServerNum(pos, 2)) + 1), Version, language, pos.X, (((1 << zoom) >> 1) - 1 - pos.Y), (zoom + 1));
+         return string.Format(UrlFormat, zoom, pos.Y, pos.X);
       }
 
-      static readonly string UrlFormat = "http://maps{0}.yimg.com/hx/tl?v={1}&.intl={2}&x={3}&y={4}&z={5}&r=1";
+      static readonly string UrlFormat = "http://www.maps.lt/cache/ikartelv/map/_alllayers/L{0:00}/R{1:x8}/C{2:x8}.png";
    }
 }

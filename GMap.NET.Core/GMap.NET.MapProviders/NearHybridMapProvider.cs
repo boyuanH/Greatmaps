@@ -2,27 +2,26 @@
 namespace GMap.NET.MapProviders
 {
    using System;
-   using GMap.NET.Projections;
 
    /// <summary>
-   /// OpenCycleMap provider
+   /// NearHybridMap provider
    /// </summary>
-   public class OpenCycleMapProvider : OpenStreetMapProviderBase
+   public class NearHybridMapProvider : NearMapProviderBase
    {
-      public static readonly OpenCycleMapProvider Instance;
+      public static readonly NearHybridMapProvider Instance;
 
-      OpenCycleMapProvider()
+      NearHybridMapProvider()
       {
       }
 
-      static OpenCycleMapProvider()
+      static NearHybridMapProvider()
       {
-         Instance = new OpenCycleMapProvider();
+         Instance = new NearHybridMapProvider();
       }
 
       #region GMapProvider Members
 
-      readonly Guid id = new Guid("D7E1826E-EE1E-4441-9F15-7C2DE0FE0B0A");
+      readonly Guid id = new Guid("4BF8819A-635D-4A94-8DC7-94C0E0F04BFD");
       public override Guid Id
       {
          get
@@ -31,7 +30,7 @@ namespace GMap.NET.MapProviders
          }
       }
 
-      readonly string name = "OpenCycleMap";
+      readonly string name = "NearHybridMap";
       public override string Name
       {
          get
@@ -47,7 +46,7 @@ namespace GMap.NET.MapProviders
          {
             if(overlays == null)
             {
-               overlays = new GMapProvider[] { this };
+               overlays = new GMapProvider[] { NearSatelliteMapProvider.Instance, this };
             }
             return overlays;
          }
@@ -55,7 +54,7 @@ namespace GMap.NET.MapProviders
 
       public override PureImage GetTileImage(GPoint pos, int zoom)
       {
-         string url = MakeTileImageUrl(pos, zoom, string.Empty);
+         string url = MakeTileImageUrl(pos, zoom, Language);
 
          return GetTileImageUsingHttp(url);
       }
@@ -64,10 +63,11 @@ namespace GMap.NET.MapProviders
 
       string MakeTileImageUrl(GPoint pos, int zoom, string language)
       {
-         char letter = ServerLetters[GMapProvider.GetServerNum(pos, 3)];
-         return string.Format(UrlFormat, letter, zoom, pos.X, pos.Y);
+         // http://web1.nearmap.com/maps/hl=en&x=37&y=19&z=6&nml=MapT&nmg=1&s=2KbhmZZ             
+
+         return string.Format(UrlFormat, GetServerNum(pos, 3), pos.X, pos.Y, zoom);
       }
 
-      static readonly string UrlFormat = "http://{0}.tile.opencyclemap.org/cycle/{1}/{2}/{3}.png";
+      static readonly string UrlFormat = "http://web{0}.nearmap.com/maps/hl=en&x={1}&y={2}&z={3}&nml=MapT&nmg=1";
    }
 }
