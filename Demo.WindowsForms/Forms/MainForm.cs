@@ -13,10 +13,10 @@ using System.Windows.Forms;
 using System.Xml;
 using Demo.WindowsForms.CustomMarkers;
 using GMap.NET;
+using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
 using GMap.NET.WindowsForms.ToolTips;
-using GMap.NET.MapProviders;
 
 namespace Demo.WindowsForms
 {
@@ -93,8 +93,8 @@ namespace Demo.WindowsForms
             // get map types
 #if !MONO   // mono doesn't handle it, so we 'lost' provider list ;]
             comboBoxMapType.ValueMember = "Name";
-            comboBoxMapType.DataSource = GMapProviders.List;    
-            comboBoxMapType.SelectedItem = MainMap.MapProvider;                
+            comboBoxMapType.DataSource = GMapProviders.List;
+            comboBoxMapType.SelectedItem = MainMap.MapProvider;
 #endif
             // acccess mode
             comboBoxMode.DataSource = Enum.GetValues(typeof(AccessMode));
@@ -121,11 +121,17 @@ namespace Demo.WindowsForms
 
             ToolStripManager.Renderer = new BSE.Windows.Forms.Office2007Renderer();
 
-            // transport demo
-            transport.DoWork += new DoWorkEventHandler(transport_DoWork);
-            transport.ProgressChanged += new ProgressChangedEventHandler(transport_ProgressChanged);
-            transport.WorkerSupportsCancellation = true;
-            transport.WorkerReportsProgress = true;
+            // flight demo
+            flightWorker.DoWork += new DoWorkEventHandler(flight_DoWork);
+            flightWorker.ProgressChanged += new ProgressChangedEventHandler(flight_ProgressChanged);
+            flightWorker.WorkerSupportsCancellation = true;
+            flightWorker.WorkerReportsProgress = true;
+
+            // vehicle demo
+            transportWorker.DoWork += new DoWorkEventHandler(transport_DoWork);
+            transportWorker.ProgressChanged += new ProgressChangedEventHandler(transport_ProgressChanged);
+            transportWorker.WorkerSupportsCancellation = true;
+            transportWorker.WorkerReportsProgress = true;
 
             // Connections
             connectionsWorker.DoWork += new DoWorkEventHandler(connectionsWorker_DoWork);
@@ -179,7 +185,7 @@ namespace Demo.WindowsForms
                // add my city location for demo
                GeoCoderStatusCode status = GeoCoderStatusCode.Unknow;
                {
-                  PointLatLng? pos = GMaps.Instance.GetLatLngFromGeocoder("Lithuania, Vilnius", out status);
+                  PointLatLng? pos = GMapProviders.GoogleMap.GetPoint("Lithuania, Vilnius", out status);
                   if(pos != null && status == GeoCoderStatusCode.G_GEO_SUCCESS)
                   {
                      currentMarker.Position = pos.Value;
@@ -241,14 +247,103 @@ namespace Demo.WindowsForms
       System.Windows.Forms.Timer timerPerf = new System.Windows.Forms.Timer();
       #endregion
 
-      #region -- transport demo --
-      BackgroundWorker transport = new BackgroundWorker();
+      #region -- flight demo --
+      BackgroundWorker flightWorker = new BackgroundWorker();
 
+      readonly List<FlightRadarData> flights = new List<FlightRadarData>();
+      readonly Dictionary<int, GMapMarker> flightMarkers = new Dictionary<int, GMapMarker>();
+
+      bool firstLoadFlight = true;
+      GMapMarker currentFlight;
+
+      void flight_ProgressChanged(object sender, ProgressChangedEventArgs e)
+      {
+         // stops immediate marker/route/polygon invalidations;
+         // call Refresh to perform single refresh and reset invalidation state
+         MainMap.HoldInvalidation = true;
+
+         lock(flights)
+         {
+            foreach(FlightRadarData d in flights)
+            {
+               GMapMarker marker;
+
+               if(!flightMarkers.TryGetValue(d.Id, out marker))
+               {
+                  marker = new GMapMarkerGoogleGreen(d.point);
+                  marker.Tag = d.Id;
+                  marker.ToolTipMode = MarkerTooltipMode.OnMouseOver;
+                  (marker as GMapMarkerGoogleGreen).Bearing = (float?)d.bearing;
+
+                  flightMarkers[d.Id] = marker;
+                  objects.Markers.Add(marker);
+               }
+               else
+               {
+                  marker.Position = d.point;
+                  (marker as GMapMarkerGoogleGreen).Bearing = (float?)d.bearing;
+               }
+               marker.ToolTipText = d.name + ", " + d.altitude + ", " + d.speed;
+
+               if(currentFlight != null && currentFlight == marker)
+               {
+                  MainMap.Position = marker.Position;
+                  MainMap.Bearing = (float)d.bearing;
+               }
+            }
+         }
+
+         if(firstLoadFlight)
+         {
+            MainMap.Zoom = 5;
+            MainMap.ZoomAndCenterMarkers("objects");
+            firstLoadFlight = false;
+         }
+         MainMap.Refresh();
+      }
+
+      void flight_DoWork(object sender, DoWorkEventArgs e)
+      {
+         bool restartSesion = true;
+
+         while(!flightWorker.CancellationPending)
+         {
+            try
+            {
+               lock(flights)
+               {
+                  Stuff.GetFlightRadarData(flights, lastPosition, lastZoom, restartSesion);
+
+                  if(flights.Count > 0 && restartSesion)
+                  {
+                     restartSesion = false;
+                  }
+               }
+
+               flightWorker.ReportProgress(100);
+            }
+            catch(Exception ex)
+            {
+               Debug.WriteLine("flight_DoWork: " + ex.ToString());
+            }
+            Thread.Sleep(5 * 1000);
+         }
+
+         flightMarkers.Clear();
+      }
+
+      #endregion
+
+      #region -- transport demo --
+      BackgroundWorker transportWorker = new BackgroundWorker();
+
+      #region -- old vehicle demo --
       readonly List<VehicleData> trolleybus = new List<VehicleData>();
       readonly Dictionary<int, GMapMarker> trolleybusMarkers = new Dictionary<int, GMapMarker>();
 
       readonly List<VehicleData> bus = new List<VehicleData>();
       readonly Dictionary<int, GMapMarker> busMarkers = new Dictionary<int, GMapMarker>();
+      #endregion
 
       bool firstLoadTrasport = true;
       GMapMarker currentTransport;
@@ -259,6 +354,7 @@ namespace Demo.WindowsForms
          // call Refresh to perform single refresh and reset invalidation state
          MainMap.HoldInvalidation = true;
 
+         #region -- vehicle demo --
          lock(trolleybus)
          {
             foreach(VehicleData d in trolleybus)
@@ -324,9 +420,11 @@ namespace Demo.WindowsForms
                }
             }
          }
+         #endregion
 
          if(firstLoadTrasport)
          {
+            MainMap.Zoom = 5;
             MainMap.ZoomAndCenterMarkers("objects");
             firstLoadTrasport = false;
          }
@@ -335,10 +433,11 @@ namespace Demo.WindowsForms
 
       void transport_DoWork(object sender, DoWorkEventArgs e)
       {
-         while(!transport.CancellationPending)
+         while(!transportWorker.CancellationPending)
          {
             try
             {
+               #region -- old vehicle demo --
                lock(trolleybus)
                {
                   Stuff.GetVilniusTransportData(TransportType.TrolleyBus, string.Empty, trolleybus);
@@ -348,15 +447,17 @@ namespace Demo.WindowsForms
                {
                   Stuff.GetVilniusTransportData(TransportType.Bus, string.Empty, bus);
                }
+               #endregion
 
-               transport.ReportProgress(100);
+               transportWorker.ReportProgress(100);
             }
             catch(Exception ex)
             {
                Debug.WriteLine("transport_DoWork: " + ex.ToString());
             }
-            Thread.Sleep(3333);
+            Thread.Sleep(2 * 1000);
          }
+
          trolleybusMarkers.Clear();
          busMarkers.Clear();
       }
@@ -582,7 +683,7 @@ namespace Demo.WindowsForms
          {
             try
             {
-         #region -- xml --
+               #region -- xml --
                // http://ipinfodb.com/ip_location_api.php
 
                // http://ipinfodb.com/ip_query2.php?ip=74.125.45.100,206.190.60.37&timezone=false
@@ -616,7 +717,7 @@ namespace Demo.WindowsForms
 
                   foreach(TcpRow i in ManagedIpHelper.TcpRows)
                   {
-         #region -- update TcpState --
+                     #region -- update TcpState --
                      string Ip = i.RemoteEndPoint.Address.ToString();
 
                      // exclude local network
@@ -1156,7 +1257,7 @@ namespace Demo.WindowsForms
       void AddLocationLithuania(string place)
       {
          GeoCoderStatusCode status = GeoCoderStatusCode.Unknow;
-         PointLatLng? pos = GMaps.Instance.GetLatLngFromGeocoder("Lithuania, " + place, out status);
+         PointLatLng? pos = GMapProviders.GoogleMap.GetPoint("Lithuania, " + place, out status);
          if(pos != null && status == GeoCoderStatusCode.G_GEO_SUCCESS)
          {
             GMapMarkerGoogleGreen m = new GMapMarkerGoogleGreen(pos.Value);
@@ -1233,12 +1334,7 @@ namespace Demo.WindowsForms
          trackBar1.Minimum = MainMap.MinZoom;
          trackBar1.Maximum = MainMap.MaxZoom;
 
-         if(routes.Routes.Count > 0)
-         {
-            MainMap.ZoomAndCenterRoutes(null);
-         }
-
-         if(radioButtonTransport.Checked)
+         if(radioButtonFlight.Checked)
          {
             MainMap.ZoomAndCenterMarkers("objects");
          }
@@ -1327,8 +1423,9 @@ namespace Demo.WindowsForms
          {
             if(item is GMapMarkerRect)
             {
-               Placemark pos = GMaps.Instance.GetPlacemarkFromGeocoder(item.Position);
-               if(pos != null)
+               GeoCoderStatusCode status;
+               var pos = GMapProviders.GoogleMap.GetPlacemark(item.Position, out status);
+               if(status == GeoCoderStatusCode.G_GEO_SUCCESS && pos != null)
                {
                   GMapMarkerRect v = item as GMapMarkerRect;
                   {
@@ -1378,7 +1475,7 @@ namespace Demo.WindowsForms
          {
             panelMenu.Text = "Menu, last load in " + MainMap.ElapsedMilliseconds + "ms";
 
-            textBoxMemory.Text = string.Format(CultureInfo.InvariantCulture, "{0:0.00}MB of {1:0.00}MB", MainMap.Manager.MemoryCacheSize, MainMap.Manager.MemoryCacheCapacity);
+            textBoxMemory.Text = string.Format(CultureInfo.InvariantCulture, "{0:0.00}MB of {1:0.00}MB", MainMap.Manager.MemoryCache.Size, MainMap.Manager.MemoryCache.Capacity);
          };
          try
          {
@@ -1395,7 +1492,16 @@ namespace Demo.WindowsForms
          center.Position = point;
          textBoxLatCurrent.Text = point.Lat.ToString(CultureInfo.InvariantCulture);
          textBoxLngCurrent.Text = point.Lng.ToString(CultureInfo.InvariantCulture);
+
+         lock(flights)
+         {
+            lastPosition = point;
+            lastZoom = (int)MainMap.Zoom;
+         }
       }
+
+      PointLatLng lastPosition;
+      int lastZoom;
 
       // center markers on start
       private void MainForm_Load(object sender, EventArgs e)
@@ -1546,7 +1652,13 @@ namespace Demo.WindowsForms
       // add test route
       private void button3_Click(object sender, EventArgs e)
       {
-         MapRoute route = GMapProviders.GoogleMap.GetRouteBetweenPoints(start, end, false, (int)MainMap.Zoom);
+         RoutingProvider rp = MainMap.MapProvider as RoutingProvider;
+         if(rp == null)
+         {
+            rp = GMapProviders.GoogleMap; // use google if provider does not implement routing
+         }
+
+         MapRoute route = rp.GetRoute(start, end, false, false, (int)MainMap.Zoom);
          if(route != null)
          {
             // add route
@@ -1586,7 +1698,12 @@ namespace Demo.WindowsForms
          Placemark p = null;
          if(checkBoxPlacemarkInfo.Checked)
          {
-            p = GMaps.Instance.GetPlacemarkFromGeocoder(currentMarker.Position);
+            GeoCoderStatusCode status;
+            var ret = GMapProviders.GoogleMap.GetPlacemark(currentMarker.Position, out status);
+            if(status == GeoCoderStatusCode.G_GEO_SUCCESS && ret != null)
+            {
+               p = ret;
+            }
          }
 
          if(p != null)
@@ -1866,19 +1983,36 @@ namespace Demo.WindowsForms
          }
 
          // start realtime transport tracking demo
-         if(radioButtonTransport.Checked)
+         if(radioButtonFlight.Checked)
          {
-            if(!transport.IsBusy)
+            if(!flightWorker.IsBusy)
             {
-               firstLoadTrasport = true;
-               transport.RunWorkerAsync();
+               firstLoadFlight = true;
+               flightWorker.RunWorkerAsync();
             }
          }
          else
          {
-            if(transport.IsBusy)
+            if(flightWorker.IsBusy)
             {
-               transport.CancelAsync();
+               flightWorker.CancelAsync();
+            }
+         }
+
+         // vehicle demo
+         if(radioButtonVehicle.Checked)
+         {
+            if(!transportWorker.IsBusy)
+            {
+               firstLoadTrasport = true;
+               transportWorker.RunWorkerAsync();
+            }
+         }
+         else
+         {
+            if(transportWorker.IsBusy)
+            {
+               transportWorker.CancelAsync();
             }
          }
 

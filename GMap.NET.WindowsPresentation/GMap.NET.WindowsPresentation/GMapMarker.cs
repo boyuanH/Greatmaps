@@ -65,7 +65,7 @@ namespace GMap.NET.WindowsPresentation
    public class GMapMarker : INotifyPropertyChanged
    {
       public event PropertyChangedEventHandler PropertyChanged;
-      void OnPropertyChanged(string name)
+      protected void OnPropertyChanged(string name)
       {
          if(PropertyChanged != null)
          {
@@ -73,7 +73,7 @@ namespace GMap.NET.WindowsPresentation
          }
       }
 
-      void OnPropertyChanged(PropertyChangedEventArgs name)
+      protected void OnPropertyChanged(PropertyChangedEventArgs name)
       {
          if(PropertyChanged != null)
          {
@@ -285,7 +285,7 @@ namespace GMap.NET.WindowsPresentation
       {
          if(Map != null)
          {
-            GPoint p = Map.FromLatLngToLocal(Position); 
+            GPoint p = Map.FromLatLngToLocal(Position);
             p.Offset(-(int)Map.MapTranslateTransform.X, -(int)Map.MapTranslateTransform.Y);
 
             LocalPositionX = p.X + (int)(Offset.X);
@@ -314,25 +314,32 @@ namespace GMap.NET.WindowsPresentation
       {
          this.map = map;
 
-         if(map != null && Route.Count > 1)
+         if(map != null)
          {
-            var localPath = new List<System.Windows.Point>();
-            var offset = Map.FromLatLngToLocal(Route[0]);
-            foreach(var i in Route)
+            if(Route.Count > 1)
             {
-               var p = Map.FromLatLngToLocal(new PointLatLng(i.Lat, i.Lng));
-               localPath.Add(new System.Windows.Point(p.X - offset.X, p.Y - offset.Y));
-            }
+               var localPath = new List<System.Windows.Point>();
+               var offset = Map.FromLatLngToLocal(Route[0]);
+               foreach(var i in Route)
+               {
+                  var p = Map.FromLatLngToLocal(new PointLatLng(i.Lat, i.Lng));
+                  localPath.Add(new System.Windows.Point(p.X - offset.X, p.Y - offset.Y));
+               }
 
-            var shape = map.CreateRoutePath(localPath);
+               var shape = map.CreateRoutePath(localPath);
 
-            if(this.Shape != null && this.Shape is Path)
-            {
-               (this.Shape as Path).Data = shape.Data;
+               if(this.Shape != null && this.Shape is Path)
+               {
+                  (this.Shape as Path).Data = shape.Data;
+               }
+               else
+               {
+                  this.Shape = shape;
+               }
             }
             else
             {
-               this.Shape = shape;
+               this.Shape = null;
             }
          }
       }
@@ -344,25 +351,32 @@ namespace GMap.NET.WindowsPresentation
       {
          this.map = map;
 
-         if(map != null && Polygon.Count > 1)
+         if(map != null)
          {
-            var localPath = new List<System.Windows.Point>();
-            var offset = Map.FromLatLngToLocal(Polygon[0]);
-            foreach(var i in Polygon)
+            if(Polygon.Count > 1)
             {
-               var p = Map.FromLatLngToLocal(new PointLatLng(i.Lat, i.Lng));
-               localPath.Add(new System.Windows.Point(p.X - offset.X, p.Y - offset.Y));
-            }
+               var localPath = new List<System.Windows.Point>();
+               var offset = Map.FromLatLngToLocal(Polygon[0]);
+               foreach(var i in Polygon)
+               {
+                  var p = Map.FromLatLngToLocal(new PointLatLng(i.Lat, i.Lng));
+                  localPath.Add(new System.Windows.Point(p.X - offset.X, p.Y - offset.Y));
+               }
 
-            var shape = map.CreatePolygonPath(localPath);
+               var shape = map.CreatePolygonPath(localPath);
 
-            if(this.Shape != null && this.Shape is Path)
-            {
-               (this.Shape as Path).Data = shape.Data;
+               if(this.Shape != null && this.Shape is Path)
+               {
+                  (this.Shape as Path).Data = shape.Data;
+               }
+               else
+               {
+                  this.Shape = shape;
+               }
             }
             else
             {
-               this.Shape = shape;
+               this.Shape = null;
             }
          }
       }

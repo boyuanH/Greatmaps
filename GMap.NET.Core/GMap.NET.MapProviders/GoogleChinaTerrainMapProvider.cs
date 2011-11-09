@@ -20,7 +20,7 @@ namespace GMap.NET.MapProviders
          Instance = new GoogleChinaTerrainMapProvider();
       }
 
-      public string Version = "t@127,r@158";
+      public string Version = "t@127,r@161";
 
       #region GMapProvider Members
 
@@ -44,7 +44,7 @@ namespace GMap.NET.MapProviders
 
       public override PureImage GetTileImage(GPoint pos, int zoom)
       {
-         string url = MakeTileImageUrl(pos, zoom, Language);
+         string url = MakeTileImageUrl(pos, zoom, LanguageStr);
 
          return GetTileImageUsingHttp(url);
       }
