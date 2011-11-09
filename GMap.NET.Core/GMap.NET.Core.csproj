@@ -106,6 +106,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GMap.NET.CacheProviders\MemoryCache.cs" />
     <Compile Include="GMap.NET.Internals\FastResourceLock.cs" />
     <Compile Include="GMap.NET.MapProviders\BingMapOldProvider.cs" />
     <Compile Include="GMap.NET.MapProviders\BingMapProvider.cs" />
@@ -167,7 +168,10 @@
     <Compile Include="GMap.NET.MapProviders\OpenStreetOsmProvider.cs" />
     <Compile Include="GMap.NET.MapProviders\OpenStreetMapProvider.cs" />
     <Compile Include="GMap.NET.MapProviders\GMapProvider.cs" />
-    <Compile Include="GMap.NET\GMapRoutingProvider.cs" />
+    <Compile Include="GMap.NET\GDirections.cs" />
+    <Compile Include="GMap.NET\DirectionsProvider.cs" />
+    <Compile Include="GMap.NET\GeocodingProvider.cs" />
+    <Compile Include="GMap.NET\RoutingProvider.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
     <Compile Include="GMap.NET.CacheProviders\MsSQLCePureImageCache.cs" />
     <Compile Include="GMap.NET.CacheProviders\PostgreSQLPureImageCache.cs" />
@@ -188,7 +192,7 @@
     <Compile Include="GMap.NET.Projections\MercatorProjection.cs" />
     <Compile Include="GMap.NET.Projections\PlateCarreeProjection.cs" />
     <Compile Include="GMap.NET\Extensions.cs" />
-    <Compile Include="GMap.NET\GeoCoderStatusCode.cs" />
+    <Compile Include="GMap.NET\StatusCodes.cs" />
     <Compile Include="GMap.NET.CacheProviders\MySQLPureImageCache.cs" />
     <Compile Include="GMap.NET\GpsLog.cs" />
     <Compile Include="GMap.NET\gpx.cs" />

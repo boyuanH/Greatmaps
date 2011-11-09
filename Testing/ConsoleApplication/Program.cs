@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using GMap.NET.Projections;
-using DotSpatial.Projections;
 using System.Diagnostics;
-using System.Security.Cryptography;
-using GMap.NET.MapProviders;
-using GMap.NET.Internals;
-using GMap.NET;
+using System.IO;
+using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
+using DotSpatial.Projections;
+using GMap.NET;
+using GMap.NET.Internals;
+using GMap.NET.MapProviders;
+using GMap.NET.Projections;
 
 namespace ConsoleApplication
 {
@@ -19,15 +20,39 @@ namespace ConsoleApplication
       {
          //if(false)
          {
-            //var p1 = new PointLatLng(10.2475, -67.6067);
-            //var p2 = new PointLatLng(10.2471, -67.5991);
-
             var p1 = new PointLatLng(54.6961334816182, 25.2985095977782);
             var p2 = new PointLatLng(54.7061334816182, 25.3085095977783);
 
-            //var route = GMapProviders.OpenStreetMap.GetRouteBetweenPoints(p1, p2, false, 10);
+            //GMaps.Instance.ImportFromGMDB(@"C:\Users\m.dambrauskas\AppData\Local\GMap.NET\TileDBv5\en\Data - Copy.gmdb");
 
-            var route = GMapProviders.GoogleMap.GetRouteBetweenPoints(p1, p2, false, 10);
+            //var route = GMapProviders.OpenStreetMap.GetRoute(p1, p2, false, false, 10);
+            //var route = GMapProviders.CloudMadeMap.GetRoute(p1, p2, false, false, 10);
+
+            //Debug.WriteLine(GMapProviders.BingHybridMap.Name + ":" + GMapProviders.BingHybridMap.DbId);
+
+            GDirections ss;
+            var xx = GMapProviders.GoogleMap.GetDirections(out ss, p1, p2, false, false, false, false, false);
+
+            GeoCoderStatusCode status;
+            var pp1 = GMapProviders.GoogleMap.GetPoint("Lithuania,Vilnius", out status);
+            var pp2 = GMapProviders.GoogleMap.GetPoint("Lithuania,Kaunas", out status);
+            if(pp1.HasValue && pp2.HasValue)
+            {
+               GDirections s;
+               //var x = GMapProviders.GoogleMap.GetDirections(out s, "Lithuania,Vilnius", "Lithuania,Kaunas", false, false, false, true);
+               //if(x == DirectionsStatusCode.OK)
+               var x = GMapProviders.GoogleMap.GetDirections(out s, pp1.Value, pp2.Value, false, false, false, false, true);
+               {
+                  Debug.WriteLine(s.Summary + ", " + s.Copyrights);
+                  Debug.WriteLine(s.StartAddress + " -> " + s.EndAddress);
+                  Debug.WriteLine(s.Distance);
+                  Debug.WriteLine(s.Duration);
+                  foreach(var step in s.Steps)
+                  {
+                     Debug.WriteLine(step);
+                  }
+               }
+            }
          }
 
          if(false)

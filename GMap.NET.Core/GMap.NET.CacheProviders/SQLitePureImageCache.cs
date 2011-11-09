@@ -139,7 +139,7 @@ namespace GMap.NET.CacheProviders
             cache = value;
             gtileCache = cache + "TileDBv5" + Path.DirectorySeparatorChar;
 
-            dir = gtileCache + GMaps.Instance.LanguageStr + Path.DirectorySeparatorChar;
+            dir = gtileCache + GMapProvider.LanguageStr + Path.DirectorySeparatorChar;
 
             // precreate dir
             if(!Directory.Exists(dir))
@@ -566,7 +566,7 @@ namespace GMap.NET.CacheProviders
 
                                  foreach(long id in add)
                                  {
-                                    using(SQLiteCommand cmd = new SQLiteCommand(string.Format("INSERT INTO Tiles(X, Y, Zoom, Type) SELECT X, Y, Zoom, Type FROM Source.Tiles WHERE id={0}; INSERT INTO TilesData(id, Tile) Values((SELECT last_insert_rowid()), (SELECT Tile FROM Source.TilesData WHERE id={0}));", id), cn2))
+                                    using(SQLiteCommand cmd = new SQLiteCommand(string.Format("INSERT INTO Tiles(X, Y, Zoom, Type, CacheTime) SELECT X, Y, Zoom, Type, CacheTime FROM Source.Tiles WHERE id={0}; INSERT INTO TilesData(id, Tile) Values((SELECT last_insert_rowid()), (SELECT Tile FROM Source.TilesData WHERE id={0}));", id), cn2))
                                     {
                                        cmd.Transaction = tr;
                                        cmd.ExecuteNonQuery();
@@ -799,7 +799,7 @@ namespace GMap.NET.CacheProviders
          return ret;
       }
 
-      int PureImageCache.DeleteOlderThan(DateTime date)
+      int PureImageCache.DeleteOlderThan(DateTime date, int? type)
       {
          int affectedRows = 0;
 
@@ -813,6 +813,10 @@ namespace GMap.NET.CacheProviders
                   using(DbCommand com = cn.CreateCommand())
                   {
                      com.CommandText = string.Format("DELETE FROM Tiles WHERE CacheTime is not NULL and CacheTime < datetime('{0}')", date.ToString("s"));
+                     if(type.HasValue)
+                     {
+                        com.CommandText += " and Type = " + type;
+                     }
                      affectedRows = com.ExecuteNonQuery();
                   }
                }
@@ -821,9 +825,9 @@ namespace GMap.NET.CacheProviders
          catch(Exception ex)
          {
 #if MONO
-            Console.WriteLine("DeleteOlderThan: " + ex.ToString());
+            Console.WriteLine("DeleteOlderThan: " + ex);
 #endif
-            Debug.WriteLine("DeleteOlderThan: " + ex.ToString());
+            Debug.WriteLine("DeleteOlderThan: " + ex);
          }
 
          return affectedRows;
