@@ -1,23 +1,37 @@
 ﻿
+using System;
 namespace GMap.NET.Internals
 {
    /// <summary>
    /// struct for drawing tile
    /// </summary>
-   internal struct DrawTile
+   internal struct DrawTile : IEquatable<DrawTile>, IComparable<DrawTile>
    {
       public GPoint PosXY;
       public GPoint PosPixel;
-
-      public DrawTile(GPoint Pos, GPoint PosPixel)
-      {
-         this.PosXY = Pos;
-         this.PosPixel = PosPixel;
-      }
+      public double DistanceSqr;
 
       public override string ToString()
       {
          return PosXY + ", px: " + PosPixel;
       }
+
+      #region IEquatable<DrawTile> Members
+
+      public bool Equals(DrawTile other)
+      {
+         return (PosXY == other.PosXY);
+      }
+
+      #endregion
+
+      #region IComparable<DrawTile> Members
+
+      public int CompareTo(DrawTile other)
+      {
+         return other.DistanceSqr.CompareTo(DistanceSqr);
+      }
+
+      #endregion
    }
 }
