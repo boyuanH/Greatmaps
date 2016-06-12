@@ -127,6 +127,12 @@ namespace GMap.NET.MapProviders
 
         public static readonly SpainMapProvider SpainMap = SpainMapProvider.Instance;
 
+        public static readonly CzechMapProviderOld CzechOldMap = CzechMapProviderOld.Instance;
+        public static readonly CzechSatelliteMapProviderOld CzechSatelliteOldMap = CzechSatelliteMapProviderOld.Instance;
+        public static readonly CzechHybridMapProviderOld CzechHybridOldMap = CzechHybridMapProviderOld.Instance;
+        public static readonly CzechTuristMapProviderOld CzechTuristOldMap = CzechTuristMapProviderOld.Instance;
+        public static readonly CzechHistoryMapProviderOld CzechHistoryOldMap = CzechHistoryMapProviderOld.Instance;
+
         public static readonly CzechMapProvider CzechMap = CzechMapProvider.Instance;
         public static readonly CzechSatelliteMapProvider CzechSatelliteMap = CzechSatelliteMapProvider.Instance;
         public static readonly CzechHybridMapProvider CzechHybridMap = CzechHybridMapProvider.Instance;
@@ -134,7 +140,7 @@ namespace GMap.NET.MapProviders
         public static readonly CzechTuristWinterMapProvider CzechTuristWinterMap = CzechTuristWinterMapProvider.Instance;
         public static readonly CzechHistoryMapProvider CzechHistoryMap = CzechHistoryMapProvider.Instance;
         public static readonly CzechGeographicMapProvider CzechGeographicMap = CzechGeographicMapProvider.Instance;
-
+        
         public static readonly ArcGIS_Imagery_World_2D_MapProvider ArcGIS_Imagery_World_2D_Map = ArcGIS_Imagery_World_2D_MapProvider.Instance;
         public static readonly ArcGIS_ShadedRelief_World_2D_MapProvider ArcGIS_ShadedRelief_World_2D_Map = ArcGIS_ShadedRelief_World_2D_MapProvider.Instance;
         public static readonly ArcGIS_StreetMap_World_2D_MapProvider ArcGIS_StreetMap_World_2D_Map = ArcGIS_StreetMap_World_2D_MapProvider.Instance;
