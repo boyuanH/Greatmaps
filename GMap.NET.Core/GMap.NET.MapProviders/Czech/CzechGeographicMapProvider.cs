@@ -20,7 +20,7 @@
 
         #region GMapProvider Members
 
-        readonly Guid id = new Guid("{44E5E6D5-DC75-4909-A5CB-6BAFB0CAC54F}");
+        readonly Guid id = new Guid("50EC9FCC-E4D7-4F53-8700-2D1DB73A1D48");
         public override Guid Id
         {
             get
